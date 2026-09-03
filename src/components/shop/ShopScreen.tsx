@@ -6,7 +6,8 @@ import { ModularCharacter } from '../character/ModularCharacter';
 import { QuickMoodBar } from '../character/QuickMoodBar';
 import { soundService } from '../../services/soundService';
 import { 
-  ShoppingBag, 
+  ShoppingBag,
+  Gift, 
   Coins, 
   Check, 
   Sparkles, 
@@ -203,9 +204,19 @@ export const ShopScreen: React.FC = () => {
         {/* Right Column: Categories & Items Catalog */}
         <div className="lg:col-span-8 space-y-5">
           
-          {/* Category Tabs */}
-          {/* Category Tabs */}
+          {/* Category Tabs & Mystery Box Launcher */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <button
+              onClick={() => {
+                soundService.playClick();
+                setScreen('mystery');
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black text-xs whitespace-nowrap transition-all border-2 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 border-amber-300 text-slate-950 shadow-glow-gold hover:scale-105 active:scale-95 shrink-0"
+              title="Open Mystery Box Prize Wheels"
+            >
+              <Gift className="w-4 h-4 text-slate-950" />
+              <span>🎁 Mystery Box</span>
+            </button>
             {categories.map(cat => {
               const isSelected = selectedCategory === cat.id;
               return (

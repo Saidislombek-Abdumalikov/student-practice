@@ -120,14 +120,10 @@ export const Header: React.FC = () => {
           <div 
             onClick={() => {
               soundService.playClick();
-              if (profile.role === 'admin') {
-                setScreen('mystery');
-              } else {
-                setShowTradeModal(true);
-              }
+              setScreen('mystery');
             }}
             className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-2xl bg-cyan-500/15 border border-cyan-500/35 text-cyan-300 font-extrabold text-xs sm:text-sm shadow-sm cursor-pointer hover:bg-cyan-500/25 transition-colors"
-            title={profile.role === 'admin' ? 'Teacher: Unlimited Diamonds 💎 (Click to open Mystery Box)' : "Diamonds (Earned in 2-Student Duels). Click to trade 1 💎 for 5 🪙!"}
+            title="Diamonds (Click to open Mystery Box 🎁)"
           >
             <span className="text-sm">💎</span>
             <span className={profile.role === 'admin' ? 'text-lg leading-none font-black' : ''}>
