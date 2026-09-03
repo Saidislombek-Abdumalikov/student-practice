@@ -21,8 +21,8 @@ export const Navbar: React.FC = () => {
     { id: 'learn', label: 'VOCABULARY', mobileLabel: 'Vocab', icon: <BookOpen className="w-5 h-5" /> },
     { id: 'play', label: 'PLAY', mobileLabel: 'Play', icon: <Gamepad2 className="w-5 h-5" /> },
     { id: 'compete', label: 'COMPETE', mobileLabel: 'Compete', icon: <Trophy className="w-5 h-5" /> },
-    { id: 'shop', label: 'SHOP', mobileLabel: 'Shop', icon: <ShoppingBag className="w-5 h-5" /> },
     { id: 'mystery', label: 'MYSTERY BOX', mobileLabel: 'Mystery 🎁', icon: <Gift className="w-5 h-5 text-amber-400 animate-pulse" /> },
+    { id: 'shop', label: 'SHOP', mobileLabel: 'Shop', icon: <ShoppingBag className="w-5 h-5" /> },
     { id: 'profile', label: 'PROFILE', mobileLabel: 'Profile', icon: <User className="w-5 h-5" /> },
   ];
 

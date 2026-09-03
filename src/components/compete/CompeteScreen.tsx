@@ -8,7 +8,8 @@ import {
   Coins, 
   Target, 
   Zap, 
-  Award, 
+  Award,
+  Gift, 
   Sparkles, 
   Crown,
   CheckCircle2,
@@ -17,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export const CompeteScreen: React.FC = () => {
-  const { profile, allAccounts, achievements, levelNumber, updateOwnStats } = useGame();
+  const { profile, allAccounts, achievements, levelNumber, updateOwnStats, setScreen } = useGame();
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'achievements'>('leaderboard');
   const [leaderboardCategory, setLeaderboardCategory] = useState<'xp' | 'streak' | 'coins' | 'accuracy'>('xp');
   const [showTeacherEditModal, setShowTeacherEditModal] = useState(false);
@@ -132,11 +133,11 @@ export const CompeteScreen: React.FC = () => {
             </button>
           )}
 
-          {/* Tab switch: Leaderboard vs Achievements */}
+          {/* Tab switch: Leaderboard vs Achievements vs Mystery Box */}
           <div className="flex items-center gap-1.5 p-1 bg-slate-800 rounded-2xl border border-slate-700">
           <button
             onClick={() => { soundService.playClick(); setActiveTab('leaderboard'); }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'leaderboard'
                 ? 'bg-indigo-600 text-white shadow-sm'
                 : 'text-slate-400 hover:text-white'
@@ -147,7 +148,7 @@ export const CompeteScreen: React.FC = () => {
           </button>
           <button
             onClick={() => { soundService.playClick(); setActiveTab('achievements'); }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'achievements'
                 ? 'bg-indigo-600 text-white shadow-sm'
                 : 'text-slate-400 hover:text-white'
@@ -155,6 +156,17 @@ export const CompeteScreen: React.FC = () => {
           >
             <Award className="w-3.5 h-3.5 text-emerald-400" />
             <span>Achievements</span>
+          </button>
+          <button
+            onClick={() => {
+              soundService.playClick();
+              setScreen('mystery');
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black transition-all bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border border-amber-300 shadow-glow-gold hover:scale-105 active:scale-95"
+            title="Open Mystery Box Prize Wheels"
+          >
+            <Gift className="w-3.5 h-3.5 text-slate-950" />
+            <span>🎁 Mystery Box</span>
           </button>
         </div>
         </div>
