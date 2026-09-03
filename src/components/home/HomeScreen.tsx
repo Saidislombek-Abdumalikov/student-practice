@@ -46,7 +46,190 @@ export const HomeScreen: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 pb-24 md:pb-12 max-w-5xl mx-auto animate-in fade-in duration-300">
+    <>
+
+      {/* ================================================================= */}
+      {/* MOBILE LAYOUT (PHONE FIGMA DESIGN: 100% IDENTICAL TO SCREENSHOT) */}
+      {/* ================================================================= */}
+      <div className="block md:hidden -mx-3 -mt-4 pb-20 font-sans">
+        
+        {/* Purple/Violet Gradient Header */}
+        <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-purple-700 px-5 pt-8 pb-16 relative overflow-hidden rounded-b-[36px] shadow-lg shadow-purple-950/30">
+          <div className="absolute top-0 right-0 w-44 h-44 bg-white/10 rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-28 h-28 bg-white/10 rounded-full -translate-x-1/2 translate-y-1/2 pointer-events-none" />
+
+          {/* Top greeting + Profile Button */}
+          <div className="flex items-start justify-between relative z-10">
+            <div>
+              <p className="text-violet-200 font-semibold text-xs tracking-wide">Good morning!</p>
+              <h1 className="text-white font-black text-2xl mt-0.5 tracking-tight">
+                Hey, {profile.name || 'Aziz'}! 👋
+              </h1>
+            </div>
+
+            {/* Profile circular/square avatar button from screenshot */}
+            <button
+              onClick={() => { soundService.playClick(); setScreen('profile'); }}
+              className="w-11 h-11 bg-white/20 hover:bg-white/30 rounded-2xl flex items-center justify-center border border-white/25 text-white shadow-sm transition-all active:scale-95"
+              title="Open Profile"
+            >
+              <ModularCharacter config={profile.character} size="sm" animate={false} />
+            </button>
+          </div>
+
+          {/* 3 Horizontal Stat Cards (Streak, XP, Coins) */}
+          <div className="flex gap-2.5 mt-4 relative z-10">
+            <div className="flex-1 bg-white/15 backdrop-blur-md rounded-2xl py-2 px-1 border border-white/20 text-center shadow-sm">
+              <div className="text-base leading-none">🔥</div>
+              <div className="text-white font-black text-base mt-1 leading-tight">{profile.streakDays}</div>
+              <div className="text-violet-200 text-[10px] font-bold">Streak</div>
+            </div>
+
+            <div className="flex-1 bg-white/15 backdrop-blur-md rounded-2xl py-2 px-1 border border-white/20 text-center shadow-sm">
+              <div className="text-base leading-none">⭐</div>
+              <div className="text-white font-black text-base mt-1 leading-tight">{profile.xp.toLocaleString()}</div>
+              <div className="text-violet-200 text-[10px] font-bold">XP</div>
+            </div>
+
+            <div className="flex-1 bg-white/15 backdrop-blur-md rounded-2xl py-2 px-1 border border-white/20 text-center shadow-sm">
+              <div className="text-base leading-none">🪙</div>
+              <div className="text-white font-black text-base mt-1 leading-tight">
+                {profile.role === 'admin' ? '∞' : profile.coins.toLocaleString()}
+              </div>
+              <div className="text-violet-200 text-[10px] font-bold">Coins</div>
+            </div>
+
+            <div 
+              onClick={() => { soundService.playClick(); setScreen('mystery'); }}
+              className="flex-1 bg-white/15 backdrop-blur-md rounded-2xl py-2 px-1 border border-white/20 text-center shadow-sm cursor-pointer active:scale-95 transition-transform"
+            >
+              <div className="text-base leading-none">💎</div>
+              <div className="text-white font-black text-base mt-1 leading-tight">
+                {profile.role === 'admin' ? '∞' : (profile.diamonds || 0)}
+              </div>
+              <div className="text-violet-200 text-[10px] font-bold">Diamonds</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Character Box + Continue Learning Card (Overlapping with -mt-10) */}
+        <div className="px-4 -mt-10 relative z-20 flex gap-3">
+          
+          {/* Left: White Card with Character Avatar */}
+          <div 
+            onClick={cycleCharacterMood}
+            className="bg-white rounded-3xl p-3 shadow-xl shadow-purple-950/10 border border-slate-100 flex-shrink-0 flex items-center justify-center cursor-pointer active:scale-95 transition-transform" 
+            style={{ width: 100 }}
+            title="Tap to cycle expression"
+          >
+            <ModularCharacter config={profile.character} size="md" animate={true} />
+          </div>
+
+          {/* Right: Continue Learning Card */}
+          <button
+            onClick={() => { soundService.playClick(); setScreen('learn'); }}
+            className="flex-1 bg-white rounded-3xl p-3.5 shadow-xl shadow-purple-950/10 border border-slate-100 text-left hover:shadow-2xl transition-all active:scale-98"
+          >
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5 flex items-center gap-1">
+              <span>📚</span>
+              <span>CONTINUE LEARNING</span>
+            </div>
+            <div className="font-black text-slate-900 text-sm">
+              {profile.levelId === 'beginner' ? 'Beginner' : profile.levelId === 'elementary' ? 'Elementary' : 'Intermediate'}
+            </div>
+            <div className="text-slate-500 text-xs font-semibold truncate">
+              {currentUnit.title}
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mt-2 h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full transition-all duration-300"
+                style={{ width: `${Math.max(10, unitMastery)}%` }}
+              />
+            </div>
+            <div className="text-[10px] text-slate-400 font-bold mt-1">
+              {unitMastery}% mastered
+            </div>
+
+            {/* Purple Continue Button */}
+            <div className="mt-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-black py-2 px-3 rounded-xl text-center shadow-md shadow-violet-500/20 active:scale-95">
+              CONTINUE →
+            </div>
+          </button>
+        </div>
+
+        {/* 2x2 Vibrant Grid of Main App Cards (Figma Colors & Style) */}
+        <div className="px-4 mt-5 grid grid-cols-2 gap-3">
+          
+          {/* LEARN */}
+          <button
+            onClick={() => { soundService.playClick(); setScreen('learn'); }}
+            className="bg-gradient-to-br from-violet-500 to-purple-600 rounded-3xl p-4 text-left shadow-lg shadow-violet-500/25 active:scale-95 transition-all text-white"
+          >
+            <div className="text-3xl mb-1.5">📚</div>
+            <div className="font-black text-base tracking-wide leading-none">LEARN</div>
+            <div className="text-white/80 text-[10px] font-semibold mt-1">Vocabulary & Grammar</div>
+          </button>
+
+          {/* PLAY */}
+          <button
+            onClick={() => { soundService.playClick(); setScreen('play'); }}
+            className="bg-gradient-to-br from-sky-400 to-blue-600 rounded-3xl p-4 text-left shadow-lg shadow-sky-500/25 active:scale-95 transition-all text-white"
+          >
+            <div className="text-3xl mb-1.5">🎮</div>
+            <div className="font-black text-base tracking-wide leading-none">PLAY</div>
+            <div className="text-white/80 text-[10px] font-semibold mt-1">Games & Challenges</div>
+          </button>
+
+          {/* COMPETE */}
+          <button
+            onClick={() => { soundService.playClick(); setScreen('compete'); }}
+            className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-4 text-left shadow-lg shadow-amber-500/25 active:scale-95 transition-all text-white"
+          >
+            <div className="text-3xl mb-1.5">🏆</div>
+            <div className="font-black text-base tracking-wide leading-none">COMPETE</div>
+            <div className="text-white/80 text-[10px] font-semibold mt-1">Weekly Leaderboard</div>
+          </button>
+
+          {/* SHOP */}
+          <button
+            onClick={() => { soundService.playClick(); setScreen('shop'); }}
+            className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-4 text-left shadow-lg shadow-emerald-500/25 active:scale-95 transition-all text-white"
+          >
+            <div className="text-3xl mb-1.5">🛍️</div>
+            <div className="font-black text-base tracking-wide leading-none">SHOP</div>
+            <div className="text-white/80 text-[10px] font-semibold mt-1">Clothes & Accessories</div>
+          </button>
+        </div>
+
+        {/* Mystery Box Banner Card directly under the grid */}
+        <div className="px-4 mt-3">
+          <button
+            onClick={() => { soundService.playClick(); setScreen('mystery'); }}
+            className="w-full bg-gradient-to-r from-amber-500 via-purple-600 to-pink-500 rounded-2xl p-3.5 flex items-center justify-between text-white shadow-lg active:scale-98 transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl animate-bounce">🎁</span>
+              <div className="text-left">
+                <div className="font-black text-sm leading-tight flex items-center gap-1.5">
+                  <span>MYSTERY BOX</span>
+                  <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full uppercase">Win Prizes</span>
+                </div>
+                <div className="text-[10px] text-white/90">Spin with Diamonds for vouchers & legendary items!</div>
+              </div>
+            </div>
+            <span className="text-xs font-black bg-white text-purple-700 px-2.5 py-1 rounded-xl shadow-sm">OPEN</span>
+          </button>
+        </div>
+
+      </div>
+
+
+      {/* ================================================================= */}
+      {/* DESKTOP LAYOUT (100% UNCHANGED, FULL-FEATURED DESKTOP EXPERIENCE) */}
+      {/* ================================================================= */}
+      <div className="hidden md:block space-y-6 pb-12 max-w-5xl mx-auto animate-in fade-in duration-300">
       
       {/* GAME HERO CARD: Character Showcase & Daily Greeting */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-950/80 via-slate-900/90 to-purple-950/80 border-2 border-indigo-500/30 p-6 sm:p-8 shadow-game-card">
@@ -370,5 +553,6 @@ export const HomeScreen: React.FC = () => {
       </div>
 
     </div>
+    </>
   );
-};
+};

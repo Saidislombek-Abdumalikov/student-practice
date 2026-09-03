@@ -89,7 +89,7 @@ const MainApp: React.FC = () => {
         <Navbar />
 
         {/* Main Application Content */}
-        <main className="flex-1 px-3 sm:px-6 pt-4 sm:pt-6 pb-28 md:pb-12 md:pl-72 max-w-7xl w-full mx-auto overflow-x-clip">
+        <main className="flex-1 px-3 sm:px-6 pt-4 sm:pt-6 pb-28 md:pb-12 md:pl-72 max-w-7xl w-full mx-auto min-w-0">
           {renderActiveScreen()}
         </main>
       </div>

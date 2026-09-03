@@ -66,7 +66,7 @@ export const Navbar: React.FC = () => {
       </nav>
 
       {/* Desktop Floating / Sidebar Nav (On md+ screens) */}
-      <aside className="hidden md:flex flex-col fixed left-0 top-16 bottom-0 w-64 bg-slate-900/70 border-r border-slate-800/80 p-4 space-y-2 backdrop-blur-md z-30">
+      <aside className="hidden md:flex flex-col fixed left-0 top-16 bottom-0 w-64 bg-slate-900/90 border-r border-slate-800/80 p-4 space-y-2 backdrop-blur-md z-30 overflow-y-auto scrollbar-thin">
         <div className="text-[11px] font-black uppercase tracking-wider text-slate-500 px-3 py-2">
           Navigation
         </div>

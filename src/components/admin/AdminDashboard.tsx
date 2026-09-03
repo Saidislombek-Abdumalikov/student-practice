@@ -153,7 +153,7 @@ export const AdminDashboard: React.FC = () => {
     const interval = setInterval(async () => {
       await syncWithCloud();
       setLastAutoSyncTime(new Date());
-    }, 4000);
+    }, 15000);
 
     // 3. Supabase Realtime subscription for instant push updates when any student saves progress
     const unsubscribe = SupabaseService.subscribeToRemoteAccounts(async () => {
@@ -1373,7 +1373,7 @@ export const AdminDashboard: React.FC = () => {
 
       {/* Supabase Cloud Connection Modal */}
       {showCloudModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-sm p-4 flex justify-center items-start min-h-screen py-10">
           <div className="bg-slate-900 border border-indigo-500/40 rounded-3xl p-6 sm:p-7 max-w-xl w-full shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150 my-8">
             
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
