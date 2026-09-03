@@ -85,7 +85,12 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack }) => {
 
   const handleFlip = () => {
     soundService.playCardFlip();
-    setIsFlipped(!isFlipped);
+    const nextFlipped = !isFlipped;
+    setIsFlipped(nextFlipped);
+    // If we flipped to English back in uz_en mode, pronounce the English word!
+    if (nextFlipped && direction === 'uz_en' && currentWord) {
+      speechService.speak(currentWord.word, 'normal');
+    }
   };
 
   const handleNext = () => {
@@ -208,11 +213,11 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack }) => {
             {/* Top info badge */}
             <div className="w-full flex items-center justify-between">
               <span className="text-[11px] font-extrabold uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">
-                {isEnglishFront ? currentWord.partOfSpeech : 'Uzbek Meaning'}
+                {isEnglishFront ? (currentWord.partOfSpeech || 'ENGLISH') : "O'ZBEKCHA"}
               </span>
 
               {/* Pronunciation buttons on front (when showing English) */}
-              {isEnglishFront && (
+              {isEnglishFront ? (
                 <div className="flex items-center gap-2">
                   <button
                     onClick={(e) => handleSpeak(e, 'normal')}
@@ -230,6 +235,8 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack }) => {
                     <span className="text-[10px]">Slow</span>
                   </button>
                 </div>
+              ) : (
+                <span className="text-xs font-bold text-slate-500 italic">Inglizchasini toping</span>
               )}
             </div>
 
@@ -238,9 +245,14 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack }) => {
               <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
                 {isEnglishFront ? currentWord.word : currentWord.uzbekTranslation}
               </h2>
-              {isEnglishFront && (
+              {isEnglishFront && currentWord.phonetic && (
                 <p className="text-base sm:text-lg font-mono text-indigo-300/90 font-medium">
                   {currentWord.phonetic}
+                </p>
+              )}
+              {!isEnglishFront && (
+                <p className="text-xs sm:text-sm text-slate-400 font-medium">
+                  Tarjimani ko'rish uchun kartani bosing
                 </p>
               )}
             </div>
@@ -248,7 +260,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack }) => {
             {/* Bottom hint to tap */}
             <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
               <RotateCw className="w-3.5 h-3.5" />
-              <span>Tap to reveal translation & example</span>
+              <span>Tap card to reveal {isEnglishFront ? 'Uzbek translation' : 'English word'} & example</span>
             </div>
 
           </div>
@@ -259,10 +271,10 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack }) => {
             {/* Top Bar on back */}
             <div className="w-full flex items-center justify-between">
               <span className="text-[11px] font-extrabold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                Translation & Context
+                {isEnglishFront ? "O'zbekcha Ma'nosi" : `English Translation (${currentWord.partOfSpeech || 'Word'})`}
               </span>
 
-              {/* Pronunciation always available on back */}
+              {/* Pronunciation always available for the English word */}
               <div className="flex items-center gap-2">
                 <button
                   onClick={(e) => handleSpeak(e, 'normal')}
@@ -283,9 +295,14 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack }) => {
 
             {/* Center Translation & Example */}
             <div className="my-auto space-y-3 max-w-md">
-              <h3 className="text-2xl sm:text-3xl font-black text-emerald-400">
-                {currentWord.uzbekTranslation}
+              <h3 className="text-2xl sm:text-4xl font-black text-emerald-400">
+                {isEnglishFront ? currentWord.uzbekTranslation : currentWord.word}
               </h3>
+              {!isEnglishFront && currentWord.phonetic && (
+                <p className="text-base font-mono text-indigo-300 font-medium">
+                  {currentWord.phonetic}
+                </p>
+              )}
 
               <div className="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/60 text-left space-y-1">
                 <p className="text-sm sm:text-base font-semibold text-white">

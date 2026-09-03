@@ -840,34 +840,34 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
     return (
       <div className="max-w-2xl mx-auto space-y-5 pb-24 md:pb-12 animate-in fade-in duration-200">
         
-        {/* Header Bar */}
-        <div className="flex items-center justify-between gap-3 p-3 bg-slate-900/90 border border-slate-800 rounded-2xl">
+        {/* Header Bar: Locked Timer & Solid Layout */}
+        <div className="flex items-center justify-between gap-2 p-3 bg-slate-900/90 border border-slate-800 rounded-2xl select-none">
           <button
             onClick={() => setMatchState('setup')}
-            className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-white px-2 py-1"
+            className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-white px-2.5 py-1.5 rounded-xl hover:bg-slate-800 transition-colors shrink-0"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Exit</span>
           </button>
 
           {/* Active Player */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-500/20 border border-indigo-500/35">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-500/20 border border-indigo-500/35 shrink-0 max-w-[170px] sm:max-w-[220px]">
             <div className="w-6 h-6 rounded-lg overflow-hidden shrink-0">
               <ModularCharacter config={profile.character} size="sm" animate={false} />
             </div>
-            <span className="text-xs font-black text-indigo-300">
-              {matchState === 'solo_sprint' ? 'Solo Sprint: ' : 'Duel: '}
+            <span className="text-xs font-black text-indigo-300 truncate">
+              {matchState === 'solo_sprint' ? 'Solo: ' : 'Duel: '}
               {profile.name || 'You'}
             </span>
           </div>
 
-          {/* Timer & Score */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-800 border border-slate-700 text-amber-300 font-extrabold text-xs">
-              <Timer className="w-3.5 h-3.5 text-amber-400" />
-              <span>{elapsedTime.toFixed(1)}s</span>
+          {/* Locked Timer & Score (Fixed widths, tabular monospaced numbers - completely prevents flicker/jitter) */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="w-[78px] flex items-center justify-center gap-1 px-2 py-1 rounded-xl bg-slate-800 border border-slate-700 text-amber-300 font-extrabold text-xs shrink-0">
+              <Timer className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="font-mono tabular-nums inline-block w-[40px] text-right">{elapsedTime.toFixed(1)}s</span>
             </div>
-            <div className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/30">
+            <div className="w-[58px] text-center text-xs font-black text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-xl border border-emerald-500/30 shrink-0 font-mono tabular-nums">
               {myScore} / {questions.length}
             </div>
           </div>

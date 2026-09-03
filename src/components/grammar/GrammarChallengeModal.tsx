@@ -133,10 +133,10 @@ export const GrammarChallengeModal: React.FC<GrammarChallengeModalProps> = ({ le
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
       <div className="relative w-full max-w-lg my-8 bg-slate-900 border-2 border-amber-500/50 rounded-3xl shadow-2xl p-6 sm:p-8 text-slate-100 animate-in zoom-in-95 duration-200">
         
-        {/* Header Bar */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-          {/* Hearts / Lives */}
-          <div className="flex items-center gap-1.5">
+        {/* Header Bar: Locked 3-column layout so timer tick never jitters other items */}
+        <div className="flex items-center justify-between pb-4 border-b border-slate-800 select-none">
+          {/* Hearts / Lives (Fixed width column) */}
+          <div className="w-24 flex items-center gap-1.5 shrink-0">
             {[1, 2, 3].map(heartIdx => (
               <Heart
                 key={heartIdx}
@@ -149,19 +149,21 @@ export const GrammarChallengeModal: React.FC<GrammarChallengeModalProps> = ({ le
             ))}
           </div>
 
-          {/* Timer */}
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-800 border border-slate-700 font-extrabold text-amber-300 text-sm">
-            <Timer className="w-4 h-4 text-amber-400" />
-            <span>{timeLeft}s</span>
+          {/* Locked Timer (Fixed width & tabular numbers) */}
+          <div className="w-[78px] flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-800 border border-slate-700 font-extrabold text-amber-300 text-sm shrink-0">
+            <Timer className="w-4 h-4 text-amber-400 shrink-0" />
+            <span className="font-mono tabular-nums inline-block w-[30px] text-right">{timeLeft}s</span>
           </div>
 
-          {/* Close */}
-          <button
-            onClick={onClose}
-            className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          {/* Close (Fixed width column) */}
+          <div className="w-24 flex justify-end shrink-0">
+            <button
+              onClick={onClose}
+              className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* IN GAME */}
