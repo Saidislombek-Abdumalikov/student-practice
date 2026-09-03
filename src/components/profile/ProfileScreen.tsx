@@ -16,6 +16,7 @@ import {
   Award, 
   Smile, 
   RotateCcw,
+  ArrowLeft,
   RefreshCw,
   LogOut
 } from 'lucide-react';
@@ -61,7 +62,7 @@ const EXPRESSIONS: { id: CharacterExpression; label: string; emoji: string }[] =
 ];
 
 export const ProfileScreen: React.FC = () => {
-  const { profile, levelNumber, updateCharacter, updateLevel, applyOutfitPreset, cycleCharacterMood, stickers, curriculumUnits, logout } = useGame();
+  const { profile, levelNumber, updateCharacter, updateLevel, applyOutfitPreset, cycleCharacterMood, stickers, curriculumUnits, logout, setScreen } = useGame();
   const [activeTab, setActiveTab] = useState<'customizer' | 'stats' | 'stickers'>('customizer');
 
   const masteredUnitsCount = Object.values(profile.unitMasteries).filter(m => m >= 80).length;
@@ -92,8 +93,28 @@ export const ProfileScreen: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 pb-24 md:pb-12 max-w-5xl mx-auto animate-in fade-in duration-300">
+    <div className="space-y-5 pb-28 md:pb-12 max-w-5xl mx-auto animate-in fade-in duration-300">
       
+      {/* Mobile Back to Home */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => { soundService.playClick(); setScreen('home'); }}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all active:scale-95"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Home</span>
+        </button>
+
+        <button
+          onClick={logout}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/25 text-xs font-bold transition-all active:scale-95"
+          title="Sign out of account"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Log Out</span>
+        </button>
+      </div>
+
       {/* Player Showcase Banner */}
       <div className="card-game p-6 sm:p-8 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border-2 border-indigo-500/40 shadow-game-card">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">

@@ -36,38 +36,35 @@ export const Header: React.FC = () => {
         
         {/* Left: Brand & Player Level */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            {/* Modular Mini Avatar with 1-Tap Mood Cycle */}
-            <div 
-              onClick={cycleCharacterMood} 
-              className="relative w-10 h-10 rounded-2xl bg-slate-800 border-2 border-indigo-500/60 overflow-hidden flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shadow-sm cursor-pointer group"
-              title="Tap avatar to change mood!"
-            >
+          {/* Modular Mini Avatar + Player Level (Tap anywhere to open Profile!) */}
+          <div 
+            onClick={() => { soundService.playClick(); setScreen('profile'); }}
+            className="flex items-center gap-2 cursor-pointer group select-none"
+            title="View Profile & Character Studio"
+          >
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-slate-800 border-2 border-indigo-500/60 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105 active:scale-95 shadow-sm shrink-0">
               <ModularCharacter config={profile.character} size="sm" animate={false} />
-              <div className="absolute -bottom-0.5 -right-0.5 bg-slate-900/90 text-[10px] leading-none px-1 py-0.5 rounded-full border border-indigo-500/40 shadow">
+              <div 
+                onClick={(e) => { e.stopPropagation(); cycleCharacterMood(); }}
+                className="absolute -bottom-0.5 -right-0.5 bg-slate-900/90 text-[10px] leading-none px-1 py-0.5 rounded-full border border-indigo-500/40 shadow hover:scale-125 transition-transform"
+                title="Cycle expression"
+              >
                 {currentMoodEmoji}
               </div>
             </div>
 
-            <div 
-              onClick={() => setScreen('profile')} 
-              className="cursor-pointer group"
-              title="View Profile"
-            >
-
-            <div className="hidden sm:block">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-slate-400">LVL</span>
-                <span className="text-xs font-black text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded-md border border-indigo-500/30">
-                  {levelNumber}
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] sm:text-xs font-black text-indigo-400 bg-indigo-500/15 px-1.5 py-0.5 rounded-md border border-indigo-500/30">
+                  L{levelNumber}
                 </span>
-                <span className="text-sm font-bold text-white max-w-[120px] truncate">
+                <span className="text-xs sm:text-sm font-black text-white max-w-[85px] sm:max-w-[130px] truncate">
                   {profile.name || 'Hero'}
                 </span>
               </div>
 
-              {/* XP Mini Bar */}
-              <div className="w-24 bg-slate-800 rounded-full h-1.5 overflow-hidden mt-1 border border-slate-700/60">
+              {/* XP Mini Bar (Visible on mobile too!) */}
+              <div className="w-16 sm:w-24 bg-slate-800 rounded-full h-1 sm:h-1.5 overflow-hidden mt-0.5 border border-slate-700/60">
                 <div 
                   className="bg-indigo-500 h-full rounded-full transition-all duration-300"
                   style={{ width: `${xpProgressPercent}%` }}
@@ -75,7 +72,6 @@ export const Header: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
       </div>
 
         {/* Center: XP Bar (Visible on medium+ screens) */}

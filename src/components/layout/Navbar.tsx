@@ -21,7 +21,7 @@ export const Navbar: React.FC = () => {
     { id: 'learn', label: 'VOCABULARY', mobileLabel: 'Vocab', icon: <BookOpen className="w-5 h-5" /> },
     { id: 'play', label: 'PLAY', mobileLabel: 'Play', icon: <Gamepad2 className="w-5 h-5" /> },
     { id: 'compete', label: 'COMPETE', mobileLabel: 'Compete', icon: <Trophy className="w-5 h-5" /> },
-    { id: 'mystery', label: 'MYSTERY BOX', mobileLabel: 'Mystery 🎁', icon: <Gift className="w-5 h-5 text-amber-400 animate-pulse" /> },
+    { id: 'mystery', label: 'MYSTERY BOX', mobileLabel: 'Box 🎁', icon: <Gift className="w-5 h-5 text-amber-400 animate-pulse" /> },
     { id: 'shop', label: 'SHOP', mobileLabel: 'Shop', icon: <ShoppingBag className="w-5 h-5" /> },
     { id: 'profile', label: 'PROFILE', mobileLabel: 'Profile', icon: <User className="w-5 h-5" /> },
   ];
@@ -33,9 +33,9 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      {/* Mobile Bottom Dock (Fixed at bottom on screens < md, horizontally fluid) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 border-t border-slate-800/90 backdrop-blur-xl px-2 py-1.5 safe-area-pb shadow-2xl">
-        <div className="flex items-center justify-between gap-1 overflow-x-auto scrollbar-none max-w-xl mx-auto">
+      {/* Mobile Bottom Dock (100% visible, zero scroll, Profile permanently visible) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/98 border-t border-slate-800/90 backdrop-blur-xl px-1 py-1 safe-area-pb shadow-2xl">
+        <div className="flex items-center justify-between w-full max-w-lg mx-auto">
           {navItems.map(item => {
             const isActive = currentScreen === item.id || 
               (item.id === 'learn' && (currentScreen === 'flashcards' || currentScreen === 'practice' || currentScreen === 'mistakes')) ||
@@ -45,18 +45,18 @@ export const Navbar: React.FC = () => {
               <button
                 key={item.id}
                 onClick={() => handleNav(item.id)}
-                className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-150 active:scale-95 shrink-0 min-w-[50px] ${
+                className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl transition-all duration-150 active:scale-95 ${
                   isActive
                     ? 'text-indigo-400 font-black'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <div className={`p-1 rounded-lg transition-all [&>svg]:w-4 [&>svg]:h-4 ${
-                  isActive ? 'bg-indigo-600/30 text-indigo-400 shadow-glow-primary scale-110' : ''
+                  isActive ? 'bg-indigo-600/30 text-indigo-400 shadow-glow-primary scale-105' : ''
                 }`}>
                   {item.icon}
                 </div>
-                <span className={`text-[9px] tracking-tight mt-0.5 ${isActive ? 'font-black text-indigo-300' : 'font-medium'}`}>
+                <span className={`text-[8px] tracking-tighter mt-0.5 truncate max-w-full leading-none text-center ${isActive ? 'font-black text-indigo-300' : 'font-medium'}`}>
                   {item.mobileLabel}
                 </span>
               </button>
