@@ -511,25 +511,58 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addDiamonds = (amount: number) => {
     soundService.playLevelUp();
-    setProfile(prev => ({
-      ...prev,
-      diamonds: (prev.diamonds || 0) + amount,
-    }));
+    setProfile(prev => {
+      const newDiamonds = prev.role === 'admin' ? 999999 : (prev.diamonds || 0) + amount;
+      const updated = {
+        ...prev,
+        diamonds: newDiamonds,
+      };
+      StorageService.saveProfile(updated);
+      setAllAccounts(accounts => {
+        const idx = accounts.findIndex(a => a.id === prev.id);
+        if (idx >= 0) {
+          const copy = [...accounts];
+          copy[idx] = updated;
+          return copy;
+        }
+        return accounts;
+      });
+      if (isSupabaseConfigured()) {
+        SupabaseService.saveAccountToRemote(updated);
+      }
+      return updated;
+    });
   };
 
   const tradeDiamondsForCoins = (diamondCount: number = 1): boolean => {
     const currentDiamonds = profile.diamonds || 0;
-    if (currentDiamonds < diamondCount || diamondCount <= 0) {
+    if (profile.role !== 'admin' && (currentDiamonds < diamondCount || diamondCount <= 0)) {
       soundService.playError();
       return false;
     }
     const coinsToAdd = diamondCount * 5;
     soundService.playCoin();
-    setProfile(prev => ({
-      ...prev,
-      diamonds: Math.max(0, (prev.diamonds || 0) - diamondCount),
-      coins: prev.role === 'admin' ? 999999 : prev.coins + coinsToAdd,
-    }));
+    setProfile(prev => {
+      const updated = {
+        ...prev,
+        diamonds: prev.role === 'admin' ? 999999 : Math.max(0, (prev.diamonds || 0) - diamondCount),
+        coins: prev.role === 'admin' ? 999999 : prev.coins + coinsToAdd,
+      };
+      StorageService.saveProfile(updated);
+      setAllAccounts(accounts => {
+        const idx = accounts.findIndex(a => a.id === prev.id);
+        if (idx >= 0) {
+          const copy = [...accounts];
+          copy[idx] = updated;
+          return copy;
+        }
+        return accounts;
+      });
+      if (isSupabaseConfigured()) {
+        SupabaseService.saveAccountToRemote(updated);
+      }
+      return updated;
+    });
     return true;
   };
 

@@ -539,24 +539,39 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
     }
   }, [matchState, activeMatch, profile.id, myScore, myTime, opponentScore, opponentTime, isSolo]);
 
-  // Award Diamonds ONLY in 2-Player Match (Never in warm-up!)
+  // Award Diamonds in Duels and in High-Scoring Solo Sprints!
   const hasAwardedRef = useRef(false);
   useEffect(() => {
     if (matchState === 'results' && winnerInfo && !hasAwardedRef.current) {
       hasAwardedRef.current = true;
       if (!winnerInfo.isSolo && !winnerInfo.isTie) {
+        // 2-Player duel victory
         awardDiamondToAccount(winnerInfo.winnerId, diamondReward);
         addXP(60);
         addCoins(15);
-      } else {
-        addXP(40);
-        addCoins(15);
+      } else if (!winnerInfo.isSolo && winnerInfo.isTie) {
+        // 2-Player duel tie: both receive 1 diamond!
+        awardDiamondToAccount(profile.id, 1);
+        awardDiamondToAccount(opponent.id, 1);
+        addXP(45);
+        addCoins(10);
+      } else if (winnerInfo.isSolo) {
+        // Solo Sprint: score >= 80% awards +1 💎 Diamond!
+        const isMastery = myScore >= Math.ceil(questions.length * 0.8);
+        if (isMastery) {
+          awardDiamondToAccount(profile.id, 1);
+          addXP(50);
+          addCoins(20);
+        } else {
+          addXP(30);
+          addCoins(10);
+        }
       }
     }
     if (matchState === 'setup') {
       hasAwardedRef.current = false;
     }
-  }, [matchState, winnerInfo, diamondReward]);
+  }, [matchState, winnerInfo, diamondReward, myScore, questions.length, profile.id, opponent.id]);
 
   const handleTradeDiamond = () => {
     const success = tradeDiamondsForCoins(1);
@@ -740,12 +755,16 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
               <span className="text-[10px] font-black uppercase text-cyan-300 block">Reward</span>
               <span className="text-sm font-black text-white">
                 {isSoloMatch 
-                  ? '+15 Coins & +40 XP Earned!' 
+                  ? (myScore >= Math.ceil(questions.length * 0.8)
+                      ? '⭐ +50 XP, +20 Coins & +1 💎 Diamond Awarded!'
+                      : '+10 Coins & +30 XP Earned!')
                   : `+${diamondReward} Diamond${diamondReward > 1 ? 's' : ''} Awarded!`}
               </span>
               {isSoloMatch && (
                 <span className="text-[10px] text-slate-400 block mt-0.5">
-                  💡 Diamonds are only won in 2-Player Duels!
+                  {myScore >= Math.ceil(questions.length * 0.8) 
+                    ? '🎉 Superb accuracy! 1 Diamond added to your wallet!' 
+                    : '💡 Score 80%+ in Solo Sprint to earn a 💎 Diamond!'}
                 </span>
               )}
             </div>

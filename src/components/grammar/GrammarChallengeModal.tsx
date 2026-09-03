@@ -21,7 +21,7 @@ interface GrammarChallengeModalProps {
 }
 
 export const GrammarChallengeModal: React.FC<GrammarChallengeModalProps> = ({ levelId, onClose }) => {
-  const { addXP, addCoins } = useGame();
+  const { addXP, addCoins, addDiamonds } = useGame();
 
   // Pick 10 random questions across all units in this level
   const [questions] = useState<GrammarQuestion[]>(() => {
@@ -127,6 +127,10 @@ export const GrammarChallengeModal: React.FC<GrammarChallengeModalProps> = ({ le
       spread: 60,
       origin: { y: 0.6 },
     });
+    // Award 1 💎 Diamond for scoring 400+ points or surviving with lives!
+    if (score >= 400 || lives > 0) {
+      addDiamonds(1);
+    }
   };
 
   return (
