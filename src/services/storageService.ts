@@ -116,15 +116,14 @@ export class StorageService {
   /**
    * Get the active logged in user ID.
    */
-  public static getActiveUserId(): string {
+  public static getActiveUserId(): string | null {
     try {
       const id = localStorage.getItem(ACTIVE_USER_ID_KEY);
       if (id) return id;
     } catch {
       // Ignored
     }
-    // Default to admin or first student
-    return 'usr_admin';
+    return null;
   }
 
   /**
@@ -163,11 +162,7 @@ export class StorageService {
       }
       return found;
     }
-    const fallback = all[0] || INITIAL_ACCOUNTS[0];
-    if (fallback.role === 'admin') {
-      fallback.coins = 999999;
-      fallback.diamonds = 999999;
-    }
+    const fallback = all.find(a => a.role !== 'admin') || all[0] || INITIAL_ACCOUNTS[1] || INITIAL_ACCOUNTS[0];
     return fallback;
   }
 

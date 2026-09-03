@@ -116,7 +116,14 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [profile, setProfile] = useState<UserProfile>(() => StorageService.loadProfile());
   const [allAccounts, setAllAccounts] = useState<UserProfile[]>(() => StorageService.loadAllAccounts());
-  const [currentScreen, setCurrentScreen] = useState<AppScreen>('home');
+  const [currentScreen, setCurrentScreen] = useState<AppScreen>(() => {
+    const activeUid = StorageService.getActiveUserId();
+    if (!activeUid) {
+      return 'login';
+    }
+    const prof = StorageService.loadProfile();
+    return prof.role === 'admin' ? 'admin' : 'home';
+  });
   const [activeUnitId, setActiveUnitId] = useState<string>(() => 
     profile.currentUnitId || (profile.levelId === 'elementary' ? 'el_u1' : profile.levelId === 'pre_intermediate' ? 'pre_u0' : 'u1')
   );
@@ -956,6 +963,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     soundService.playClick();
+    StorageService.clearActiveSession();
     setCurrentScreen('login');
   };
 
