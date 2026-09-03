@@ -67,6 +67,7 @@ interface GameContextType {
   recordLevelExamResult: (levelId: GrammarLevelId, score: number, total: number) => GrammarExamResult;
 
   // Authentication & Account Management
+  isAuthenticated: boolean;
   allAccounts: UserProfile[];
   login: (username: string, password: string) => { success: boolean; message?: string };
   loginAsUser: (userId: string) => void;
@@ -114,6 +115,9 @@ interface GameContextType {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return StorageService.getActiveUserId() !== null;
+  });
   const [profile, setProfile] = useState<UserProfile>(() => StorageService.loadProfile());
   const [allAccounts, setAllAccounts] = useState<UserProfile[]>(() => StorageService.loadAllAccounts());
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(() => {
@@ -217,8 +221,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     syncWithCloud();
   }, []);
 
-  // Sync with LocalStorage, allAccounts state, & Supabase
+  // Sync with LocalStorage, allAccounts state, & Supabase (only when logged in)
   useEffect(() => {
+    if (!isAuthenticated) return;
     StorageService.saveProfile(profile);
     setAllAccounts(prev => {
       const idx = prev.findIndex(a => a.id === profile.id);
@@ -232,7 +237,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isSupabaseConfigured()) {
       SupabaseService.saveAccountToRemote(profile);
     }
-  }, [profile]);
+  }, [profile, isAuthenticated]);
 
   // Sync Sound settings
   useEffect(() => {
@@ -1000,6 +1005,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     setProfile(found);
+    setIsAuthenticated(true);
     StorageService.setActiveUserId(found.id);
     soundService.playSuccess();
     if (found.role === 'admin') {
@@ -1015,6 +1021,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const found = latestAccounts.find(a => a.id === userId);
     if (found) {
       setProfile(found);
+      setIsAuthenticated(true);
       StorageService.setActiveUserId(found.id);
       soundService.playSuccess();
       if (found.role === 'admin') {
@@ -1028,6 +1035,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     soundService.playClick();
     StorageService.clearActiveSession();
+    setIsAuthenticated(false);
     setCurrentScreen('login');
   };
 
@@ -1197,6 +1205,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <GameContext.Provider
       value={{
+        isAuthenticated,
         profile,
         allAccounts,
         login,

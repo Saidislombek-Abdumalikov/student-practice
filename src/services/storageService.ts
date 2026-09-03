@@ -2,7 +2,7 @@ import { UserProfile, CharacterConfig } from '../types';
 import { INITIAL_ACCOUNTS } from '../data/accountsData';
 
 const ACCOUNTS_STORAGE_KEY = 'play_learn_compete_accounts_v2';
-const ACTIVE_USER_ID_KEY = 'play_learn_compete_active_uid_v2';
+const ACTIVE_USER_ID_KEY = 'play_learn_compete_active_uid_v3';
 const LEGACY_STORAGE_KEY = 'play_learn_compete_user_v1';
 
 export const DEFAULT_CHARACTER: CharacterConfig = {
@@ -143,6 +143,11 @@ export class StorageService {
   public static clearActiveSession(): void {
     try {
       localStorage.removeItem(ACTIVE_USER_ID_KEY);
+      sessionStorage.removeItem(ACTIVE_USER_ID_KEY);
+      localStorage.removeItem('play_learn_compete_active_uid_v2');
+      localStorage.removeItem('play_learn_compete_active_uid_v1');
+      localStorage.removeItem('play_learn_compete_active_user_v1');
+      localStorage.removeItem('play_learn_compete_user_v1');
     } catch {
       // Ignored
     }
@@ -178,10 +183,6 @@ export class StorageService {
       all.push({ ...profile });
     }
     this.saveAllAccounts(all);
-    // Only update active user id if there is an active session
-    if (this.getActiveUserId() !== null) {
-      this.setActiveUserId(profile.id);
-    }
   }
 
   /**

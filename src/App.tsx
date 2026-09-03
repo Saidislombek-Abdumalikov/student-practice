@@ -20,10 +20,11 @@ import { LoginScreen } from './components/auth/LoginScreen';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 
 const MainApp: React.FC = () => {
-  const { profile, currentScreen, setScreen } = useGame();
+  const { profile, currentScreen, setScreen, isAuthenticated } = useGame();
   const [acceptedPeerMatch, setAcceptedPeerMatch] = useState<ActiveDuelMatch | null>(null);
 
-  if (currentScreen === 'login') {
+  // Strict Authentication Barrier: Never enter an account until login data is submitted
+  if (!isAuthenticated || currentScreen === 'login') {
     return (
       <div className="min-h-screen bg-[#0F172A] text-slate-100 flex flex-col">
         <LoginScreen />
