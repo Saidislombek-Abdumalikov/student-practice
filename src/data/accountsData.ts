@@ -1,0 +1,347 @@
+import { UserProfile } from '../types';
+
+/**
+ * Initial Default Accounts:
+ * - Admin (Teacher)
+ * - 5 Students (Dilnuraxon, Ruxshona, Gulasal, Omina, Bahodir)
+ * 
+ * Simple, memorable, unique short logins and passwords:
+ * - Admin: admin / adm7
+ * - Dilnuraxon: dilnura / dn24 (woman)
+ * - Ruxshona: ruxshona / rx81 (woman)
+ * - Gulasal: gulasal / gl53 (woman)
+ * - Omina: omina / om19 (woman)
+ * - Bahodir: bahodir / bh76 (man)
+ */
+
+export const INITIAL_ACCOUNTS: UserProfile[] = [
+  // -------------------------------------------------------------
+  // ADMIN / TEACHER
+  // -------------------------------------------------------------
+  {
+    id: 'usr_admin',
+    name: 'Teacher Admin',
+    username: 'admin',
+    password: 'adm7',
+    role: 'admin',
+    isOnboarded: true,
+    character: {
+      gender: 'man',
+      skinTone: '#F0C08A',
+      hairStyle: 'fade',
+      hairColor: '#1E293B',
+      outfit: 'hoodie',
+      outfitColor: '#6366F1',
+      hat: 'none',
+      glasses: 'none',
+      accessory: 'none',
+      pet: 'none',
+      background: 'default',
+      expression: 'victory',
+    },
+    levelId: 'pre_intermediate',
+    currentUnitId: 'pre_u0',
+    xp: 590,
+    coins: 999999,
+    diamonds: 999999,
+    streakDays: 10,
+    lastActiveDate: new Date().toISOString(),
+    inventory: ['char_man', 'char_woman', 'outfit_hoodie_indigo', 'hair_fade_black'],
+    unlockedStickers: ['sticker_lets_go', 'sticker_fire'],
+    unitMasteries: {},
+    completedUnits: [],
+    mistakes: [],
+    soundEnabled: true,
+    speechSpeed: 'normal',
+    grammarLevel: 'level_3',
+    grammarMasteries: {},
+    completedGrammarTopics: [],
+    completedGrammarExams: {},
+    grammarMistakes: [],
+    grammarHearts: 5,
+  },
+
+  // -------------------------------------------------------------
+  // 1. Dilnuraxon (woman)
+  // -------------------------------------------------------------
+  {
+    id: 'usr_dilnura',
+    name: 'Dilnuraxon',
+    username: 'dilnura',
+    password: 'dn24',
+    role: 'student',
+    isOnboarded: true,
+    character: {
+      gender: 'woman',
+      skinTone: '#FFDFC4',
+      hairStyle: 'ponytail',
+      hairColor: '#1E293B',
+      outfit: 'hoodie',
+      outfitColor: '#F43F5E',
+      hat: 'none',
+      glasses: 'none',
+      accessory: 'none',
+      pet: 'none',
+      background: 'default',
+      expression: 'happy',
+    },
+    levelId: 'beginner',
+    currentUnitId: 'u2',
+    xp: 380,
+    coins: 70,
+    diamonds: 2,
+    streakDays: 4,
+    lastActiveDate: new Date().toISOString(),
+    inventory: ['char_woman', 'outfit_hoodie_indigo'],
+    unlockedStickers: ['sticker_lets_go'],
+    unitMasteries: { u1: 90 },
+    completedUnits: ['u1'],
+    mistakes: [
+      {
+        id: 'mst_1',
+        wordId: 'w1_2',
+        word: 'borrow',
+        uzbekTranslation: 'qarzga olmoq',
+        exampleSentence: 'Can I borrow your English dictionary?',
+        wrongCount: 1,
+        lastMistakeTime: new Date().toISOString(),
+        isMastered: false,
+      }
+    ],
+    soundEnabled: true,
+    speechSpeed: 'normal',
+    grammarLevel: 'level_1',
+    grammarMasteries: { l1_u1_t1: 85 },
+    completedGrammarTopics: ['l1_u1_t1'],
+    completedGrammarExams: {},
+    grammarMistakes: [],
+    grammarHearts: 5,
+  },
+
+  // -------------------------------------------------------------
+  // 2. Ruxshona (woman - ACCURACY CHAMPION 100%)
+  // -------------------------------------------------------------
+  {
+    id: 'usr_ruxshona',
+    name: 'Ruxshona',
+    username: 'ruxshona',
+    password: 'rx81',
+    role: 'student',
+    isOnboarded: true,
+    character: {
+      gender: 'woman',
+      skinTone: '#F0C08A',
+      hairStyle: 'wavy_bob',
+      hairColor: '#4A2E18',
+      outfit: 'hoodie',
+      outfitColor: '#8B5CF6',
+      hat: 'none',
+      glasses: 'none',
+      accessory: 'none',
+      pet: 'none',
+      background: 'default',
+      expression: 'victory',
+    },
+    levelId: 'elementary',
+    currentUnitId: 'el_u2',
+    xp: 450,
+    coins: 110,
+    diamonds: 6,
+    streakDays: 6,
+    lastActiveDate: new Date().toISOString(),
+    inventory: ['char_woman', 'outfit_hoodie_indigo'],
+    unlockedStickers: ['sticker_lets_go'],
+    unitMasteries: { el_u1: 95 },
+    completedUnits: ['el_u1'],
+    mistakes: [], // 0 mistakes = 100% Accuracy!
+    soundEnabled: true,
+    speechSpeed: 'normal',
+    grammarLevel: 'level_1',
+    grammarMasteries: { l1_u1_t1: 92, l1_u1_t2: 88 },
+    completedGrammarTopics: ['l1_u1_t1', 'l1_u1_t2'],
+    completedGrammarExams: {},
+    grammarMistakes: [],
+    grammarHearts: 5,
+  },
+
+  // -------------------------------------------------------------
+  // 3. Gulasal (woman - STREAK CHAMPION 12 DAYS)
+  // -------------------------------------------------------------
+  {
+    id: 'usr_gulasal',
+    name: 'Gulasal',
+    username: 'gulasal',
+    password: 'gl53',
+    role: 'student',
+    isOnboarded: true,
+    character: {
+      gender: 'woman',
+      skinTone: '#D49B6A',
+      hairStyle: 'braids',
+      hairColor: '#1E293B',
+      outfit: 'hoodie',
+      outfitColor: '#10B981',
+      hat: 'none',
+      glasses: 'none',
+      accessory: 'none',
+      pet: 'none',
+      background: 'default',
+      expression: 'thinking',
+    },
+    levelId: 'beginner',
+    currentUnitId: 'u1',
+    xp: 290,
+    coins: 55,
+    diamonds: 1,
+    streakDays: 12, // Highest streak!
+    lastActiveDate: new Date().toISOString(),
+    inventory: ['char_woman', 'outfit_hoodie_indigo'],
+    unlockedStickers: ['sticker_lets_go'],
+    unitMasteries: { u1: 80 },
+    completedUnits: ['u1'],
+    mistakes: [
+      {
+        id: 'mst_g1',
+        wordId: 'w1_1',
+        word: 'arrive',
+        uzbekTranslation: 'yetib kelmoq',
+        exampleSentence: 'What time did the train arrive?',
+        wrongCount: 2,
+        lastMistakeTime: new Date().toISOString(),
+        isMastered: false,
+      },
+      {
+        id: 'mst_g2',
+        wordId: 'w1_3',
+        word: 'expensive',
+        uzbekTranslation: 'qimmat',
+        exampleSentence: 'This laptop is too expensive.',
+        wrongCount: 1,
+        lastMistakeTime: new Date().toISOString(),
+        isMastered: false,
+      }
+    ],
+    soundEnabled: true,
+    speechSpeed: 'normal',
+    grammarLevel: 'level_1',
+    grammarMasteries: { l1_u1_t1: 75 },
+    completedGrammarTopics: [],
+    completedGrammarExams: {},
+    grammarMistakes: [],
+    grammarHearts: 5,
+  },
+
+  // -------------------------------------------------------------
+  // 4. Omina (woman - COINS CHAMPION 210 🪙)
+  // -------------------------------------------------------------
+  {
+    id: 'usr_omina',
+    name: 'Omina',
+    username: 'omina',
+    password: 'om19',
+    role: 'student',
+    isOnboarded: true,
+    character: {
+      gender: 'woman',
+      skinTone: '#FFDFC4',
+      hairStyle: 'ponytail',
+      hairColor: '#D97706',
+      outfit: 'hoodie',
+      outfitColor: '#06B6D4',
+      hat: 'none',
+      glasses: 'none',
+      accessory: 'none',
+      pet: 'none',
+      background: 'default',
+      expression: 'happy',
+    },
+    levelId: 'elementary',
+    currentUnitId: 'el_u1',
+    xp: 340,
+    coins: 210, // Highest Coins!
+    diamonds: 4,
+    streakDays: 3,
+    lastActiveDate: new Date().toISOString(),
+    inventory: ['char_woman', 'outfit_hoodie_indigo'],
+    unlockedStickers: ['sticker_lets_go'],
+    unitMasteries: { u1: 85 },
+    completedUnits: ['u1'],
+    mistakes: [
+      {
+        id: 'mst_o1',
+        wordId: 'w1_4',
+        word: 'journey',
+        uzbekTranslation: 'sayohat, safar',
+        exampleSentence: 'Their journey across the mountains took weeks.',
+        wrongCount: 1,
+        lastMistakeTime: new Date().toISOString(),
+        isMastered: false,
+      }
+    ],
+    soundEnabled: true,
+    speechSpeed: 'normal',
+    grammarLevel: 'level_1',
+    grammarMasteries: { l1_u1_t1: 80 },
+    completedGrammarTopics: ['l1_u1_t1'],
+    completedGrammarExams: {},
+    grammarMistakes: [],
+    grammarHearts: 5,
+  },
+
+  // -------------------------------------------------------------
+  // 5. Bahodir (man - XP CHAMPION 520 XP)
+  // -------------------------------------------------------------
+  {
+    id: 'usr_bahodir',
+    name: 'Bahodir',
+    username: 'bahodir',
+    password: 'bh76',
+    role: 'student',
+    isOnboarded: true,
+    character: {
+      gender: 'man',
+      skinTone: '#F0C08A',
+      hairStyle: 'fade',
+      hairColor: '#1E293B',
+      outfit: 'hoodie',
+      outfitColor: '#6366F1',
+      hat: 'none',
+      glasses: 'none',
+      accessory: 'none',
+      pet: 'none',
+      background: 'default',
+      expression: 'victory',
+    },
+    levelId: 'elementary',
+    currentUnitId: 'el_u3',
+    xp: 520, // Highest student XP!
+    coins: 140,
+    diamonds: 5,
+    streakDays: 5,
+    lastActiveDate: new Date().toISOString(),
+    inventory: ['char_man', 'outfit_hoodie_indigo', 'hair_fade_black'],
+    unlockedStickers: ['sticker_lets_go', 'sticker_fire'],
+    unitMasteries: { el_u1: 100, el_u2: 88 },
+    completedUnits: ['el_u1'],
+    mistakes: [
+      {
+        id: 'mst_b1',
+        wordId: 'w1_5',
+        word: 'imagine',
+        uzbekTranslation: 'tasavvur qilmoq',
+        exampleSentence: 'Can you imagine speaking English fluently?',
+        wrongCount: 1,
+        lastMistakeTime: new Date().toISOString(),
+        isMastered: false,
+      }
+    ],
+    soundEnabled: true,
+    speechSpeed: 'normal',
+    grammarLevel: 'level_1',
+    grammarMasteries: { l1_u1_t1: 95, l1_u1_t2: 90 },
+    completedGrammarTopics: ['l1_u1_t1', 'l1_u1_t2'],
+    completedGrammarExams: {},
+    grammarMistakes: [],
+    grammarHearts: 5,
+  },
+];
