@@ -160,7 +160,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     soundService.playSuccess();
   };
 
-  // Cloud sync handler
+  // Cloud sync handler with intelligent merge (preserves local avatar and progress)
   const syncWithCloud = async () => {
     if (!isSupabaseConfigured()) {
       setIsCloudConnected(false);
@@ -169,15 +169,41 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const remote = await SupabaseService.fetchRemoteAccounts();
       if (remote && remote.length > 0) {
-        StorageService.saveAllAccounts(remote);
-        setAllAccounts(remote);
+        const localAccounts = StorageService.loadAllAccounts();
+        const merged = localAccounts.map(local => {
+          const rem = remote.find(r => r.id === local.id);
+          if (!rem) {
+            SupabaseService.saveAccountToRemote(local);
+            return local;
+          }
+          const localTime = new Date(local.lastActiveDate || 0).getTime();
+          const remTime = new Date(rem.lastActiveDate || 0).getTime();
+          // Keep local if local has newer active date or higher XP
+          if (localTime >= remTime || (local.xp || 0) >= (rem.xp || 0)) {
+            SupabaseService.saveAccountToRemote(local);
+            return local;
+          }
+          return rem;
+        });
+
+        for (const rem of remote) {
+          if (!merged.some(m => m.id === rem.id)) {
+            merged.push(rem);
+          }
+        }
+
+        StorageService.saveAllAccounts(merged);
+        setAllAccounts([...merged]);
         setIsCloudConnected(true);
-        const current = remote.find(r => r.id === profile.id);
-        if (current) {
-          setProfile(current);
+
+        const activeId = StorageService.getActiveUserId();
+        if (activeId) {
+          const current = merged.find(r => r.id === activeId);
+          if (current) {
+            setProfile({ ...current });
+          }
         }
       } else if (remote && remote.length === 0) {
-        // Remote table is empty, seed with current accounts
         await SupabaseService.saveAllAccountsToRemote(allAccounts);
         setIsCloudConnected(true);
       }
@@ -304,22 +330,28 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateCharacter = (partial: Partial<CharacterConfig>) => {
     setProfile(prev => {
-      const updatedProfile = {
+      const updatedProfile: UserProfile = {
         ...prev,
         character: {
           ...prev.character,
           ...partial,
         },
+        lastActiveDate: new Date().toISOString(),
       };
+      StorageService.saveProfile(updatedProfile);
       setAllAccounts(accounts => {
         const idx = accounts.findIndex(a => a.id === updatedProfile.id);
         if (idx >= 0) {
           const copy = [...accounts];
           copy[idx] = updatedProfile;
+          StorageService.saveAllAccounts(copy);
           return copy;
         }
         return accounts;
       });
+      if (isSupabaseConfigured()) {
+        SupabaseService.saveAccountToRemote(updatedProfile);
+      }
       return updatedProfile;
     });
   };
@@ -696,10 +728,26 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
           updated.background = itemValue as any;
           break;
       }
-      return {
+      const updatedProfile: UserProfile = {
         ...prev,
         character: updated,
+        lastActiveDate: new Date().toISOString(),
       };
+      StorageService.saveProfile(updatedProfile);
+      setAllAccounts(accounts => {
+        const idx = accounts.findIndex(a => a.id === updatedProfile.id);
+        if (idx >= 0) {
+          const copy = [...accounts];
+          copy[idx] = updatedProfile;
+          StorageService.saveAllAccounts(copy);
+          return copy;
+        }
+        return accounts;
+      });
+      if (isSupabaseConfigured()) {
+        SupabaseService.saveAccountToRemote(updatedProfile);
+      }
+      return updatedProfile;
     });
   };
 
@@ -727,10 +775,26 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
           updated.background = 'default';
           break;
       }
-      return {
+      const updatedProfile: UserProfile = {
         ...prev,
         character: updated,
+        lastActiveDate: new Date().toISOString(),
       };
+      StorageService.saveProfile(updatedProfile);
+      setAllAccounts(accounts => {
+        const idx = accounts.findIndex(a => a.id === updatedProfile.id);
+        if (idx >= 0) {
+          const copy = [...accounts];
+          copy[idx] = updatedProfile;
+          StorageService.saveAllAccounts(copy);
+          return copy;
+        }
+        return accounts;
+      });
+      if (isSupabaseConfigured()) {
+        SupabaseService.saveAccountToRemote(updatedProfile);
+      }
+      return updatedProfile;
     });
   };
 

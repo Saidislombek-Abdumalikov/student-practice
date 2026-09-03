@@ -232,9 +232,9 @@ export const CompeteScreen: React.FC = () => {
               <div className="flex items-end justify-center gap-2.5 sm:gap-6 pt-4 pb-1 max-w-xl mx-auto">
                 {/* 2nd Place (Left) */}
                 {top2 && (
-                  <div className="flex flex-col items-center text-center space-y-2 flex-1 max-w-[150px] sm:max-w-[180px]">
+                  <div className="flex flex-col items-center text-center space-y-1.5 flex-1 min-w-[75px] max-w-[110px] sm:max-w-[180px]">
                     <div className="relative">
-                      <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-3xl bg-slate-900 border-2 border-slate-300 shadow-md overflow-hidden flex items-center justify-center">
+                      <div className="w-14 h-14 sm:w-28 sm:h-28 rounded-2xl sm:rounded-3xl bg-slate-900 border-2 border-slate-300 shadow-md overflow-hidden flex items-center justify-center">
                         <ModularCharacter config={top2.character} size={110} animate={false} />
                       </div>
                       <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-slate-300 text-slate-950 font-black text-[11px] shadow-md whitespace-nowrap">
@@ -251,17 +251,17 @@ export const CompeteScreen: React.FC = () => {
                       </div>
                     </div>
                     {/* 2nd Pillar block */}
-                    <div className="w-full h-16 sm:h-20 rounded-t-2xl bg-gradient-to-t from-slate-800 to-slate-700/80 border border-slate-600 flex items-center justify-center text-slate-300 font-black text-2xl shadow-md">
+                    <div className="w-full h-12 sm:h-20 rounded-t-xl sm:rounded-t-2xl bg-gradient-to-t from-slate-800 to-slate-700/80 border border-slate-600 flex items-center justify-center text-slate-300 font-black text-xl sm:text-2xl shadow-md">
                       2
                     </div>
                   </div>
                 )}
 
                 {/* 1st Place (Center - Majestic & Giant) */}
-                <div className="flex flex-col items-center text-center space-y-2 flex-1 max-w-[170px] sm:max-w-[210px] z-10">
+                <div className="flex flex-col items-center text-center space-y-1.5 flex-1 min-w-[90px] max-w-[130px] sm:max-w-[210px] z-10">
                   <div className="relative">
                     <Crown className="w-8 h-8 text-amber-400 mx-auto animate-bounce filter drop-shadow-lg" />
-                    <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-slate-900 border-4 border-amber-400 shadow-glow-gold overflow-hidden flex items-center justify-center">
+                    <div className="w-18 h-18 sm:w-36 sm:h-36 rounded-2xl sm:rounded-3xl bg-slate-900 border-2 sm:border-4 border-amber-400 shadow-glow-gold overflow-hidden flex items-center justify-center">
                       <ModularCharacter config={top1.character} size={150} animate={true} />
                     </div>
                     <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-xs shadow-glow-gold whitespace-nowrap">
@@ -278,16 +278,16 @@ export const CompeteScreen: React.FC = () => {
                     </div>
                   </div>
                   {/* 1st Tall Gold Pillar */}
-                  <div className="w-full h-24 sm:h-32 rounded-t-2xl bg-gradient-to-t from-amber-700/40 via-amber-500/30 to-amber-500/50 border-2 border-amber-400 flex items-center justify-center text-amber-300 font-black text-4xl shadow-glow-gold">
+                  <div className="w-full h-16 sm:h-32 rounded-t-xl sm:rounded-t-2xl bg-gradient-to-t from-amber-700/40 via-amber-500/30 to-amber-500/50 border-2 border-amber-400 flex items-center justify-center text-amber-300 font-black text-2xl sm:text-4xl shadow-glow-gold">
                     1
                   </div>
                 </div>
 
                 {/* 3rd Place (Right) */}
                 {top3 && (
-                  <div className="flex flex-col items-center text-center space-y-2 flex-1 max-w-[150px] sm:max-w-[180px]">
+                  <div className="flex flex-col items-center text-center space-y-1.5 flex-1 min-w-[75px] max-w-[110px] sm:max-w-[180px]">
                     <div className="relative">
-                      <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-3xl bg-slate-900 border-2 border-amber-700 shadow-md overflow-hidden flex items-center justify-center">
+                      <div className="w-14 h-14 sm:w-28 sm:h-28 rounded-2xl sm:rounded-3xl bg-slate-900 border-2 border-amber-700 shadow-md overflow-hidden flex items-center justify-center">
                         <ModularCharacter config={top3.character} size={110} animate={false} />
                       </div>
                       <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-amber-800 text-amber-200 font-black text-[11px] shadow-md whitespace-nowrap">
@@ -304,7 +304,7 @@ export const CompeteScreen: React.FC = () => {
                       </div>
                     </div>
                     {/* 3rd Pillar block */}
-                    <div className="w-full h-12 sm:h-16 rounded-t-2xl bg-gradient-to-t from-slate-900 to-amber-950/40 border border-amber-900/60 flex items-center justify-center text-amber-600 font-black text-2xl shadow-md">
+                    <div className="w-full h-9 sm:h-16 rounded-t-xl sm:rounded-t-2xl bg-gradient-to-t from-slate-900 to-amber-950/40 border border-amber-900/60 flex items-center justify-center text-amber-600 font-black text-lg sm:text-2xl shadow-md">
                       3
                     </div>
                   </div>

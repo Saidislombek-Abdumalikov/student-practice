@@ -173,12 +173,15 @@ export class StorageService {
     const all = this.loadAllAccounts();
     const index = all.findIndex(a => a.id === profile.id);
     if (index >= 0) {
-      all[index] = profile;
+      all[index] = { ...profile };
     } else {
-      all.push(profile);
+      all.push({ ...profile });
     }
     this.saveAllAccounts(all);
-    this.setActiveUserId(profile.id);
+    // Only update active user id if there is an active session
+    if (this.getActiveUserId() !== null) {
+      this.setActiveUserId(profile.id);
+    }
   }
 
   /**

@@ -94,10 +94,10 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Right: Streak, Coins & Sound Toggle */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
           {/* Streak Badge */}
           <div 
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-orange-500/15 border border-orange-500/30 text-orange-400 font-extrabold text-xs sm:text-sm shadow-sm"
+            className="shrink-0 flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-2xl bg-orange-500/15 border border-orange-500/30 text-orange-400 font-extrabold text-xs shadow-sm"
             title="Daily Practice Streak"
           >
             <Flame className="w-4 h-4 text-orange-400 fill-orange-400 animate-flame-wobble" />
@@ -107,7 +107,7 @@ export const Header: React.FC = () => {
           {/* Coins Badge */}
           <div 
             onClick={() => setScreen('shop')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-extrabold text-xs sm:text-sm shadow-sm cursor-pointer hover:bg-amber-500/25 transition-colors"
+            className="shrink-0 flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-extrabold text-xs shadow-sm cursor-pointer hover:bg-amber-500/25 transition-colors"
             title={profile.role === 'admin' ? 'Admin: Infinite Coins 🪙' : 'Coins Balance (Click to open Shop)'}
           >
             <Coins className="w-4 h-4 text-amber-400" />
@@ -163,7 +163,7 @@ export const Header: React.FC = () => {
           {/* Switch User / Log In */}
           <button
             onClick={logout}
-            className="flex items-center gap-1 p-2 sm:px-2.5 sm:py-1.5 rounded-2xl bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white hover:bg-slate-700 transition-all text-xs font-bold"
+            className="shrink-0 flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 rounded-2xl bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white hover:bg-slate-700 transition-all text-xs font-bold"
             title="Switch Student or Admin Account"
           >
             <Users className="w-4 h-4 text-indigo-400" />
