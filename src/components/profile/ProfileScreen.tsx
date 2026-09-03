@@ -62,7 +62,7 @@ const EXPRESSIONS: { id: CharacterExpression; label: string; emoji: string }[] =
 ];
 
 export const ProfileScreen: React.FC = () => {
-  const { profile, levelNumber, updateCharacter, updateLevel, applyOutfitPreset, cycleCharacterMood, stickers, curriculumUnits, logout, setScreen } = useGame();
+  const { profile, levelNumber, updateCharacter, updateLevel, applyOutfitPreset, cycleCharacterMood, stickers, curriculumUnits, logout, setScreen, resetAdminProgress, resetStudentProgress } = useGame();
   const [activeTab, setActiveTab] = useState<'customizer' | 'stats' | 'stickers'>('customizer');
 
   const masteredUnitsCount = Object.values(profile.unitMasteries).filter(m => m >= 80).length;
@@ -95,24 +95,45 @@ export const ProfileScreen: React.FC = () => {
   return (
     <div className="space-y-5 pb-28 md:pb-12 max-w-5xl mx-auto animate-in fade-in duration-300">
       
-      {/* Mobile Back to Home */}
-      <div className="flex items-center justify-between">
+      {/* Navigation & Action Bar */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <button
           onClick={() => { soundService.playClick(); setScreen('home'); }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all active:scale-95"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all active:scale-95 shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>
         </button>
 
-        <button
-          onClick={logout}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/25 text-xs font-bold transition-all active:scale-95"
-          title="Sign out of account"
-        >
-          <LogOut className="w-3.5 h-3.5" />
-          <span>Log Out</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Reset / Clear Progress Button */}
+          <button
+            onClick={() => {
+              if (window.confirm('⚠️ Clear and reset your learning progress?\n\nThis will reset your XP to 0, streak to 1, and clear completed units and grammar lessons so you can test from the beginning.\n\nContinue?')) {
+                if (profile.role === 'admin') {
+                  resetAdminProgress();
+                } else {
+                  resetStudentProgress(profile.id);
+                }
+                alert('✅ Progress successfully cleared and reset!');
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500 hover:text-slate-950 text-xs font-bold transition-all active:scale-95 shadow-sm"
+            title="Clear and reset learning progress"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Clear Progress</span>
+          </button>
+
+          <button
+            onClick={logout}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/25 text-xs font-bold transition-all active:scale-95 shadow-sm"
+            title="Sign out of account"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Log Out</span>
+          </button>
+        </div>
       </div>
 
       {/* Player Showcase Banner */}

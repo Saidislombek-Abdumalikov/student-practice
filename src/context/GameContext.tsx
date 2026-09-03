@@ -76,6 +76,7 @@ interface GameContextType {
   createNewStudent: (data: { name: string; username: string; password: string; gender: CharacterGender; levelId: LevelId }) => { success: boolean; message?: string };
   resetStudentPassword: (studentId: string, newPass: string) => void;
   resetStudentProgress: (studentId: string) => void;
+  resetAdminProgress: () => void;
   resetAllStudentsProgress: () => void;
   deleteStudentAccount: (studentId: string) => void;
   boxPrices: Record<MysteryBoxTier, number>;
@@ -182,8 +183,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
           const localTime = new Date(local.lastActiveDate || 0).getTime();
           const remTime = new Date(rem.lastActiveDate || 0).getTime();
-          // Keep local if local has newer active date or higher XP
-          if (localTime >= remTime || (local.xp || 0) >= (rem.xp || 0)) {
+          // Newest action always wins! A deliberate reset with a recent timestamp will never be reverted by old higher XP.
+          if (localTime >= remTime) {
             SupabaseService.saveAccountToRemote(local);
             return local;
           }
@@ -1158,45 +1159,53 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const resetStudentProgress = (studentId: string) => {
+  const resetAdminProgress = async () => {
+    const accounts = StorageService.loadAllAccounts();
+    const now = new Date().toISOString();
+    const updated = accounts.map(acc => {
+      if (acc.role === 'admin' || acc.id === profile.id) {
+        return {
+          ...acc,
+          xp: 0,
+          coins: 999999, // infinite admin currency
+          diamonds: 999999,
+          streakDays: 1,
+          unitMasteries: {},
+          completedUnits: [],
+          grammarMasteries: {},
+          completedGrammarTopics: [],
+          completedGrammarExams: {},
+          grammarMistakes: [],
+          mistakes: [],
+          claimedPrizes: [],
+          grammarHearts: 5,
+          currentUnitId: 'u1',
+          lastActiveDate: now,
+        };
+      }
+      return acc;
+    });
+
+    StorageService.saveAllAccounts(updated);
+    setAllAccounts([...updated]);
+    const currentAdmin = updated.find(a => a.role === 'admin' || a.id === profile.id);
+    if (currentAdmin) {
+      setProfile({ ...currentAdmin });
+      StorageService.saveProfile(currentAdmin);
+      if (isSupabaseConfigured()) {
+        await SupabaseService.saveAccountToRemote(currentAdmin);
+      }
+    }
+    soundService.playSuccess();
+  };
+
+  const resetStudentProgress = async (studentId: string) => {
     const accounts = StorageService.loadAllAccounts();
     const idx = accounts.findIndex(a => a.id === studentId);
     if (idx >= 0) {
-      const target = accounts[idx];
-      target.xp = 0;
-      target.coins = 20;
-      target.diamonds = 0;
-      target.streakDays = 1;
-      target.unitMasteries = {};
-      target.completedUnits = [];
-      target.grammarMasteries = {};
-      target.completedGrammarTopics = [];
-      target.completedGrammarExams = {};
-      target.grammarMistakes = [];
-      target.mistakes = [];
-      target.claimedPrizes = [];
-      target.grammarHearts = 5;
-      target.currentUnitId = target.levelId === 'elementary' ? 'el_u1' : target.levelId === 'pre_intermediate' ? 'pre_u0' : 'u1';
-
-      StorageService.saveAllAccounts(accounts);
-      setAllAccounts([...accounts]);
-      if (profile.id === studentId) {
-        setProfile({ ...target });
-        StorageService.saveProfile(target);
-      }
-      if (isSupabaseConfigured()) {
-        SupabaseService.saveAccountToRemote(target);
-      }
-      soundService.playSuccess();
-    }
-  };
-
-  const resetAllStudentsProgress = () => {
-    const accounts = StorageService.loadAllAccounts();
-    const updated = accounts.map(acc => {
-      if (acc.role === 'admin') return acc;
-      return {
-        ...acc,
+      const now = new Date().toISOString();
+      const target = {
+        ...accounts[idx],
         xp: 0,
         coins: 20,
         diamonds: 0,
@@ -1210,18 +1219,57 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         mistakes: [],
         claimedPrizes: [],
         grammarHearts: 5,
+        currentUnitId: accounts[idx].levelId === 'elementary' ? 'el_u1' : accounts[idx].levelId === 'pre_intermediate' ? 'pre_u0' : 'u1',
+        lastActiveDate: now,
+      };
+      accounts[idx] = target;
+
+      StorageService.saveAllAccounts(accounts);
+      setAllAccounts([...accounts]);
+      if (profile.id === studentId) {
+        setProfile({ ...target });
+        StorageService.saveProfile(target);
+      }
+      if (isSupabaseConfigured()) {
+        await SupabaseService.saveAccountToRemote(target);
+      }
+      soundService.playSuccess();
+    }
+  };
+
+  const resetAllStudentsProgress = async (includeAdmin: boolean = false) => {
+    const accounts = StorageService.loadAllAccounts();
+    const now = new Date().toISOString();
+    const updated = accounts.map(acc => {
+      if (acc.role === 'admin' && !includeAdmin) return acc;
+      return {
+        ...acc,
+        xp: 0,
+        coins: acc.role === 'admin' ? 999999 : 20,
+        diamonds: acc.role === 'admin' ? 999999 : 0,
+        streakDays: 1,
+        unitMasteries: {},
+        completedUnits: [],
+        grammarMasteries: {},
+        completedGrammarTopics: [],
+        completedGrammarExams: {},
+        grammarMistakes: [],
+        mistakes: [],
+        claimedPrizes: [],
+        grammarHearts: 5,
         currentUnitId: acc.levelId === 'elementary' ? 'el_u1' : acc.levelId === 'pre_intermediate' ? 'pre_u0' : 'u1',
+        lastActiveDate: now,
       };
     });
     StorageService.saveAllAccounts(updated);
     setAllAccounts([...updated]);
     const current = updated.find(a => a.id === profile.id);
-    if (current && current.role !== 'admin') {
+    if (current) {
       setProfile({ ...current });
       StorageService.saveProfile(current);
     }
     if (isSupabaseConfigured()) {
-      updated.filter(a => a.role !== 'admin').forEach(s => SupabaseService.saveAccountToRemote(s));
+      await SupabaseService.saveAllAccountsToRemote(updated);
     }
     soundService.playSuccess();
   };
@@ -1248,6 +1296,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         createNewStudent,
         resetStudentPassword,
         resetStudentProgress,
+        resetAdminProgress,
         resetAllStudentsProgress,
         deleteStudentAccount,
         boxPrices,

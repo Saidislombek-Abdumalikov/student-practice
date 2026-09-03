@@ -51,6 +51,7 @@ export const AdminDashboard: React.FC = () => {
     resetStudentPassword, 
     resetStudentProgress,
     resetAllStudentsProgress,
+    resetAdminProgress,
     deleteStudentAccount, 
     boxPrices,
     updateBoxPrices,
@@ -425,6 +426,65 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Teacher / Administrator Personal Profile & Controls */}
+      <div className="card-game p-5 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border-2 border-amber-500/40 shadow-xl">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-slate-800 border-2 border-amber-500/60 flex items-center justify-center relative overflow-hidden shadow-inner">
+              <ModularCharacter config={profile.character} size="sm" animate={false} />
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-black text-base sm:text-lg text-white">{profile.name} (Teacher)</h3>
+                <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-black uppercase">
+                  ADMIN
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-3 mt-1 text-xs font-bold text-slate-300">
+                <span className="text-amber-300 flex items-center gap-1">
+                  <Zap className="w-3.5 h-3.5 text-amber-400" /> {profile.xp} XP
+                </span>
+                <span className="text-yellow-400">🪙 {profile.coins === 999999 ? '∞' : profile.coins}</span>
+                <span className="text-cyan-400">💎 {profile.diamonds === 999999 ? '∞' : (profile.diamonds || 0)}</span>
+                <span className="text-orange-400 flex items-center gap-1">
+                  <Flame className="w-3.5 h-3.5 text-orange-400" /> {profile.streakDays}d Streak
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            {/* Clear Admin Progress Button */}
+            <button
+              onClick={async () => {
+                if (window.confirm('⚠️ Clear and reset Teacher/Admin progress?\n\nThis will reset your XP to 0, streak to 1, and clear completed units and grammar masteries.\n\nContinue?')) {
+                  await resetAdminProgress();
+                  alert('✅ Teacher/Admin progress successfully cleared and reset!');
+                }
+              }}
+              className="py-2 px-3.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500 hover:text-slate-950 text-xs font-black flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+              title="Clear Admin/Teacher learning progress"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Clear My Progress</span>
+            </button>
+
+            {/* Edit Admin Character & Studio */}
+            <button
+              onClick={() => setScreen('profile')}
+              className="py-2 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95"
+            >
+              <User className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Profile Studio</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
       {/* Student Roster Table / Grid */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -437,16 +497,18 @@ export const AdminDashboard: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => {
-                if (confirm('⚠️ Clean Slate Reset for ALL Students?\n\nThis will reset all students\' XP to 0, Coins to 20, Diamonds to 0, Streak to 1, and clear completed units and grammar records before deployment.\n\nTeacher account is preserved. Continue?')) {
-                  resetAllStudentsProgress();
+              onClick={async () => {
+                const choice = confirm('⚠️ Clean Slate Reset for ALL Students?\n\nThis will reset all students\' XP to 0, Coins to 20, Diamonds to 0, Streak to 1, and clear completed units and grammar records.\n\nClick OK to reset students (Teacher is preserved).');
+                if (choice) {
+                  await resetAllStudentsProgress(false);
+                  alert('✅ All student progress successfully cleared and reset!');
                 }
               }}
               className="py-1.5 px-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500 hover:text-slate-950 font-black text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
               title="Reset all students to clean starting data"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset All Students (Pre-Deployment)</span>
+              <span>Reset All Students</span>
             </button>
           </div>
         </div>
