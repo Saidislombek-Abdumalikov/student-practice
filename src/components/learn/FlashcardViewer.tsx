@@ -143,13 +143,23 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack }) => {
       
       {/* Top Header Controls */}
       <div className="flex items-center justify-between gap-3">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors text-xs font-bold"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Units</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors text-xs font-bold"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back</span>
+          </button>
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-game-btn transition-all active:scale-95"
+            title="Finish reviewing flashcards and return to unit overview"
+          >
+            <Check className="w-4 h-4" />
+            <span>Finish</span>
+          </button>
+        </div>
 
         {/* Direction Toggle: EN ➔ UZ or UZ ➔ EN */}
         <button

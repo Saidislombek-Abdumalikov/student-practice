@@ -611,7 +611,7 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
           </p>
         </div>
 
-        {/* Matchup Stakes Card */}
+        {/* Matchup Info Card */}
         <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
           <div className="flex items-center justify-around">
             <div className="text-center">
@@ -629,11 +629,15 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
             </div>
           </div>
 
-          <div className="flex items-center justify-center gap-3 pt-2 border-t border-slate-800 text-xs font-bold">
+          <div className="flex items-center justify-center gap-3 pt-2 border-t border-slate-800 text-xs font-bold flex-wrap">
             <span className="text-slate-400">{roundSize} Words</span>
             <span className="text-slate-600">•</span>
+            <span className="text-emerald-400 font-extrabold flex items-center gap-1">
+              🎮 100% Free Game (No Stakes)
+            </span>
+            <span className="text-slate-600">•</span>
             <span className="text-cyan-300 font-extrabold flex items-center gap-1">
-              Stake: {diamondReward === 2 ? '💎💎 2 Diamonds' : '💎 1 Diamond'}
+              Prize: {diamondReward === 2 ? '💎💎 2 Diamonds' : '💎 1 Diamond'}
             </span>
           </div>
         </div>
@@ -1060,14 +1064,19 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
       {/* Top Banner: Diamond Vault */}
       <div className="bg-gradient-to-r from-cyan-950/80 via-slate-900/90 to-indigo-950/80 border-2 border-cyan-500/40 rounded-3xl p-6 backdrop-blur-md shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-black uppercase tracking-widest text-cyan-400">
-            ONLINE PEER ARENA
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-black uppercase tracking-widest text-cyan-400">
+              ONLINE PEER ARENA
+            </span>
+            <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              🎮 100% FREE GAME • NO STAKES
+            </span>
+          </div>
           <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">
             Real-Time Classmate Duel ⚔️
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm mt-1">
-            Challenge any online classmate! 10 words awards <strong>1 Diamond 💎</strong>, 15 words awards <strong>2 Diamonds 💎💎</strong>!
+            Friendly peer challenge — zero coins or diamonds are ever staked or lost! Play purely for practice and earn free prize diamonds!
           </p>
         </div>
 
@@ -1183,7 +1192,7 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-300 block">
-                Duel Length & Stakes:
+                Round Length & Free Prizes (Zero Stakes):
               </label>
               {drillType === 'mixed' && (
                 <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/40 animate-pulse">

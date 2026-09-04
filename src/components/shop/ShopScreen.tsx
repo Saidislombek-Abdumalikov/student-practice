@@ -147,53 +147,104 @@ export const ShopScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Layout: Dressing Room (Left 4 cols) & Shop Catalog (Right 8 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* Main Layout: Dressing Room (Locked Sticky) & Shop Catalog */}
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         
-        {/* Left Column: Live Dressing Room Preview (Sticky & stays in view when scrolling on ALL devices) */}
-        <div className="lg:col-span-4 sticky top-16 lg:top-20 self-start z-30">
-          <div className="card-game p-3.5 sm:p-6 border-2 border-purple-500/40 bg-gradient-to-b from-slate-900 via-purple-950/20 to-slate-900 text-center space-y-2.5 sm:space-y-3 shadow-2xl backdrop-blur-md">
-            
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 sm:py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>LIVE DRESSING ROOM</span>
+        {/* Dressing Room Column: Permanently Locked & Sticky on ALL devices when scrolling */}
+        <div className="w-full lg:w-[320px] xl:w-[360px] shrink-0 sticky top-16 lg:top-20 self-start z-30">
+          
+          {/* Mobile Locked Bar (< lg) */}
+          <div className="block lg:hidden card-game p-2.5 sm:p-3 border-2 border-purple-500/50 bg-slate-900/95 backdrop-blur-md shadow-2xl rounded-2xl">
+            <div className="flex items-center gap-3">
+              {/* Character Stage */}
+              <div 
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-slate-950/80 border border-purple-500/40 flex items-center justify-center shrink-0 overflow-hidden relative shadow-inner"
+                style={{
+                  boxShadow: previewCharacterConfig.background !== 'default' 
+                    ? '0 0 20px rgba(139, 92, 246, 0.3)' 
+                    : 'none'
+                }}
+              >
+                <ModularCharacter config={previewCharacterConfig} size={76} animate={true} />
+              </div>
+
+              {/* Info & Status */}
+              <div className="flex-1 min-w-0 space-y-1">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-black tracking-wider">
+                    <Sparkles className="w-3 h-3 text-purple-400" />
+                    <span>LOCKED MODEL 🔒</span>
+                  </span>
+                  <div className="flex items-center gap-1.5 text-xs font-black text-amber-300">
+                    <span>🪙 {profile.coins}</span>
+                    <span>•</span>
+                    <span className="text-cyan-300">💎 {profile.diamonds || 0}</span>
+                  </div>
+                </div>
+
+                <h4 className="font-extrabold text-xs sm:text-sm text-white truncate">
+                  {previewItem ? `Preview: ${previewItem.name}` : previewPreset ? `Set: ${previewPreset.name}` : (profile.name || 'Hero')}
+                </h4>
+                <p className="text-[11px] text-slate-400 truncate">
+                  {previewItem || previewPreset ? 'Tap item to equip or purchase' : 'Currently equipped avatar'}
+                </p>
+
+                <div className="flex items-center gap-2 pt-0.5">
+                  {(previewItem || previewPreset) && (
+                    <button
+                      onClick={() => { setPreviewItem(null); setPreviewPreset(null); }}
+                      className="text-[11px] font-extrabold text-indigo-400 hover:text-white bg-indigo-500/20 px-2 py-0.5 rounded-lg border border-indigo-500/40 transition-all"
+                    >
+                      Reset Preview
+                    </button>
+                  )}
+                  <div className="sm:hidden">
+                    <QuickMoodBar size="sm" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Full Dressing Room Card (lg+) */}
+          <div className="hidden lg:block card-game p-5 xl:p-6 border-2 border-purple-500/40 bg-gradient-to-b from-slate-900 via-purple-950/20 to-slate-900 text-center space-y-3 shadow-2xl backdrop-blur-md rounded-3xl">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-black">
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              <span>LIVE DRESSING ROOM (LOCKED 🔒)</span>
             </div>
 
             {/* Character Stage with Ambient Aura */}
             <div 
-              className="py-2 sm:py-4 px-2 rounded-3xl bg-slate-950/60 border border-slate-800 flex items-center justify-center min-h-[140px] sm:min-h-[220px] transition-all"
+              className="py-4 px-2 rounded-3xl bg-slate-950/70 border border-slate-800 flex items-center justify-center min-h-[220px] transition-all"
               style={{
                 boxShadow: previewCharacterConfig.background !== 'default' 
                   ? '0 0 35px rgba(139, 92, 246, 0.25)' 
                   : 'none'
               }}
             >
-              <div className="block sm:hidden">
-                <ModularCharacter config={previewCharacterConfig} size={110} animate={true} />
-              </div>
-              <div className="hidden sm:block">
-                <ModularCharacter config={previewCharacterConfig} size={180} animate={true} />
-              </div>
+              <ModularCharacter config={previewCharacterConfig} size={180} animate={true} />
             </div>
 
             <div>
-              <h3 className="font-extrabold text-xs sm:text-base text-white">{profile.name || 'Hero'}</h3>
-              <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">
+              <h3 className="font-extrabold text-base text-white">{profile.name || 'Hero'}</h3>
+              <p className="text-xs text-slate-400 mt-0.5 truncate">
                 {previewItem 
                   ? `Previewing: ${previewItem.name}` 
+                  : previewPreset
+                  ? `Previewing Set: ${previewPreset.name}`
                   : 'Currently equipped'}
               </p>
             </div>
 
             {/* Quick Mood Selector inside Dressing Room */}
-            <div className="hidden sm:flex flex-col items-center gap-1 pt-1">
+            <div className="flex flex-col items-center gap-1 pt-1">
               <QuickMoodBar size="sm" />
             </div>
 
-            {previewItem && (
+            {(previewItem || previewPreset) && (
               <button
-                onClick={() => setPreviewItem(null)}
-                className="text-xs font-bold text-indigo-400 hover:text-white underline pt-0.5"
+                onClick={() => { setPreviewItem(null); setPreviewPreset(null); }}
+                className="text-xs font-bold text-indigo-400 hover:text-white underline pt-0.5 block mx-auto"
               >
                 Reset Preview
               </button>
@@ -202,7 +253,7 @@ export const ShopScreen: React.FC = () => {
         </div>
 
         {/* Right Column: Categories & Items Catalog */}
-        <div className="lg:col-span-8 space-y-5">
+        <div className="w-full lg:flex-1 space-y-5 min-w-0">
           
           {/* Category Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
@@ -537,30 +588,6 @@ export const ShopScreen: React.FC = () => {
 
         </div>
 
-      </div>
-
-      {/* Mobile Floating Sticky Preview Dock */}
-      <div className="lg:hidden fixed bottom-4 right-4 z-50 flex items-center gap-2.5 p-2 rounded-2xl bg-slate-900/95 border-2 border-purple-500/70 shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-2">
-        <div className="w-12 h-12 rounded-xl bg-slate-950 border border-purple-500/40 overflow-hidden flex items-center justify-center shrink-0">
-          <ModularCharacter config={previewCharacterConfig} size="sm" animate={true} />
-        </div>
-        <div className="text-left pr-1 max-w-[130px]">
-          <span className="text-[10px] font-black uppercase text-purple-400 block truncate">
-            {previewItem ? 'Previewing' : 'Equipped'}
-          </span>
-          <span className="text-xs font-bold text-white block truncate">
-            {previewItem ? previewItem.name : (profile.name || 'Hero')}
-          </span>
-        </div>
-        {previewItem && (
-          <button
-            onClick={() => setPreviewItem(null)}
-            className="p-1.5 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-xs font-bold"
-            title="Reset Preview"
-          >
-            ✕
-          </button>
-        )}
       </div>
 
     </div>

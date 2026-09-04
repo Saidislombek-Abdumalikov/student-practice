@@ -291,7 +291,10 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
       spread: 60,
       origin: { y: 0.6 },
     });
-    recordPracticeResult(currentUnit.id, correctCount + 1, activeWords.length);
+    const totalAttempted = mode === 'matching' 
+      ? Math.max(1, matchedIds.length) 
+      : Math.max(1, questionIndex + (feedback ? 1 : 0));
+    recordPracticeResult(currentUnit.id, correctCount, Math.min(activeWords.length, totalAttempted));
   };
 
   // 1. Multiple Choice Handler
@@ -411,7 +414,10 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
 
   // SESSION FINISHED SCREEN
   if (isFinished) {
-    const accuracy = Math.round((correctCount / activeWords.length) * 100);
+    const answeredCount = mode === 'matching' 
+      ? Math.max(1, matchedIds.length) 
+      : Math.max(1, questionIndex + (feedback ? 1 : 0));
+    const accuracy = answeredCount > 0 ? Math.min(100, Math.round((correctCount / answeredCount) * 100)) : 100;
 
     return (
       <div className="max-w-md mx-auto card-game p-8 text-center space-y-6 animate-in zoom-in-95 duration-300">
@@ -434,8 +440,10 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
             <span className="text-2xl font-black text-emerald-400">{accuracy}%</span>
           </div>
           <div className="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700">
-            <span className="text-xs text-slate-400 block font-bold">Max Combo</span>
-            <span className="text-2xl font-black text-orange-400">{maxCombo}x 🔥</span>
+            <span className="text-xs text-slate-400 block font-bold">Questions</span>
+            <span className="text-2xl font-black text-white">
+              {correctCount} / {answeredCount}
+            </span>
           </div>
           <div className="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700">
             <span className="text-xs text-slate-400 block font-bold">XP Earned</span>
@@ -503,13 +511,25 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
       
       {/* Top Navigation & Combo Bar */}
       <div className="flex items-center justify-between gap-2 sm:gap-3">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold shrink-0"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Exit</span>
-        </button>
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold shrink-0"
+            title="Exit practice"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Exit</span>
+          </button>
+
+          <button
+            onClick={finishSession}
+            className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shadow-game-btn transition-all active:scale-95 shrink-0"
+            title="Finish practice session and submit results"
+          >
+            <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+            <span>Finish</span>
+          </button>
+        </div>
 
         {/* Locked, Stationary Exam Timer (Tabular Monospaced Numbers, Zero Screen Flicker) */}
         <div 
@@ -928,6 +948,21 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
             </div>
           </div>
         )}
+
+        {/* Practice Footer: Quick Finish Button */}
+        <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+          <span className="text-xs text-slate-400">
+            {correctCount} correct • {mode === 'matching' ? `${matchedIds.length} pairs matched` : `${questionIndex + 1} of ${activeWords.length}`}
+          </span>
+          <button
+            onClick={finishSession}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 text-xs font-bold transition-all active:scale-95"
+            title="Complete your practice and view results"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Finish Practice</span>
+          </button>
+        </div>
 
       </div>
 

@@ -121,10 +121,11 @@ export const IncomingDuelModal: React.FC<IncomingDuelModalProps> = ({ onAcceptDu
             </div>
           </div>
 
-          <div className="flex items-center justify-center gap-2 pt-2 border-t border-slate-800 text-xs font-black text-amber-300">
-            <span>Prize:</span>
+          <div className="flex items-center justify-center gap-2.5 pt-2 border-t border-slate-800 text-xs font-black flex-wrap">
+            <span className="text-emerald-400 font-extrabold">🎮 Free Friendly Game (No Stakes)</span>
+            <span className="text-slate-600">•</span>
             <span className="text-cyan-300 flex items-center gap-1">
-              {incomingMatch.diamondReward === 2 ? '💎💎 2 Diamonds' : '💎 1 Diamond'}
+              Prize: {incomingMatch.diamondReward === 2 ? '💎💎 2 Diamonds' : '💎 1 Diamond'}
             </span>
           </div>
         </div>
