@@ -45,6 +45,7 @@ import {
 
 export const AdminDashboard: React.FC = () => {
   const { 
+    profile,
     allAccounts, 
     loginAsUser, 
     logout, 

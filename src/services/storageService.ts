@@ -48,6 +48,54 @@ export const DEFAULT_PROFILE: UserProfile = {
   grammarHearts: 3,
 };
 
+
+export function sanitizeProfile(raw: any): UserProfile {
+  if (!raw || typeof raw !== 'object') {
+    return { ...DEFAULT_PROFILE };
+  }
+
+  const role = raw.role === 'admin' ? 'admin' : 'student';
+  const defaultChar = role === 'admin' 
+    ? { ...DEFAULT_CHARACTER, gender: 'man' as const, expression: 'victory' as const }
+    : { ...DEFAULT_CHARACTER, gender: (raw.character?.gender === 'woman' ? 'woman' : 'man') as const };
+
+  return {
+    ...DEFAULT_PROFILE,
+    ...raw,
+    id: raw.id || ('usr_' + Math.random().toString(36).substring(2, 9)),
+    name: raw.name || (role === 'admin' ? 'Teacher Admin' : 'Student'),
+    username: (raw.username || '').toLowerCase().trim(),
+    password: raw.password || '',
+    role,
+    isOnboarded: raw.isOnboarded !== undefined ? raw.isOnboarded : true,
+    character: {
+      ...defaultChar,
+      ...(raw.character && typeof raw.character === 'object' ? raw.character : {}),
+    },
+    levelId: raw.levelId || 'beginner',
+    currentUnitId: raw.currentUnitId || (raw.levelId === 'elementary' ? 'el_u1' : raw.levelId === 'pre_intermediate' ? 'pre_u0' : 'u1'),
+    xp: typeof raw.xp === 'number' ? raw.xp : (role === 'admin' ? 590 : 0),
+    coins: role === 'admin' ? 999999 : (typeof raw.coins === 'number' ? raw.coins : 20),
+    diamonds: role === 'admin' ? 999999 : (typeof raw.diamonds === 'number' ? raw.diamonds : 0),
+    streakDays: typeof raw.streakDays === 'number' ? raw.streakDays : 1,
+    lastActiveDate: raw.lastActiveDate || new Date().toISOString(),
+    inventory: Array.isArray(raw.inventory) && raw.inventory.length > 0 ? raw.inventory : DEFAULT_PROFILE.inventory,
+    unlockedStickers: Array.isArray(raw.unlockedStickers) && raw.unlockedStickers.length > 0 ? raw.unlockedStickers : DEFAULT_PROFILE.unlockedStickers,
+    unitMasteries: (raw.unitMasteries && typeof raw.unitMasteries === 'object') ? raw.unitMasteries : {},
+    completedUnits: Array.isArray(raw.completedUnits) ? raw.completedUnits : [],
+    grammarMasteries: (raw.grammarMasteries && typeof raw.grammarMasteries === 'object') ? raw.grammarMasteries : {},
+    completedGrammarTopics: Array.isArray(raw.completedGrammarTopics) ? raw.completedGrammarTopics : [],
+    completedGrammarExams: (raw.completedGrammarExams && typeof raw.completedGrammarExams === 'object') ? raw.completedGrammarExams : {},
+    grammarMistakes: Array.isArray(raw.grammarMistakes) ? raw.grammarMistakes : [],
+    mistakes: Array.isArray(raw.mistakes) ? raw.mistakes : [],
+    claimedPrizes: Array.isArray(raw.claimedPrizes) ? raw.claimedPrizes : [],
+    soundEnabled: raw.soundEnabled !== undefined ? raw.soundEnabled : true,
+    speechSpeed: raw.speechSpeed || 'normal',
+    grammarLevel: raw.grammarLevel || 'level_1',
+    grammarHearts: typeof raw.grammarHearts === 'number' ? raw.grammarHearts : 5,
+  };
+}
+
 export class StorageService {
   /**
    * Load all user and student accounts. Initializes with default accounts if not set.
@@ -74,7 +122,7 @@ export class StorageService {
               acc.diamonds = 999999;
             }
           }
-          return merged;
+          return merged.map(acc => sanitizeProfile(acc));
         }
       }
     } catch {
@@ -83,11 +131,13 @@ export class StorageService {
 
     // Initialize with default accounts
     try {
-      localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(INITIAL_ACCOUNTS));
+      const sanitizedInitial = INITIAL_ACCOUNTS.map(acc => sanitizeProfile(acc));
+      localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(sanitizedInitial));
+      return sanitizedInitial;
     } catch {
       // Storage error
     }
-    return INITIAL_ACCOUNTS;
+    return INITIAL_ACCOUNTS.map(acc => sanitizeProfile(acc));
   }
 
   /**
@@ -161,14 +211,10 @@ export class StorageService {
     const activeId = this.getActiveUserId();
     const found = all.find(a => a.id === activeId);
     if (found) {
-      if (found.role === 'admin') {
-        found.coins = 999999;
-        found.diamonds = 999999;
-      }
-      return found;
+      return sanitizeProfile(found);
     }
     const fallback = all.find(a => a.role !== 'admin') || all[0] || INITIAL_ACCOUNTS[1] || INITIAL_ACCOUNTS[0];
-    return fallback;
+    return sanitizeProfile(fallback);
   }
 
   /**

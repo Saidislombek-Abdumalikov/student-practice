@@ -27,20 +27,35 @@ export const ModularCharacter: React.FC<ModularCharacterProps> = ({
     }
   }
 
+  const safeConfig = config || {
+    gender: 'man',
+    skinTone: '#F0C08A',
+    hairStyle: 'fade',
+    hairColor: '#1E293B',
+    outfit: 'hoodie',
+    outfitColor: '#6366F1',
+    hat: 'none',
+    glasses: 'none',
+    accessory: 'none',
+    pet: 'none',
+    background: 'default',
+    expression: 'idle',
+  };
+
   const {
-    gender,
-    skinTone,
-    hairStyle,
-    hairColor,
-    outfit,
-    outfitColor,
-    hat,
-    glasses,
-    accessory,
-    pet,
-    background,
-    expression,
-  } = config;
+    gender = 'man',
+    skinTone = '#F0C08A',
+    hairStyle = 'fade',
+    hairColor = '#1E293B',
+    outfit = 'hoodie',
+    outfitColor = '#6366F1',
+    hat = 'none',
+    glasses = 'none',
+    accessory = 'none',
+    pet = 'none',
+    background = 'default',
+    expression = 'idle',
+  } = safeConfig;
 
   const isMan = gender === 'man';
 

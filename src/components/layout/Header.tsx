@@ -28,7 +28,7 @@ export const Header: React.FC = () => {
   } = useGame();
 
   const [showTradeModal, setShowTradeModal] = useState(false);
-  const currentMoodEmoji = moodEmojis[profile.character.expression || 'idle'] || '🙂';
+  const currentMoodEmoji = moodEmojis[profile?.character?.expression || 'idle'] || '🙂';
 
   return (
     <header className="sticky top-0 z-40 w-full bg-slate-900/90 border-b border-slate-800/90 backdrop-blur-md px-4 py-2.5 sm:px-6">
@@ -43,7 +43,7 @@ export const Header: React.FC = () => {
             title="View Profile & Character Studio"
           >
             <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-slate-800 border-2 border-indigo-500/60 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105 active:scale-95 shadow-sm shrink-0">
-              <ModularCharacter config={profile.character} size="sm" animate={false} />
+              <ModularCharacter config={profile?.character} size="sm" animate={false} />
               <div 
                 onClick={(e) => { e.stopPropagation(); cycleCharacterMood(); }}
                 className="absolute -bottom-0.5 -right-0.5 bg-slate-900/90 text-[10px] leading-none px-1 py-0.5 rounded-full border border-indigo-500/40 shadow hover:scale-125 transition-transform"
@@ -59,7 +59,7 @@ export const Header: React.FC = () => {
                   L{levelNumber}
                 </span>
                 <span className="text-xs sm:text-sm font-black text-white max-w-[85px] sm:max-w-[130px] truncate">
-                  {profile.name || 'Hero'}
+                  {(profile && profile.name) ? profile.name : 'Hero'}
                 </span>
               </div>
 

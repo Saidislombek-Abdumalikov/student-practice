@@ -65,7 +65,7 @@ export const ProfileScreen: React.FC = () => {
   const { profile, levelNumber, updateCharacter, updateLevel, applyOutfitPreset, cycleCharacterMood, stickers, curriculumUnits, logout, setScreen, resetAdminProgress, resetStudentProgress } = useGame();
   const [activeTab, setActiveTab] = useState<'customizer' | 'stats' | 'stickers'>('customizer');
 
-  const masteredUnitsCount = Object.values(profile.unitMasteries).filter(m => m >= 80).length;
+  const masteredUnitsCount = Object.values(profile?.unitMasteries || {}).filter(m => m >= 80).length;
 
   const handleGenderToggle = (gender: CharacterGender) => {
     soundService.playSuccess();

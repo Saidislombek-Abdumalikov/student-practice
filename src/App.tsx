@@ -37,7 +37,7 @@ const MainApp: React.FC = () => {
       case 'home':
         return <HomeScreen />;
       case 'admin':
-        return profile.role === 'admin' ? <AdminDashboard /> : <HomeScreen />;
+        return (profile && profile.role === 'admin') ? <AdminDashboard /> : <HomeScreen />;
       case 'grammar':
       case 'grammar_topic':
         return <GrammarDashboard />;

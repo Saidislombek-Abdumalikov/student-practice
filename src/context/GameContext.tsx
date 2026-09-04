@@ -23,7 +23,7 @@ import {
   ClaimedPrizeRecord
 } from '../types';
 import { MysteryBoxService, MYSTERY_BOX_PRICES } from '../services/mysteryBoxService';
-import { StorageService, DEFAULT_CHARACTER, DEFAULT_PROFILE } from '../services/storageService';
+import { StorageService, DEFAULT_CHARACTER, DEFAULT_PROFILE, sanitizeProfile } from '../services/storageService';
 import { CURRICULUM_UNITS } from '../data/curriculumData';
 import { SHOP_ITEMS, STICKERS } from '../data/shopData';
 import { INITIAL_ACHIEVEMENTS } from '../data/achievementsData';
@@ -205,7 +205,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (activeId) {
           const current = merged.find(r => r.id === activeId);
           if (current) {
-            setProfile({ ...current });
+            setProfile(sanitizeProfile(current));
           }
         }
       } else if (remote && remote.length === 0) {
@@ -1038,11 +1038,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, message: 'Invalid username or password. Please try again.' };
     }
 
-    setProfile(found);
+    const safeFound = sanitizeProfile(found);
+    setProfile(safeFound);
+    StorageService.saveProfile(safeFound);
+    StorageService.setActiveUserId(safeFound.id);
     setIsAuthenticated(true);
-    StorageService.setActiveUserId(found.id);
     soundService.playSuccess();
-    if (found.role === 'admin') {
+    if (safeFound.role === 'admin') {
       setCurrentScreen('admin');
     } else {
       setCurrentScreen('home');
@@ -1265,7 +1267,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAllAccounts([...updated]);
     const current = updated.find(a => a.id === profile.id);
     if (current) {
-      setProfile({ ...current });
+      setProfile(sanitizeProfile(current));
       StorageService.saveProfile(current);
     }
     if (isSupabaseConfigured()) {
