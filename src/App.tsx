@@ -81,10 +81,10 @@ const MainApp: React.FC = () => {
         }} 
       />
 
-      {/* Global Status Header */}
+      {/* Global Status Header (Permanently Locked to Top) */}
       <Header />
 
-      <div className="flex-1 flex">
+      <div className="flex-1 flex pt-16">
         {/* Navigation Sidebar & Dock */}
         <Navbar />
 

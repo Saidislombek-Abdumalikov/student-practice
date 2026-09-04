@@ -31,7 +31,7 @@ export const Header: React.FC = () => {
   const currentMoodEmoji = moodEmojis[profile?.character?.expression || 'idle'] || '🙂';
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-slate-900/90 border-b border-slate-800/90 backdrop-blur-md px-4 py-2.5 sm:px-6">
+    <header className="fixed top-0 left-0 right-0 z-40 h-16 w-full bg-slate-900/95 border-b border-slate-800/90 backdrop-blur-xl px-4 py-2.5 sm:px-6 shadow-md flex items-center">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
         
         {/* Left: Brand & Player Level */}

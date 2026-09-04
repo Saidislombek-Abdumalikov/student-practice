@@ -217,9 +217,31 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Run initial cloud sync on mount
+  // Multi-device real-time sync: Listen for changes across devices + focus/online
   useEffect(() => {
     syncWithCloud();
+
+    // Realtime Supabase push updates across all connected devices (phones, tablets, PCs)
+    const unsubscribe = SupabaseService.subscribeToRemoteAccounts(() => {
+      syncWithCloud();
+    });
+
+    // Auto-sync when user returns to tab or reconnects to WiFi
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        syncWithCloud();
+      }
+    };
+    const handleOnline = () => syncWithCloud();
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('online', handleOnline);
+
+    return () => {
+      unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('online', handleOnline);
+    };
   }, []);
 
   // Sync with LocalStorage, allAccounts state, & Supabase (only when logged in)
@@ -495,19 +517,53 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (newLevel > oldLevel) {
         soundService.playLevelUp();
       }
-      return {
+      const updated = {
         ...prev,
         xp: newXp,
+        lastActiveDate: new Date().toISOString(),
       };
+      StorageService.saveProfile(updated);
+      setAllAccounts(accounts => {
+        const idx = accounts.findIndex(a => a.id === prev.id);
+        if (idx >= 0) {
+          const copy = [...accounts];
+          copy[idx] = updated;
+          StorageService.saveAllAccounts(copy);
+          return copy;
+        }
+        return accounts;
+      });
+      if (isSupabaseConfigured()) {
+        SupabaseService.saveAccountToRemote(updated);
+      }
+      return updated;
     });
   };
 
   const addCoins = (amount: number) => {
     soundService.playCoin();
-    setProfile(prev => ({
-      ...prev,
-      coins: prev.coins + amount,
-    }));
+    setProfile(prev => {
+      const updated = {
+        ...prev,
+        coins: prev.role === 'admin' ? 999999 : prev.coins + amount,
+        lastActiveDate: new Date().toISOString(),
+      };
+      StorageService.saveProfile(updated);
+      setAllAccounts(accounts => {
+        const idx = accounts.findIndex(a => a.id === prev.id);
+        if (idx >= 0) {
+          const copy = [...accounts];
+          copy[idx] = updated;
+          StorageService.saveAllAccounts(copy);
+          return copy;
+        }
+        return accounts;
+      });
+      if (isSupabaseConfigured()) {
+        SupabaseService.saveAccountToRemote(updated);
+      }
+      return updated;
+    });
   };
 
   const addDiamonds = (amount: number) => {
