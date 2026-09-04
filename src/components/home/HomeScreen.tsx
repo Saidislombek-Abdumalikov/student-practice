@@ -29,10 +29,19 @@ export const HomeScreen: React.FC = () => {
     recommendedGrammarTopic,
     overallGrammarProgress,
     cycleCharacterMood,
+    getUnitProgress,
   } = useGame();
 
-  const currentUnit = (curriculumUnits && curriculumUnits.find(u => u.id === activeUnitId)) || (curriculumUnits && curriculumUnits[0]) || { id: 'u1', unitNumber: 1, title: 'Introduction' };
-  const unitMastery = (profile?.unitMasteries && currentUnit?.id) ? (profile.unitMasteries[currentUnit.id] || 0) : 0;
+  const currentUnit = (curriculumUnits && curriculumUnits.find(u => u.id === activeUnitId)) || (curriculumUnits && curriculumUnits[0]) || { id: 'u1', unitNumber: 1, title: 'Introduction', words: [] };
+  const unitProg = getUnitProgress ? getUnitProgress(currentUnit.id) : {
+    completedCount: 0,
+    totalCount: currentUnit?.words?.length || 1,
+    percent: 0,
+    lastWordIndex: 0,
+    nextWordIndex: 0,
+    completedWordIds: []
+  };
+  const unitMastery = unitProg.percent;
   const mistakeCount = (profile?.mistakes || []).length;
 
   const handleStartLearn = () => {
@@ -145,11 +154,12 @@ export const HomeScreen: React.FC = () => {
             <div className="mt-2 h-2 bg-slate-100 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full transition-all duration-300"
-                style={{ width: `${Math.max(10, unitMastery)}%` }}
+                style={{ width: `${Math.max(5, unitProg.percent)}%` }}
               />
             </div>
-            <div className="text-[10px] text-slate-400 font-bold mt-1">
-              {unitMastery}% mastered
+            <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold mt-1">
+              <span>{unitProg.percent}% finished</span>
+              <span>{unitProg.completedCount} / {currentUnit.words?.length || 0} words</span>
             </div>
 
             {/* Purple Continue Button */}
@@ -405,8 +415,10 @@ export const HomeScreen: React.FC = () => {
 
           <div className="flex items-center gap-3 self-end sm:self-center">
             <div className="text-right">
-              <span className="text-xs font-bold text-slate-400 block">Vocabulary Mastery</span>
-              <span className="text-lg font-black text-emerald-400">{unitMastery}%</span>
+              <span className="text-xs font-bold text-slate-400 block">Unit Progress</span>
+              <span className="text-lg font-black text-emerald-400">
+                {unitProg.percent}% <span className="text-xs text-slate-400 font-semibold">({unitProg.completedCount}/{currentUnit.words?.length || 0} words)</span>
+              </span>
             </div>
           </div>
 

@@ -466,6 +466,11 @@ export interface UserProfile {
   inventory: string[]; // List of owned item IDs
   unlockedStickers: string[];
   unitMasteries: Record<string, number>; // unitId -> 0-100%
+  unitWordProgress?: Record<string, {
+    completedWordIds: string[];
+    lastWordIndex: number;
+    lastPracticedAt?: string;
+  }>;
   completedUnits: string[];
   mistakes: MistakeRecord[];
   soundEnabled: boolean;

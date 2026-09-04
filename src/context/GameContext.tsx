@@ -108,7 +108,15 @@ interface GameContextType {
   unequipShopItem: (category: ShopCategory) => void;
   recordMistake: (word: VocabularyWord) => void;
   resolveMistake: (wordId: string) => void;
-  recordPracticeResult: (unitId: string, correct: number, total: number) => void;
+  recordPracticeResult: (unitId: string, completedWordsOrCount: string[] | number, lastIndexOrTotal?: number) => void;
+  getUnitProgress: (unitId: string) => {
+    completedCount: number;
+    totalCount: number;
+    percent: number;
+    lastWordIndex: number;
+    nextWordIndex: number;
+    completedWordIds: string[];
+  };
   toggleSound: () => void;
   resetProgress: () => void;
   openMysteryBox: (tier: MysteryBoxTier) => { success: boolean; prize?: MysteryBoxPrize; message?: string };
@@ -1084,12 +1092,70 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return result;
   };
 
-  const recordPracticeResult = (unitId: string, correct: number, total: number) => {
-    const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const getUnitProgress = (unitId: string) => {
+    const unit = CURRICULUM_UNITS.find(u => u.id === unitId);
+    const totalCount = unit ? unit.words.length : 1;
+    const progress = profile.unitWordProgress?.[unitId];
+
+    let completedWordIds: string[] = progress?.completedWordIds || [];
+    // If completedWordIds is empty but unitMasteries has a value, seed completedWordIds from unit words
+    if (completedWordIds.length === 0 && (profile.unitMasteries[unitId] || 0) > 0 && unit) {
+      const count = Math.min(totalCount, Math.round(totalCount * ((profile.unitMasteries[unitId] || 0) / 100)));
+      completedWordIds = unit.words.slice(0, count).map(w => w.id);
+    }
+
+    const completedCount = completedWordIds.length;
+    const percent = Math.min(100, Math.round((completedCount / totalCount) * 100));
+    const lastWordIndex = progress?.lastWordIndex ?? (completedCount > 0 ? completedCount - 1 : 0);
+    const nextWordIndex = completedCount >= totalCount ? 0 : Math.min(totalCount - 1, Math.max(completedCount, lastWordIndex + 1));
+
+    return {
+      completedCount,
+      totalCount,
+      percent,
+      lastWordIndex,
+      nextWordIndex,
+      completedWordIds,
+    };
+  };
+
+  const recordPracticeResult = (
+    unitId: string, 
+    completedWordsOrCount: string[] | number, 
+    lastIndexOrTotal?: number
+  ) => {
+    const unit = CURRICULUM_UNITS.find(u => u.id === unitId);
+    const totalUnitWords = unit ? unit.words.length : 1;
+
     setProfile(prev => {
-      const currentMastery = prev.unitMasteries[unitId] || 0;
-      const newMastery = Math.min(100, Math.max(currentMastery, accuracy));
-      const completed = newMastery >= 80 && !prev.completedUnits.includes(unitId)
+      const currentWordProgress = prev.unitWordProgress?.[unitId] || {
+        completedWordIds: [],
+        lastWordIndex: 0,
+      };
+
+      let newCompletedIds: string[];
+      let newLastIndex: number;
+
+      if (Array.isArray(completedWordsOrCount)) {
+        // Exact list of word IDs completed/answered correctly in session
+        const set = new Set([...currentWordProgress.completedWordIds, ...completedWordsOrCount]);
+        newCompletedIds = Array.from(set);
+        newLastIndex = typeof lastIndexOrTotal === 'number' ? lastIndexOrTotal : currentWordProgress.lastWordIndex;
+      } else {
+        // Backwards compatibility if called with count
+        const correctCount = completedWordsOrCount;
+        const wordsToAdd = unit ? unit.words.slice(0, correctCount).map(w => w.id) : [];
+        const set = new Set([...currentWordProgress.completedWordIds, ...wordsToAdd]);
+        newCompletedIds = Array.from(set);
+        newLastIndex = typeof lastIndexOrTotal === 'number' ? lastIndexOrTotal : currentWordProgress.lastWordIndex;
+      }
+
+      // Actual percent of the unit finished
+      const actualCompletedCount = newCompletedIds.length;
+      const percentFinished = Math.min(100, Math.round((actualCompletedCount / Math.max(1, totalUnitWords)) * 100));
+
+      const isUnitCompleted = percentFinished >= 100;
+      const updatedCompletedUnits = isUnitCompleted && !prev.completedUnits.includes(unitId)
         ? [...prev.completedUnits, unitId]
         : prev.completedUnits;
 
@@ -1097,9 +1163,17 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...prev,
         unitMasteries: {
           ...prev.unitMasteries,
-          [unitId]: newMastery,
+          [unitId]: percentFinished,
         },
-        completedUnits: completed,
+        unitWordProgress: {
+          ...(prev.unitWordProgress || {}),
+          [unitId]: {
+            completedWordIds: newCompletedIds,
+            lastWordIndex: newLastIndex,
+            lastPracticedAt: new Date().toISOString(),
+          },
+        },
+        completedUnits: updatedCompletedUnits,
       };
     });
   };
@@ -1484,6 +1558,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         recordMistake,
         resolveMistake,
         recordPracticeResult,
+        getUnitProgress,
         toggleSound,
         resetProgress,
         openMysteryBox,

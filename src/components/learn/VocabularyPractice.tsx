@@ -15,7 +15,8 @@ import {
   RotateCcw,
   Trophy,
   Shuffle,
-  Timer
+  Timer,
+  Play
 } from 'lucide-react';
 
 export type WordCountMode = '5' | '10' | 'whole';
@@ -34,12 +35,14 @@ interface VocabularyPracticeProps {
   onBack: () => void;
   initialCountMode?: WordCountMode;
   initialMode?: PracticeMode;
+  startWordIndex?: number;
 }
 
 export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ 
   onBack, 
   initialCountMode = '10',
-  initialMode = 'mixed' 
+  initialMode = 'mixed',
+  startWordIndex
 }) => {
   const { 
     curriculumUnits, 
@@ -47,16 +50,34 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
     addXP, 
     addCoins, 
     recordMistake, 
-    recordPracticeResult 
+    recordPracticeResult,
+    getUnitProgress
   } = useGame();
 
   const currentUnit = curriculumUnits.find(u => u.id === activeUnitId) || curriculumUnits[0];
   
   const [wordCountMode, setWordCountMode] = useState<WordCountMode>(initialCountMode);
   const [shuffleCounter, setShuffleCounter] = useState<number>(1);
+  const [currentContinueIndex, setCurrentContinueIndex] = useState<number | undefined>(startWordIndex);
+  const [sessionCompletedIds, setSessionCompletedIds] = useState<string[]>([]);
 
-  // Automatically shuffles on start, after every session, and on count change
+  // Automatically selects questions: supports sequential continue or random shuffle
   const activeWords = useMemo(() => {
+    // If continuing from a specific word index without explicit shuffle
+    if (currentContinueIndex !== undefined && currentContinueIndex >= 0 && shuffleCounter === 1) {
+      const sliceStart = Math.min(Math.max(0, currentContinueIndex), Math.max(0, currentUnit.words.length - 1));
+      if (wordCountMode === '5') {
+        const sliced = currentUnit.words.slice(sliceStart, sliceStart + 5);
+        return sliced.length > 0 ? sliced : currentUnit.words.slice(0, 5);
+      }
+      if (wordCountMode === '10') {
+        const sliced = currentUnit.words.slice(sliceStart, sliceStart + 10);
+        return sliced.length > 0 ? sliced : currentUnit.words.slice(0, 10);
+      }
+      // 'whole': order starting from continue index through end, then beginning
+      return [...currentUnit.words.slice(sliceStart), ...currentUnit.words.slice(0, sliceStart)];
+    }
+
     const shuffled = shuffleArray(currentUnit.words);
     if (wordCountMode === '5') {
       return shuffled.slice(0, Math.min(5, shuffled.length));
@@ -66,7 +87,7 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
     }
     // 'whole': examines ALL words from the full unit!
     return shuffled;
-  }, [currentUnit.words, wordCountMode, shuffleCounter]);
+  }, [currentUnit.words, wordCountMode, shuffleCounter, currentContinueIndex]);
 
   const handleWordCountChange = (newCount: WordCountMode) => {
     soundService.playClick();
@@ -244,6 +265,10 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
     soundService.playCombo(newCombo);
     setFeedback('correct');
 
+    if (currentWord) {
+      setSessionCompletedIds(prev => prev.includes(currentWord.id) ? prev : [...prev, currentWord.id]);
+    }
+
     const xpEarned = 10 + Math.min(newCombo, 5) * 2;
     // Spelling (typing) and Unscramble award 2 coins
     const isSpellingOrUnscramble = activeQuestionType === 'typing' || activeQuestionType === 'unscramble';
@@ -291,10 +316,13 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
       spread: 60,
       origin: { y: 0.6 },
     });
-    const totalAttempted = mode === 'matching' 
-      ? Math.max(1, matchedIds.length) 
-      : Math.max(1, questionIndex + (feedback ? 1 : 0));
-    recordPracticeResult(currentUnit.id, correctCount, Math.min(activeWords.length, totalAttempted));
+    const lastWord = currentWord || activeWords[Math.min(questionIndex, activeWords.length - 1)];
+    const unitWordIdx = lastWord ? currentUnit.words.findIndex(w => w.id === lastWord.id) : 0;
+    recordPracticeResult(
+      currentUnit.id, 
+      sessionCompletedIds.length > 0 ? sessionCompletedIds : correctCount, 
+      Math.max(0, unitWordIdx)
+    );
   };
 
   // 1. Multiple Choice Handler
@@ -382,6 +410,8 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
       setSelectedEn(null);
       setSelectedUz(null);
 
+      setSessionCompletedIds(prev => prev.includes(enId) ? prev : [...prev, enId]);
+
       const newCombo = combo + 1;
       setCombo(newCombo);
       addXP(15);
@@ -462,7 +492,54 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
           </div>
         </div>
 
-        {wordCountMode === 'whole' && (
+        {/* Unit Overall Progress Card */}
+        {(() => {
+          const latestProgress = getUnitProgress(currentUnit.id);
+          return (
+            <div className="p-4 rounded-2xl bg-slate-900/90 border-2 border-indigo-500/40 text-left space-y-3 shadow-inner">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-black uppercase tracking-wider text-indigo-300">
+                  Unit Overall Progress
+                </span>
+                <span className="text-xs font-black text-emerald-400">
+                  {latestProgress.percent}% Finished
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-700/60">
+                  <div 
+                    className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 rounded-full transition-all duration-500"
+                    style={{ width: `${latestProgress.percent}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-xs text-slate-400 font-semibold">
+                  <span>{latestProgress.completedCount} of {latestProgress.totalCount} words completed</span>
+                  <span>{Math.max(0, latestProgress.totalCount - latestProgress.completedCount)} remaining</span>
+                </div>
+              </div>
+
+              {latestProgress.percent < 100 ? (
+                <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-200 flex items-center gap-2">
+                  <span className="text-base">📍</span>
+                  <div>
+                    <span className="font-bold">Next up:</span> Word {latestProgress.nextWordIndex + 1}
+                    {currentUnit.words[latestProgress.nextWordIndex] && (
+                      <span className="text-white font-black"> ("{currentUnit.words[latestProgress.nextWordIndex].word}")</span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span className="font-bold">Entire unit 100% completed & mastered!</span>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {wordCountMode === 'whole' && getUnitProgress(currentUnit.id).percent >= 100 && (
           <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 border border-amber-500/40 text-amber-300 space-y-1">
             <div className="flex items-center justify-center gap-1.5 font-black text-sm uppercase tracking-wide">
               <Trophy className="w-4 h-4 text-amber-400" />
@@ -474,10 +551,42 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
           </div>
         )}
 
-        <div className="space-y-3 pt-2">
+        <div className="space-y-2.5 pt-2">
+          {(() => {
+            const prog = getUnitProgress(currentUnit.id);
+            if (prog.percent < 100) {
+              return (
+                <button
+                  onClick={() => {
+                    soundService.playSuccess();
+                    setCurrentContinueIndex(prog.nextWordIndex);
+                    setShuffleCounter(1); // Maintain sequential progression from next word
+                    setIsFinished(false);
+                    setQuestionIndex(0);
+                    setMatchRound(0);
+                    setTimeLeft(mode === 'matching' ? 45 : 20);
+                    setTotalElapsedTime(0);
+                    setCombo(0);
+                    setCorrectCount(0);
+                    setTotalXpEarned(0);
+                    setTotalCoinsEarned(0);
+                    setMatchedIds([]);
+                    setSessionCompletedIds([]);
+                  }}
+                  className="btn-game-emerald w-full py-3.5 px-6 flex items-center justify-center gap-2 font-black text-sm shadow-glow-emerald"
+                >
+                  <Play className="w-4 h-4 fill-white" />
+                  <span>Continue Practice (from Word {prog.nextWordIndex + 1})</span>
+                </button>
+              );
+            }
+            return null;
+          })()}
+
           <button
             onClick={() => {
               soundService.playSuccess();
+              setCurrentContinueIndex(undefined);
               setShuffleCounter(c => c + 1); // Automatically shuffles after each practice!
               setIsFinished(false);
               setQuestionIndex(0);
@@ -489,6 +598,7 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({
               setTotalXpEarned(0);
               setTotalCoinsEarned(0);
               setMatchedIds([]);
+              setSessionCompletedIds([]);
             }}
             className="btn-game-primary w-full py-3.5 px-6 flex items-center justify-center gap-2 font-bold text-sm"
           >

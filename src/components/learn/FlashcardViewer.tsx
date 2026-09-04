@@ -19,14 +19,18 @@ import {
 
 interface FlashcardViewerProps {
   onBack: () => void;
+  initialIndex?: number;
 }
 
-export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack }) => {
-  const { curriculumUnits, activeUnitId, recordMistake } = useGame();
+export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initialIndex = 0 }) => {
+  const { curriculumUnits, activeUnitId, recordMistake, recordPracticeResult } = useGame();
   const currentUnit = curriculumUnits.find(u => u.id === activeUnitId) || curriculumUnits[0];
 
   const [words, setWords] = useState<VocabularyWord[]>(() => [...currentUnit.words]);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [currentIndex, setCurrentIndex] = useState<number>(() => {
+    return Math.max(0, Math.min(initialIndex, (currentUnit?.words?.length || 1) - 1));
+  });
+  const [reviewedWordIds, setReviewedWordIds] = useState<string[]>([]);
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
   const [direction, setDirection] = useState<'en_uz' | 'uz_en'>('en_uz');
   const [isAutoPlay, setIsAutoPlay] = useState<boolean>(false);
@@ -126,12 +130,21 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack }) => {
     if (rating === 'again') {
       soundService.playError();
       recordMistake(currentWord);
-    } else if (rating === 'good') {
+    } else if (rating === 'good' || rating === 'easy') {
       soundService.playSuccess();
-    } else if (rating === 'easy') {
-      soundService.playSuccess();
+      if (currentWord && !reviewedWordIds.includes(currentWord.id)) {
+        setReviewedWordIds(prev => [...prev, currentWord.id]);
+      }
     }
     handleNext();
+  };
+
+  const handleFinish = () => {
+    soundService.playSuccess();
+    if (reviewedWordIds.length > 0) {
+      recordPracticeResult(currentUnit.id, reviewedWordIds, currentIndex);
+    }
+    onBack();
   };
 
   if (!currentWord) return null;
@@ -145,14 +158,14 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack }) => {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <button
-            onClick={onBack}
+            onClick={handleFinish}
             className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors text-xs font-bold"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back</span>
           </button>
           <button
-            onClick={onBack}
+            onClick={handleFinish}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-game-btn transition-all active:scale-95"
             title="Finish reviewing flashcards and return to unit overview"
           >
