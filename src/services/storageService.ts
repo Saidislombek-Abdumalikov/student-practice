@@ -57,7 +57,7 @@ export function sanitizeProfile(raw: any): UserProfile {
   const role = raw.role === 'admin' ? 'admin' : (raw.role === 'support' ? 'support' : 'student');
   const defaultChar = role === 'admin' 
     ? { ...DEFAULT_CHARACTER, gender: 'man' as const, expression: 'victory' as const }
-    : { ...DEFAULT_CHARACTER, gender: (raw.character?.gender === 'woman' ? 'woman' : 'man') as const };
+    : { ...DEFAULT_CHARACTER, gender: (raw.character?.gender === 'woman' ? 'woman' : 'man') };
 
   return {
     ...DEFAULT_PROFILE,

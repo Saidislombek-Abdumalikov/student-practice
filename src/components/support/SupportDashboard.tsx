@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { ModularCharacter } from '../character/ModularCharacter';
 import { UserProfile } from '../../types';
+import { soundService } from '../../services/soundService';
 import { formatPresence, formatTimeSpent } from '../../services/presenceService';
 import { 
   Users, 

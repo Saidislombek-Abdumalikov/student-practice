@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { ModularCharacter } from '../character/ModularCharacter';
 import { soundService } from '../../services/soundService';
+import { formatPresence } from '../../services/presenceService';
+import { DEFAULT_CHARACTER } from '../../services/storageService';
 import { 
   Trophy, 
   Flame, 
@@ -377,7 +379,7 @@ export const CompeteScreen: React.FC = () => {
 
                     {/* Character Avatar (Bigger Ratio) */}
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-900 border-2 border-slate-700 overflow-hidden flex items-center justify-center shrink-0 shadow-sm">
-                      <ModularCharacter config={entry.character} size={80} animate={false} />
+                      <ModularCharacter config={entry.character || DEFAULT_CHARACTER} size={80} animate={false} />
                     </div>
 
                     <div>
@@ -405,7 +407,7 @@ export const CompeteScreen: React.FC = () => {
                         })()}
                       </div>
                       <span className="text-xs text-slate-400 capitalize">
-                        {entry.character.gender === 'man' ? '👦 Adventurer' : '👧 Explorer'}
+                        {(entry.character?.gender || 'man') === 'man' ? '👦 Adventurer' : '👧 Explorer'}
                       </span>
                     </div>
                   </div>

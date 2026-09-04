@@ -78,7 +78,7 @@ interface GameContextType {
   resetStudentPassword: (studentId: string, newPass: string) => void;
   resetStudentProgress: (studentId: string) => void;
   resetAdminProgress: () => void;
-  resetAllStudentsProgress: () => void;
+  resetAllStudentsProgress: (includeAdmin?: boolean) => Promise<void>;
   deleteStudentAccount: (studentId: string) => void;
   boxPrices: Record<MysteryBoxTier, number>;
   updateBoxPrices: (prices: Record<MysteryBoxTier, number>) => void;

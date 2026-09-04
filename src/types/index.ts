@@ -173,7 +173,7 @@ export interface GrammarFlashcard {
 
 export interface GrammarLesson {
   id: string;
-  topicId: string;
+  topicId?: string;
   whatIsItEn: string;
   whatIsItUz: string;
   formula?: string;
