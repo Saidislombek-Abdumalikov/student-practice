@@ -179,8 +179,11 @@ export const AdminDashboard: React.FC = () => {
   const [newStudentLevel, setNewStudentLevel] = useState<LevelId>('beginner');
   const [addError, setAddError] = useState('');
 
-  // Filter students (exclude admin)
-  const students = allAccounts.filter(a => a.role !== 'admin');
+  // Support Assistant account (Roziya)
+  const supportAssistant = allAccounts.find(a => a.role === 'support');
+
+  // Filter students (strictly role === 'student')
+  const students = allAccounts.filter(a => a.role === 'student');
 
   // Aggregated analytics
   const totalClassXp = students.reduce((sum, s) => sum + s.xp, 0);
@@ -487,6 +490,111 @@ export const AdminDashboard: React.FC = () => {
 
         </div>
       </div>
+
+      {/* Support Assistant (Roziya) Dedicated Card */}
+      {supportAssistant && (
+        <div className="card-game p-5 bg-gradient-to-r from-slate-900 via-purple-950/30 to-slate-900 border-2 border-purple-500/40 shadow-xl">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-slate-800 border-2 border-purple-500/60 flex items-center justify-center relative overflow-hidden shadow-inner shrink-0">
+                <ModularCharacter config={supportAssistant.character} size="sm" animate={false} />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-black text-base sm:text-lg text-white">{supportAssistant.name} (Support Assistant)</h3>
+                  <span className="px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 text-[10px] font-black uppercase">
+                    SUPPORT
+                  </span>
+                  {(() => {
+                    const presence = formatPresence(supportAssistant.lastSeenAt, supportAssistant.isOnline);
+                    return (
+                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border flex items-center gap-1 shrink-0 ${
+                        presence.isOnline
+                          ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-sm'
+                          : 'bg-slate-800 border-slate-700 text-slate-400'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${presence.isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`} />
+                        <span>{presence.shortLabel}</span>
+                      </span>
+                    );
+                  })()}
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-3 mt-1 text-xs font-bold text-slate-300">
+                  <span className="text-amber-300 flex items-center gap-1">
+                    <Zap className="w-3.5 h-3.5 text-amber-400" /> {supportAssistant.xp} XP
+                  </span>
+                  <span className="text-yellow-400">🪙 {supportAssistant.coins}</span>
+                  <span className="text-cyan-400">💎 {supportAssistant.diamonds || 0}</span>
+                  <span className="text-purple-300 flex items-center gap-1">
+                    ⏱️ Active: <strong className="text-white">{formatTimeSpent(supportAssistant.totalTimeSpentMinutes)}</strong>
+                  </span>
+                  <span className="text-slate-400">
+                    (Today: <strong className="text-indigo-300">{formatTimeSpent(supportAssistant.todayTimeSpentMinutes)}</strong>)
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4 mt-2 text-xs">
+                  <div className="flex items-center gap-1.5 text-slate-400">
+                    <span>Username:</span>
+                    <button
+                      onClick={() => handleCopyCredentials(supportAssistant.username || 'roziya', `user-${supportAssistant.id}`)}
+                      className="font-mono text-indigo-300 hover:text-indigo-200 font-bold flex items-center gap-1"
+                      title="Copy username"
+                    >
+                      <span>{supportAssistant.username || 'roziya'}</span>
+                      {copiedId === `user-${supportAssistant.id}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-slate-500" />}
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-400">
+                    <span>Password:</span>
+                    <button
+                      onClick={() => handleCopyCredentials(supportAssistant.password || 'rb88', `pass-${supportAssistant.id}`)}
+                      className="font-mono text-emerald-300 hover:text-emerald-200 font-bold flex items-center gap-1"
+                      title="Copy password"
+                    >
+                      <span>{supportAssistant.password || 'rb88'}</span>
+                      {copiedId === `pass-${supportAssistant.id}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-slate-500" />}
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-400 text-[11px]">
+                    <span>Last Login:</span>
+                    <span className="font-mono text-amber-300 font-bold">
+                      {formatExactDateTime(supportAssistant.lastLoginAt)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0">
+              <button
+                onClick={() => loginAsUser(supportAssistant.id)}
+                className="py-2 px-3.5 rounded-xl bg-purple-500/15 border border-purple-500/40 text-purple-300 hover:bg-purple-500 hover:text-white text-xs font-black flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                title="Sign in as Support Assistant to see what she sees"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>View As Support</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowPasswordModal(supportAssistant);
+                  setNewPasswordInput('');
+                }}
+                className="py-2 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95"
+                title="Change Support Assistant password"
+              >
+                <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+                <span>Change Password</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* Student Roster Table / Grid */}
       <div className="space-y-4">

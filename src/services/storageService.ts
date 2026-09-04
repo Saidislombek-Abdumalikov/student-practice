@@ -105,6 +105,121 @@ export function sanitizeProfile(raw: any): UserProfile {
   };
 }
 
+/**
+ * Rigorously migrates, unifies, and deduplicates all user accounts.
+ * Guarantees:
+ * - Exactly ONE Admin account ('usr_admin' / 'admin').
+ * - Exactly ONE Support Assistant account ('usr_roziya' / 'roziya' / 'Roziya').
+ * - Any duplicate support or legacy 'usr_robiya' / 'robiya' accounts are merged and deduplicated.
+ * - Omina password is consistently 'omina'.
+ * - Distinct student accounts with unique lowercase usernames and unique IDs.
+ * - All 7 default starter accounts are guaranteed present.
+ */
+export function deduplicateAccounts(accounts: UserProfile[]): UserProfile[] {
+  if (!Array.isArray(accounts) || accounts.length === 0) {
+    return INITIAL_ACCOUNTS.map(a => sanitizeProfile(a));
+  }
+
+  const seenUsernames = new Set<string>();
+  const seenIds = new Set<string>();
+  const studentsList: UserProfile[] = [];
+
+  let adminProfile: UserProfile | null = null;
+  let supportProfile: UserProfile | null = null;
+
+  for (const raw of accounts) {
+    if (!raw || typeof raw !== 'object') continue;
+    const acc = sanitizeProfile(raw);
+
+    const lowerUser = (acc.username || '').toLowerCase().trim();
+    const cleanId = (acc.id || '').trim();
+
+    // 1. Identify or Migrate Admin
+    if (acc.role === 'admin' || cleanId === 'usr_admin' || lowerUser === 'admin') {
+      if (!adminProfile) {
+        adminProfile = {
+          ...acc,
+          id: 'usr_admin',
+          username: 'admin',
+          name: acc.name || 'Teacher Admin',
+          role: 'admin',
+          coins: 999999,
+          diamonds: 999999,
+        };
+      }
+      continue;
+    }
+
+    // 2. Identify or Migrate Support (Roziya)
+    if (
+      acc.role === 'support' || 
+      cleanId === 'usr_roziya' || 
+      cleanId === 'usr_robiya' || 
+      lowerUser === 'roziya' || 
+      lowerUser === 'robiya' ||
+      acc.name?.toLowerCase() === 'robiya' ||
+      acc.name?.toLowerCase() === 'roziya'
+    ) {
+      if (!supportProfile) {
+        supportProfile = {
+          ...acc,
+          id: 'usr_roziya',
+          username: 'roziya',
+          name: 'Roziya',
+          role: 'support',
+          password: 'rb88',
+        };
+      } else {
+        // If multiple duplicate support accounts exist, merge stats into the single one
+        if ((acc.xp || 0) > (supportProfile.xp || 0)) supportProfile.xp = acc.xp;
+        if ((acc.coins || 0) > (supportProfile.coins || 0)) supportProfile.coins = acc.coins;
+        if (acc.lastSeenAt && (!supportProfile.lastSeenAt || new Date(acc.lastSeenAt) > new Date(supportProfile.lastSeenAt))) {
+          supportProfile.lastSeenAt = acc.lastSeenAt;
+          supportProfile.isOnline = acc.isOnline;
+        }
+      }
+      continue;
+    }
+
+    // 3. Regular Students
+    // Normalize Omina password
+    if (lowerUser === 'omina') {
+      acc.password = 'omina';
+    }
+
+    // Deduplicate student by username & id
+    if (lowerUser && seenUsernames.has(lowerUser)) continue;
+    if (cleanId && seenIds.has(cleanId)) continue;
+
+    if (lowerUser) seenUsernames.add(lowerUser);
+    if (cleanId) seenIds.add(cleanId);
+    studentsList.push(acc);
+  }
+
+  // Ensure Admin is present
+  const finalAdmin = adminProfile || INITIAL_ACCOUNTS.find(a => a.role === 'admin')!;
+  seenUsernames.add((finalAdmin.username || 'admin').toLowerCase());
+  seenIds.add(finalAdmin.id);
+
+  // Ensure Support Assistant (Roziya) is present
+  const finalSupport = supportProfile || INITIAL_ACCOUNTS.find(a => a.role === 'support')!;
+  seenUsernames.add((finalSupport.username || 'roziya').toLowerCase());
+  seenIds.add(finalSupport.id);
+
+  // Ensure all 5 starter students exist
+  for (const init of INITIAL_ACCOUNTS) {
+    if (init.role === 'admin' || init.role === 'support') continue;
+    const initUser = (init.username || '').toLowerCase().trim();
+    if (!seenUsernames.has(initUser) && !seenIds.has(init.id)) {
+      studentsList.push(init);
+      seenUsernames.add(initUser);
+      seenIds.add(init.id);
+    }
+  }
+
+  return [finalAdmin, finalSupport, ...studentsList].map(acc => sanitizeProfile(acc));
+}
+
 export class StorageService {
   /**
    * Load all user and student accounts. Initializes with default accounts if not set.
@@ -114,53 +229,23 @@ export class StorageService {
       const data = localStorage.getItem(ACCOUNTS_STORAGE_KEY);
       if (data) {
         const parsed = JSON.parse(data) as UserProfile[];
-          // Migrate legacy robiya -> roziya and om19 -> omina in existing accounts
-          for (const acc of parsed) {
-            if (acc.username === 'robiya' || acc.id === 'usr_robiya') {
-              acc.id = 'usr_roziya';
-              acc.name = 'Roziya';
-              acc.username = 'roziya';
-            }
-            if (acc.username === 'omina' && (acc.password === 'om19' || !acc.password)) {
-              acc.password = 'omina';
-            }
-          }
+        const deduped = deduplicateAccounts(parsed);
 
-          try {
-            const activeId = localStorage.getItem(ACTIVE_USER_ID_KEY);
-            if (activeId === 'usr_robiya') {
-              localStorage.setItem(ACTIVE_USER_ID_KEY, 'usr_roziya');
-            }
-          } catch {
-            // Ignored
+        try {
+          const activeId = localStorage.getItem(ACTIVE_USER_ID_KEY);
+          if (activeId === 'usr_robiya') {
+            localStorage.setItem(ACTIVE_USER_ID_KEY, 'usr_roziya');
           }
+        } catch {
+          // Ignored
+        }
 
-          // Ensure all initial accounts exist and admin has infinite coins
-          const existingIds = new Set(parsed.map(a => a.id));
-          const merged = [...parsed];
-          for (const initAcc of INITIAL_ACCOUNTS) {
-            if (!existingIds.has(initAcc.id)) {
-              merged.push(initAcc);
-            }
-          }
-          // Admin always has infinite coins and diamond currency initialized
-          for (const acc of merged) {
-            acc.diamonds = typeof acc.diamonds === 'number' ? acc.diamonds : 0;
-            if (acc.role === 'admin') {
-              acc.coins = 999999;
-              acc.diamonds = 999999;
-            }
-            if (acc.username === 'omina' && acc.password === 'om19') {
-              acc.password = 'omina';
-            }
-          }
-          const sanitized = merged.map(acc => sanitizeProfile(acc));
-          try {
-            localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(sanitized));
-          } catch {
-            // Ignored
-          }
-          return sanitized;
+        try {
+          localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(deduped));
+        } catch {
+          // Ignored
+        }
+        return deduped;
       }
     } catch {
       // Fallback
@@ -168,13 +253,13 @@ export class StorageService {
 
     // Initialize with default accounts
     try {
-      const sanitizedInitial = INITIAL_ACCOUNTS.map(acc => sanitizeProfile(acc));
+      const sanitizedInitial = deduplicateAccounts(INITIAL_ACCOUNTS);
       localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(sanitizedInitial));
       return sanitizedInitial;
     } catch {
       // Storage error
     }
-    return INITIAL_ACCOUNTS.map(acc => sanitizeProfile(acc));
+    return deduplicateAccounts(INITIAL_ACCOUNTS);
   }
 
   /**
@@ -194,7 +279,8 @@ export class StorageService {
    */
   public static saveAllAccounts(accounts: UserProfile[]): void {
     try {
-      localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(accounts));
+      const deduped = deduplicateAccounts(accounts);
+      localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(deduped));
     } catch {
       // Storage full or unavailable
     }
@@ -259,9 +345,10 @@ export class StorageService {
    */
   public static saveProfile(profile: UserProfile): void {
     const all = this.loadAllAccounts();
-    const index = all.findIndex(a => a.id === profile.id);
+    const cleanUser = (profile.username || '').toLowerCase().trim();
+    const index = all.findIndex(a => a.id === profile.id || (cleanUser && (a.username || '').toLowerCase().trim() === cleanUser));
     if (index >= 0) {
-      all[index] = { ...profile };
+      all[index] = { ...all[index], ...profile };
     } else {
       all.push({ ...profile });
     }
@@ -281,7 +368,7 @@ export class StorageService {
    * Delete an account by ID.
    */
   public static deleteAccount(userId: string): void {
-    const all = this.loadAllAccounts().filter(a => a.id !== userId);
+    const all = this.loadAllAccounts().filter(a => a.id !== userId && a.role !== 'admin' && a.role !== 'support');
     this.saveAllAccounts(all);
   }
 

@@ -1,6 +1,7 @@
 import { UserProfile } from '../types';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 import { INITIAL_ACCOUNTS } from '../data/accountsData';
+import { deduplicateAccounts } from './storageService';
 
 export const SUPABASE_SQL_SETUP = `-- Copy and paste this into Supabase SQL Editor and click RUN:
 
@@ -68,7 +69,11 @@ export class SupabaseService {
             },
           } as UserProfile;
         });
-        return parsedProfiles;
+
+        // Delete any stale robiya rows from Supabase
+        Promise.resolve(client.from('student_profiles').delete().or('id.eq.usr_robiya,username.eq.robiya')).catch(() => {});
+
+        return deduplicateAccounts(parsedProfiles);
       }
 
       return [];
@@ -86,18 +91,27 @@ export class SupabaseService {
     if (!client) return false;
 
     try {
+      const cleanId = profile.id === 'usr_robiya' ? 'usr_roziya' : profile.id;
+      const cleanUsername = (profile.username || '').toLowerCase().trim() === 'robiya' ? 'roziya' : (profile.username || '').toLowerCase().trim();
+      const cleanName = cleanUsername === 'roziya' ? 'Roziya' : profile.name;
+
       const row = {
-        id: profile.id,
-        username: (profile.username || '').toLowerCase().trim(),
-        password: profile.password || '',
-        role: profile.role || 'student',
-        name: profile.name || '',
+        id: cleanId,
+        username: cleanUsername,
+        password: cleanUsername === 'omina' ? 'omina' : (profile.password || ''),
+        role: cleanUsername === 'roziya' ? 'support' : (profile.role || 'student'),
+        name: cleanName || '',
         level_id: profile.levelId || 'beginner',
         xp: profile.xp || 0,
         coins: profile.coins || 0,
         streak_days: profile.streakDays || 1,
         gender: profile.character?.gender || 'woman',
-        full_profile: profile,
+        full_profile: {
+          ...profile,
+          id: cleanId,
+          username: cleanUsername,
+          name: cleanName,
+        },
         updated_at: new Date().toISOString(),
       };
 
@@ -124,7 +138,12 @@ export class SupabaseService {
     if (!client || profiles.length === 0) return false;
 
     try {
-      const rows = profiles.map(profile => ({
+      const deduped = deduplicateAccounts(profiles);
+
+      // Clean up stale robiya
+      Promise.resolve(client.from('student_profiles').delete().or('id.eq.usr_robiya,username.eq.robiya')).catch(() => {});
+
+      const rows = deduped.map(profile => ({
         id: profile.id,
         username: (profile.username || '').toLowerCase().trim(),
         password: profile.password || '',

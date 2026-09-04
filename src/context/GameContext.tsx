@@ -23,7 +23,7 @@ import {
   ClaimedPrizeRecord
 } from '../types';
 import { MysteryBoxService, MYSTERY_BOX_PRICES } from '../services/mysteryBoxService';
-import { StorageService, DEFAULT_CHARACTER, DEFAULT_PROFILE, sanitizeProfile } from '../services/storageService';
+import { StorageService, DEFAULT_CHARACTER, DEFAULT_PROFILE, sanitizeProfile, deduplicateAccounts } from '../services/storageService';
 import { sanitizeAccountListForViewer } from '../services/presenceService';
 import { CURRICULUM_UNITS } from '../data/curriculumData';
 import { SHOP_ITEMS, STICKERS } from '../data/shopData';
@@ -201,18 +201,19 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         for (const rem of remote) {
-          if (!merged.some(m => m.id === rem.id)) {
+          if (!merged.some(m => m.id === rem.id || (m.username && rem.username && m.username.toLowerCase() === rem.username.toLowerCase()))) {
             merged.push(rem);
           }
         }
 
-        StorageService.saveAllAccounts(merged);
-        setAllAccounts([...merged]);
+        const dedupedMerged = deduplicateAccounts(merged);
+        StorageService.saveAllAccounts(dedupedMerged);
+        setAllAccounts([...dedupedMerged]);
         setIsCloudConnected(true);
 
         const activeId = StorageService.getActiveUserId();
         if (activeId) {
-          const current = merged.find(r => r.id === activeId);
+          const current = dedupedMerged.find(r => r.id === activeId || (r.username && profile.username && r.username.toLowerCase() === profile.username.toLowerCase()));
           if (current) {
             setProfile(sanitizeProfile(current));
           }
@@ -1449,12 +1450,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const accounts = StorageService.loadAllAccounts();
     const now = new Date().toISOString();
     const updated = accounts.map(acc => {
-      if (acc.role === 'admin' && !includeAdmin) return acc;
+      if ((acc.role === 'admin' || acc.role === 'support') && !includeAdmin) return acc;
       return {
         ...acc,
         xp: 0,
-        coins: acc.role === 'admin' ? 999999 : 20,
-        diamonds: acc.role === 'admin' ? 999999 : 0,
+        coins: acc.role === 'admin' ? 999999 : acc.role === 'support' ? 100 : 20,
+        diamonds: acc.role === 'admin' ? 999999 : acc.role === 'support' ? 10 : 0,
         streakDays: 1,
         unitMasteries: {},
         completedUnits: [],

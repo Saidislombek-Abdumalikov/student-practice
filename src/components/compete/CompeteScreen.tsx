@@ -29,12 +29,33 @@ export const CompeteScreen: React.FC = () => {
   const [editCoinsVal, setEditCoinsVal] = useState(profile.coins || 100);
 
   // Build leaderboard with ALL accounts (teacher competes directly on the leaderboard!)
+  // Deduplicate by canonical ID and normalized username to guarantee unique entries
   const rawList = [...allAccounts];
   if (!rawList.some(s => s.id === profile.id)) {
     rawList.push(profile);
   }
 
-  const fullList = rawList.map(student => {
+  const seenIds = new Set<string>();
+  const seenUsernames = new Set<string>();
+  const uniqueList = [];
+
+  if (profile) {
+    seenIds.add(profile.id);
+    if (profile.username) seenUsernames.add(profile.username.toLowerCase().trim());
+    uniqueList.push(profile);
+  }
+
+  for (const acc of rawList) {
+    const normUser = (acc.username || '').toLowerCase().trim();
+    if (seenIds.has(acc.id)) continue;
+    if (normUser && seenUsernames.has(normUser)) continue;
+
+    seenIds.add(acc.id);
+    if (normUser) seenUsernames.add(normUser);
+    uniqueList.push(acc);
+  }
+
+  const fullList = uniqueList.map(student => {
     const isCurrent = student.id === profile.id;
     const currentCharacter = isCurrent ? profile.character : student.character;
     const currentXp = isCurrent ? profile.xp : student.xp;
