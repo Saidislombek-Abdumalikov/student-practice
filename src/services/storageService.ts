@@ -64,7 +64,7 @@ export function sanitizeProfile(raw: any): UserProfile {
     ...DEFAULT_PROFILE,
     ...raw,
     id: raw.id || ('usr_' + Math.random().toString(36).substring(2, 9)),
-    name: raw.name || (role === 'admin' ? 'Teacher Admin' : role === 'support' ? 'Robiya' : 'Student'),
+    name: raw.name || (role === 'admin' ? 'Teacher Admin' : role === 'support' ? 'Roziya' : 'Student'),
     username: (raw.username || '').toLowerCase().trim(),
     password: raw.password || '',
     role,
@@ -114,7 +114,27 @@ export class StorageService {
       const data = localStorage.getItem(ACCOUNTS_STORAGE_KEY);
       if (data) {
         const parsed = JSON.parse(data) as UserProfile[];
-        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Migrate legacy robiya -> roziya and om19 -> omina in existing accounts
+          for (const acc of parsed) {
+            if (acc.username === 'robiya' || acc.id === 'usr_robiya') {
+              acc.id = 'usr_roziya';
+              acc.name = 'Roziya';
+              acc.username = 'roziya';
+            }
+            if (acc.username === 'omina' && (acc.password === 'om19' || !acc.password)) {
+              acc.password = 'omina';
+            }
+          }
+
+          try {
+            const activeId = localStorage.getItem(ACTIVE_USER_ID_KEY);
+            if (activeId === 'usr_robiya') {
+              localStorage.setItem(ACTIVE_USER_ID_KEY, 'usr_roziya');
+            }
+          } catch {
+            // Ignored
+          }
+
           // Ensure all initial accounts exist and admin has infinite coins
           const existingIds = new Set(parsed.map(a => a.id));
           const merged = [...parsed];
@@ -130,9 +150,17 @@ export class StorageService {
               acc.coins = 999999;
               acc.diamonds = 999999;
             }
+            if (acc.username === 'omina' && acc.password === 'om19') {
+              acc.password = 'omina';
+            }
           }
-          return merged.map(acc => sanitizeProfile(acc));
-        }
+          const sanitized = merged.map(acc => sanitizeProfile(acc));
+          try {
+            localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(sanitized));
+          } catch {
+            // Ignored
+          }
+          return sanitized;
       }
     } catch {
       // Fallback

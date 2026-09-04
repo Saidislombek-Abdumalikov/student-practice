@@ -91,7 +91,7 @@ export function formatTimeSpent(totalMinutes: number = 0): string {
  * 
  * Rules:
  * - Admin can see everything (passwords, last login, login history, time spent).
- * - Support (Robiya) can see student learning progress, last seen, online status,
+ * - Support (Roziya) can see student learning progress, last seen, online status,
  *   and TIME SPENT, but CANNOT see last_login_at, login_history, or passwords.
  * - Students can see their OWN stats (time spent), other users' online/offline
  *   and basic last seen, but CANNOT see other users' time spent, last_login_at,

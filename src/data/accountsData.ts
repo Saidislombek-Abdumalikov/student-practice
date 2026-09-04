@@ -3,12 +3,12 @@ import { UserProfile } from '../types';
 /**
  * Initial Default Accounts:
  * - Admin (Teacher): admin / adm7
- * - Robiya (Support): robiya / rb88 (woman)
+ * - Roziya (Support): roziya / rb88 (woman)
  * - 5 Students:
  *   - Dilnuraxon: dilnura / dn24 (woman)
  *   - Ruxshona: ruxshona / rx81 (woman)
  *   - Gulasal: gulasal / gl53 (woman)
- *   - Omina: omina / om19 (woman)
+ *   - Omina: omina / omina (woman)
  *   - Bahodir: bahodir / bh76 (man)
  */
 
@@ -61,12 +61,12 @@ export const INITIAL_ACCOUNTS: UserProfile[] = [
 
 
   // -------------------------------------------------------------
-  // SUPPORT ASSISTANT: Robiya (woman)
+  // SUPPORT ASSISTANT: Roziya (woman)
   // -------------------------------------------------------------
   {
-    id: 'usr_robiya',
-    name: 'Robiya',
-    username: 'robiya',
+    id: 'usr_roziya',
+    name: 'Roziya',
+    username: 'roziya',
     password: 'rb88',
     role: 'support',
     isOnboarded: true,
@@ -286,7 +286,7 @@ export const INITIAL_ACCOUNTS: UserProfile[] = [
     id: 'usr_omina',
     name: 'Omina',
     username: 'omina',
-    password: 'om19',
+    password: 'omina',
     role: 'student',
     isOnboarded: true,
     character: {
