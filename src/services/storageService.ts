@@ -54,7 +54,7 @@ export function sanitizeProfile(raw: any): UserProfile {
     return { ...DEFAULT_PROFILE };
   }
 
-  const role = raw.role === 'admin' ? 'admin' : 'student';
+  const role = raw.role === 'admin' ? 'admin' : (raw.role === 'support' ? 'support' : 'student');
   const defaultChar = role === 'admin' 
     ? { ...DEFAULT_CHARACTER, gender: 'man' as const, expression: 'victory' as const }
     : { ...DEFAULT_CHARACTER, gender: (raw.character?.gender === 'woman' ? 'woman' : 'man') as const };
@@ -63,7 +63,7 @@ export function sanitizeProfile(raw: any): UserProfile {
     ...DEFAULT_PROFILE,
     ...raw,
     id: raw.id || ('usr_' + Math.random().toString(36).substring(2, 9)),
-    name: raw.name || (role === 'admin' ? 'Teacher Admin' : 'Student'),
+    name: raw.name || (role === 'admin' ? 'Teacher Admin' : role === 'support' ? 'Robiya' : 'Student'),
     username: (raw.username || '').toLowerCase().trim(),
     password: raw.password || '',
     role,
@@ -74,11 +74,18 @@ export function sanitizeProfile(raw: any): UserProfile {
     },
     levelId: raw.levelId || 'beginner',
     currentUnitId: raw.currentUnitId || (raw.levelId === 'elementary' ? 'el_u1' : raw.levelId === 'pre_intermediate' ? 'pre_u0' : 'u1'),
-    xp: typeof raw.xp === 'number' ? raw.xp : (role === 'admin' ? 590 : 0),
+    xp: typeof raw.xp === 'number' ? raw.xp : (role === 'admin' ? 590 : role === 'support' ? 410 : 0),
     coins: role === 'admin' ? 999999 : (typeof raw.coins === 'number' ? raw.coins : 20),
     diamonds: role === 'admin' ? 999999 : (typeof raw.diamonds === 'number' ? raw.diamonds : 0),
     streakDays: typeof raw.streakDays === 'number' ? raw.streakDays : 1,
     lastActiveDate: raw.lastActiveDate || new Date().toISOString(),
+    lastSeenAt: raw.lastSeenAt || raw.lastActiveDate || new Date().toISOString(),
+    isOnline: raw.isOnline ?? false,
+    totalTimeSpentMinutes: typeof raw.totalTimeSpentMinutes === 'number' ? raw.totalTimeSpentMinutes : 0,
+    todayTimeSpentMinutes: typeof raw.todayTimeSpentMinutes === 'number' ? raw.todayTimeSpentMinutes : 0,
+    dailyTimeSpent: (raw.dailyTimeSpent && typeof raw.dailyTimeSpent === 'object') ? raw.dailyTimeSpent : {},
+    lastLoginAt: raw.lastLoginAt,
+    loginHistory: Array.isArray(raw.loginHistory) ? raw.loginHistory : [],
     inventory: Array.isArray(raw.inventory) && raw.inventory.length > 0 ? raw.inventory : DEFAULT_PROFILE.inventory,
     unlockedStickers: Array.isArray(raw.unlockedStickers) && raw.unlockedStickers.length > 0 ? raw.unlockedStickers : DEFAULT_PROFILE.unlockedStickers,
     unitMasteries: (raw.unitMasteries && typeof raw.unitMasteries === 'object') ? raw.unitMasteries : {},

@@ -24,6 +24,7 @@ import {
 } from '../types';
 import { MysteryBoxService, MYSTERY_BOX_PRICES } from '../services/mysteryBoxService';
 import { StorageService, DEFAULT_CHARACTER, DEFAULT_PROFILE, sanitizeProfile } from '../services/storageService';
+import { sanitizeAccountListForViewer } from '../services/presenceService';
 import { CURRICULUM_UNITS } from '../data/curriculumData';
 import { SHOP_ITEMS, STICKERS } from '../data/shopData';
 import { INITIAL_ACHIEVEMENTS } from '../data/achievementsData';
@@ -127,7 +128,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return 'login';
     }
     const prof = StorageService.loadProfile();
-    return prof.role === 'admin' ? 'admin' : 'home';
+    return prof.role === 'admin' ? 'admin' : (prof.role === 'support' ? 'support' : 'home');
   });
   const [activeUnitId, setActiveUnitId] = useState<string>(() => 
     profile.currentUnitId || (profile.levelId === 'elementary' ? 'el_u1' : profile.levelId === 'pre_intermediate' ? 'pre_u0' : 'u1')
@@ -243,6 +244,44 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       window.removeEventListener('online', handleOnline);
     };
   }, []);
+
+  
+  // Active Presence & Time Tracking Heartbeat (Throttled, updates active time & lastSeen)
+  useEffect(() => {
+    if (!isAuthenticated || !profile.id) return;
+
+    const recordActiveMinute = () => {
+      const now = new Date();
+      const nowIso = now.toISOString();
+      const todayKey = nowIso.split('T')[0];
+
+      setProfile(prev => {
+        const prevDaily = prev.dailyTimeSpent || {};
+        const updatedDaily = {
+          ...prevDaily,
+          [todayKey]: (prevDaily[todayKey] || 0) + 1,
+        };
+
+        return {
+          ...prev,
+          lastSeenAt: nowIso,
+          isOnline: true,
+          totalTimeSpentMinutes: (prev.totalTimeSpentMinutes || 0) + 1,
+          todayTimeSpentMinutes: (prev.todayTimeSpentMinutes || 0) + 1,
+          dailyTimeSpent: updatedDaily,
+        };
+      });
+    };
+
+    // Heartbeat every 60 seconds of active usage (while window is visible)
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        recordActiveMinute();
+      }
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated, profile.id]);
 
   // Sync with LocalStorage, allAccounts state, & Supabase (only when logged in)
   useEffect(() => {
@@ -1094,7 +1133,21 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, message: 'Invalid username or password. Please try again.' };
     }
 
-    const safeFound = sanitizeProfile(found);
+    const nowIso = new Date().toISOString();
+    const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    const newEntry = {
+      timestamp: nowIso,
+      device: isMobile ? 'Mobile' : 'Desktop',
+    };
+
+    const safeFound = sanitizeProfile({
+      ...found,
+      lastLoginAt: nowIso,
+      lastSeenAt: nowIso,
+      isOnline: true,
+      loginHistory: [...(found.loginHistory || []).slice(-19), newEntry],
+    });
+
     setProfile(safeFound);
     StorageService.saveProfile(safeFound);
     StorageService.setActiveUserId(safeFound.id);
@@ -1102,6 +1155,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     soundService.playSuccess();
     if (safeFound.role === 'admin') {
       setCurrentScreen('admin');
+    } else if (safeFound.role === 'support') {
+      setCurrentScreen('support');
     } else {
       setCurrentScreen('home');
     }
@@ -1112,12 +1167,21 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const latestAccounts = StorageService.loadAllAccounts();
     const found = latestAccounts.find(a => a.id === userId);
     if (found) {
-      setProfile(found);
+      const nowIso = new Date().toISOString();
+      const safeFound = sanitizeProfile({
+        ...found,
+        lastLoginAt: nowIso,
+        lastSeenAt: nowIso,
+        isOnline: true,
+      });
+      setProfile(safeFound);
       setIsAuthenticated(true);
       StorageService.setActiveUserId(found.id);
       soundService.playSuccess();
       if (found.role === 'admin') {
         setCurrentScreen('admin');
+      } else if (found.role === 'support') {
+        setCurrentScreen('support');
       } else {
         setCurrentScreen('home');
       }
@@ -1126,6 +1190,18 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     soundService.playClick();
+    if (profile && profile.id) {
+      const accounts = StorageService.loadAllAccounts();
+      const idx = accounts.findIndex(a => a.id === profile.id);
+      if (idx >= 0) {
+        accounts[idx].isOnline = false;
+        accounts[idx].lastSeenAt = new Date().toISOString();
+        StorageService.saveAllAccounts(accounts);
+        if (isSupabaseConfigured()) {
+          SupabaseService.saveAccountToRemote(accounts[idx]);
+        }
+      }
+    }
     StorageService.clearActiveSession();
     setIsAuthenticated(false);
     setCurrentScreen('login');

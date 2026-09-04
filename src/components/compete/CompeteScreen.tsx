@@ -52,6 +52,8 @@ export const CompeteScreen: React.FC = () => {
       coins: currentCoins,
       accuracy,
       isCurrentUser: isCurrent,
+      lastSeenAt: isCurrent ? profile.lastSeenAt : student.lastSeenAt,
+      isOnline: isCurrent ? true : student.isOnline,
       rank: 1,
     };
   }).sort((a, b) => {
@@ -379,7 +381,7 @@ export const CompeteScreen: React.FC = () => {
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <h4 className="font-bold text-sm sm:text-base text-white">
                           {entry.name}
                         </h4>
@@ -388,6 +390,19 @@ export const CompeteScreen: React.FC = () => {
                             YOU
                           </span>
                         )}
+                        {(() => {
+                          const presence = formatPresence(entry.lastSeenAt, entry.isOnline);
+                          return (
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
+                              presence.isOnline
+                                ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 shadow-sm'
+                                : 'bg-slate-800 border-slate-700 text-slate-400'
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${presence.isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`} />
+                              <span>{presence.shortLabel}</span>
+                            </span>
+                          );
+                        })()}
                       </div>
                       <span className="text-xs text-slate-400 capitalize">
                         {entry.character.gender === 'man' ? '👦 Adventurer' : '👧 Explorer'}

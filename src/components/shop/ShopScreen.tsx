@@ -150,18 +150,18 @@ export const ShopScreen: React.FC = () => {
       {/* Main Layout: Dressing Room (Left 4 cols) & Shop Catalog (Right 8 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* Left Column: Live Dressing Room Preview (Sticky & stays in view when scrolling) */}
-        <div className="lg:col-span-4 lg:sticky lg:top-20 self-start z-30">
-          <div className="card-game p-4 sm:p-6 border-2 border-purple-500/40 bg-gradient-to-b from-slate-900 via-purple-950/20 to-slate-900 text-center space-y-3 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-none shadow-2xl">
+        {/* Left Column: Live Dressing Room Preview (Sticky & stays in view when scrolling on ALL devices) */}
+        <div className="lg:col-span-4 sticky top-16 lg:top-20 self-start z-30">
+          <div className="card-game p-3.5 sm:p-6 border-2 border-purple-500/40 bg-gradient-to-b from-slate-900 via-purple-950/20 to-slate-900 text-center space-y-2.5 sm:space-y-3 shadow-2xl backdrop-blur-md">
             
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold">
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 sm:py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold">
               <Sparkles className="w-3.5 h-3.5" />
               <span>LIVE DRESSING ROOM</span>
             </div>
 
             {/* Character Stage with Ambient Aura */}
             <div 
-              className="py-4 px-2 rounded-3xl bg-slate-950/60 border border-slate-800 flex items-center justify-center min-h-[220px] transition-all"
+              className="py-2 sm:py-4 px-2 rounded-3xl bg-slate-950/60 border border-slate-800 flex items-center justify-center min-h-[140px] sm:min-h-[220px] transition-all"
               style={{
                 boxShadow: previewCharacterConfig.background !== 'default' 
                   ? '0 0 35px rgba(139, 92, 246, 0.25)' 
@@ -169,7 +169,7 @@ export const ShopScreen: React.FC = () => {
               }}
             >
               <div className="block sm:hidden">
-                <ModularCharacter config={previewCharacterConfig} size={150} animate={true} />
+                <ModularCharacter config={previewCharacterConfig} size={110} animate={true} />
               </div>
               <div className="hidden sm:block">
                 <ModularCharacter config={previewCharacterConfig} size={180} animate={true} />
@@ -177,8 +177,8 @@ export const ShopScreen: React.FC = () => {
             </div>
 
             <div>
-              <h3 className="font-extrabold text-sm sm:text-base text-white">{profile.name || 'Hero'}</h3>
-              <p className="text-xs text-slate-400 mt-0.5 truncate">
+              <h3 className="font-extrabold text-xs sm:text-base text-white">{profile.name || 'Hero'}</h3>
+              <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">
                 {previewItem 
                   ? `Previewing: ${previewItem.name}` 
                   : 'Currently equipped'}
@@ -186,14 +186,14 @@ export const ShopScreen: React.FC = () => {
             </div>
 
             {/* Quick Mood Selector inside Dressing Room */}
-            <div className="flex flex-col items-center gap-1 pt-1">
+            <div className="hidden sm:flex flex-col items-center gap-1 pt-1">
               <QuickMoodBar size="sm" />
             </div>
 
             {previewItem && (
               <button
                 onClick={() => setPreviewItem(null)}
-                className="text-xs font-bold text-indigo-400 hover:text-white underline pt-1"
+                className="text-xs font-bold text-indigo-400 hover:text-white underline pt-0.5"
               >
                 Reset Preview
               </button>
@@ -204,19 +204,8 @@ export const ShopScreen: React.FC = () => {
         {/* Right Column: Categories & Items Catalog */}
         <div className="lg:col-span-8 space-y-5">
           
-          {/* Category Tabs & Mystery Box Launcher */}
+          {/* Category Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            <button
-              onClick={() => {
-                soundService.playClick();
-                setScreen('mystery');
-              }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black text-xs whitespace-nowrap transition-all border-2 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 border-amber-300 text-slate-950 shadow-glow-gold hover:scale-105 active:scale-95 shrink-0"
-              title="Open Mystery Box Prize Wheels"
-            >
-              <Gift className="w-4 h-4 text-slate-950" />
-              <span>🎁 Mystery Box</span>
-            </button>
             {categories.map(cat => {
               const isSelected = selectedCategory === cat.id;
               return (

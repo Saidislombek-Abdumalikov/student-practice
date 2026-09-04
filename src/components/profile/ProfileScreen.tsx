@@ -4,9 +4,11 @@ import { useGame } from '../../context/GameContext';
 import { ModularCharacter } from '../character/ModularCharacter';
 import { CharacterGender, SkinTone, HairStyle, HairColor, CharacterExpression } from '../../types';
 import { soundService } from '../../services/soundService';
+import { formatTimeSpent } from '../../services/presenceService';
 import { QuickMoodBar } from '../character/QuickMoodBar';
 import { 
   User, 
+  Clock,
   Sparkles, 
   Flame, 
   Coins, 
@@ -212,6 +214,30 @@ export const ProfileScreen: React.FC = () => {
             </div>
           </div>
 
+        </div>
+
+        {/* My Learning & Study Time (Visible to User) */}
+        <div className="mt-4 pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
+              <Clock className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-extrabold text-white block">My Platform Study Time</span>
+              <span className="text-slate-400 text-[11px]">Active minutes spent learning and practicing</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 font-bold">
+            <div className="px-3 py-1 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center gap-1.5">
+              <span className="text-[11px] text-slate-400">Total:</span>
+              <span className="text-white font-black">{formatTimeSpent(profile.totalTimeSpentMinutes)}</span>
+            </div>
+            <div className="px-3 py-1 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center gap-1.5">
+              <span className="text-[11px] text-slate-400">Today:</span>
+              <span className="text-indigo-300 font-black">{formatTimeSpent(profile.todayTimeSpentMinutes)}</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -488,7 +514,7 @@ export const ProfileScreen: React.FC = () => {
       <div className="p-4 rounded-2xl bg-indigo-950/30 border border-indigo-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
         <div>
           <span className="font-bold text-white block text-sm">
-            Signed in as {profile.name} ({profile.role === 'admin' ? 'Teacher / Admin' : 'Student'})
+            Signed in as {profile.name} ({profile.role === 'admin' ? 'Teacher / Admin' : profile.role === 'support' ? 'Support Assistant' : 'Student'})
           </span>
           <span className="text-slate-400 text-xs mt-0.5 block font-mono">
             Username: <strong className="text-indigo-300 font-bold">{profile.username}</strong>

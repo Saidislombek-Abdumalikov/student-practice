@@ -439,10 +439,12 @@ export interface LeaderboardEntry {
   isCurrentUser?: boolean;
   role?: UserRole;
   isTeacher?: boolean;
+  lastSeenAt?: string;
+  isOnline?: boolean;
 }
 
 // User Roles
-export type UserRole = 'student' | 'admin';
+export type UserRole = 'student' | 'support' | 'admin';
 
 // User Profile
 export interface UserProfile {
@@ -475,6 +477,25 @@ export interface UserProfile {
   grammarMistakes: GrammarMistakeRecord[];
   grammarHearts: number; // For challenge mode (default 3)
   claimedPrizes?: ClaimedPrizeRecord[]; // Mystery Box won rewards
+
+  // -------------------------------------------------------------
+  // Presence & Activity Tracking (Master Prompt)
+  // -------------------------------------------------------------
+  // 1. Online Status & Last Seen (Visible to Everyone)
+  lastSeenAt?: string;
+  isOnline?: boolean;
+
+  // 2. Time Spent in App (Support + Admin + Self ONLY)
+  totalTimeSpentMinutes?: number;
+  todayTimeSpentMinutes?: number;
+  dailyTimeSpent?: Record<string, number>; // date "YYYY-MM-DD" -> minutes
+
+  // 3. Last Login & Auth Logs (Admin ONLY)
+  lastLoginAt?: string;
+  loginHistory?: Array<{
+    timestamp: string;
+    device?: string;
+  }>;
 }
 
 // Active Screen Navigation
@@ -493,4 +514,6 @@ export type AppScreen =
   | 'mystery' 
   | 'profile'
   | 'admin'
+  | 'support'
   | 'login';
+

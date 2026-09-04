@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { ModularCharacter } from '../character/ModularCharacter';
 import { CharacterGender, LevelId, UserProfile, MysteryBoxPrize, MysteryBoxTier } from '../../types';
+import { formatPresence, formatTimeSpent } from '../../services/presenceService';
 import { MysteryBoxService, MYSTERY_BOX_PRICES } from '../../services/mysteryBoxService';
 import { soundService } from '../../services/soundService';
 import { 
@@ -526,41 +527,71 @@ export const AdminDashboard: React.FC = () => {
                 key={student.id}
                 className="card-game p-5 bg-slate-900/90 border-slate-800/90 hover:border-indigo-500/50 transition-all flex flex-col justify-between gap-4 relative group"
               >
-                {/* Header: Avatar, Name, Level, Gender */}
-                <div className="flex items-start gap-3.5">
-                  <div className="w-14 h-14 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-center shrink-0 relative overflow-hidden">
-                    <ModularCharacter config={student.character} size="sm" animate={false} />
+                {/* Header: Avatar, Name, Level, Gender, Online Status */}
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-3.5">
+                      <div className="w-14 h-14 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-center shrink-0 relative overflow-hidden">
+                        <ModularCharacter config={student.character} size="sm" animate={false} />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h3 className="font-black text-base text-white truncate">{student.name}</h3>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                            student.character.gender === 'woman' 
+                              ? 'bg-pink-500/20 text-pink-300' 
+                              : 'bg-blue-500/20 text-blue-300'
+                          }`}>
+                            {student.character.gender === 'woman' ? 'Girl' : 'Boy'}
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-indigo-400 font-semibold mt-0.5">{levelLabel}</p>
+                      </div>
+                    </div>
+
+                    {/* Online Presence Pill */}
+                    {(() => {
+                      const presence = formatPresence(student.lastSeenAt, student.isOnline);
+                      return (
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border flex items-center gap-1 shrink-0 ${
+                          presence.isOnline
+                            ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-sm'
+                            : 'bg-slate-800 border-slate-700 text-slate-400'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${presence.isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`} />
+                          <span>{presence.shortLabel}</span>
+                        </span>
+                      );
+                    })()}
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <h3 className="font-black text-base text-white truncate">{student.name}</h3>
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                        student.character.gender === 'woman' 
-                          ? 'bg-pink-500/20 text-pink-300' 
-                          : 'bg-blue-500/20 text-blue-300'
-                      }`}>
-                        {student.character.gender === 'woman' ? 'Girl' : 'Boy'}
-                      </span>
+                  {/* Active Time Spent Pill */}
+                  <div className="mt-2.5 p-2 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 text-slate-300 font-bold">
+                      <span>⏱️ Active Time:</span>
+                      <span className="text-white font-black">{formatTimeSpent(student.totalTimeSpentMinutes)}</span>
                     </div>
-
-                    <p className="text-xs text-indigo-400 font-semibold mt-0.5">{levelLabel}</p>
-
-                    {/* Progress chips (Read-only student achievements) */}
-                    <div className="flex items-center gap-2 mt-2 text-[11px] font-bold">
-                      <span className="text-amber-300 flex items-center gap-1">
-                        <Zap className="w-3 h-3" /> {student.xp} XP
-                      </span>
-                      <span className="text-yellow-400 flex items-center gap-0.5">
-                        🪙 {student.coins}
-                      </span>
-                      <span className="text-cyan-400 flex items-center gap-0.5">
-                        💎 {student.diamonds || 0}
-                      </span>
-                      <span className="text-rose-400 flex items-center gap-1">
-                        <Flame className="w-3 h-3" /> {student.streakDays}d
-                      </span>
+                    <div className="text-[11px] text-slate-400">
+                      Today: <strong className="text-indigo-300">{formatTimeSpent(student.todayTimeSpentMinutes)}</strong>
                     </div>
+                  </div>
+
+                  {/* Progress chips (Read-only student achievements) */}
+                  <div className="flex items-center gap-2 mt-2 text-[11px] font-bold">
+                    <span className="text-amber-300 flex items-center gap-1">
+                      <Zap className="w-3 h-3" /> {student.xp} XP
+                    </span>
+                    <span className="text-yellow-400 flex items-center gap-0.5">
+                      🪙 {student.coins}
+                    </span>
+                    <span className="text-cyan-400 flex items-center gap-0.5">
+                      💎 {student.diamonds || 0}
+                    </span>
+                    <span className="text-rose-400 flex items-center gap-1">
+                      <Flame className="w-3 h-3" /> {student.streakDays}d
+                    </span>
                   </div>
                 </div>
 
@@ -608,6 +639,13 @@ export const AdminDashboard: React.FC = () => {
                         <Copy className="w-3 h-3 text-slate-500" />
                       )}
                     </button>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-800/60 text-[11px]">
+                    <span className="text-slate-400 font-medium">Last Login (Admin Only):</span>
+                    <span className="font-mono text-amber-300 font-bold">
+                      {student.lastLoginAt ? new Date(student.lastLoginAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' }) : 'Never logged in'}
+                    </span>
                   </div>
                 </div>
 
@@ -839,6 +877,92 @@ export const AdminDashboard: React.FC = () => {
             {/* Scrollable Analytics Body */}
             <div className="overflow-y-auto space-y-5 pr-1 flex-1 scrollbar-none">
               
+              {/* Presence & Time Spent Spotlight */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-950/40 via-slate-950 to-purple-950/40 border border-indigo-500/30 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-black text-xs sm:text-sm text-white flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-indigo-400" />
+                    <span>Presence & Time Spent in Platform</span>
+                  </h4>
+                  <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border ${
+                    formatPresence(inspectingStudent.lastSeenAt, inspectingStudent.isOnline).isOnline
+                      ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                      : 'bg-slate-800 border-slate-700 text-slate-400'
+                  }`}>
+                    {formatPresence(inspectingStudent.lastSeenAt, inspectingStudent.isOnline).label}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
+                  <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-center">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Time</span>
+                    <span className="text-base font-black text-white mt-0.5 block">
+                      {formatTimeSpent(inspectingStudent.totalTimeSpentMinutes)}
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-center">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Time Today</span>
+                    <span className="text-base font-black text-indigo-300 mt-0.5 block">
+                      {formatTimeSpent(inspectingStudent.todayTimeSpentMinutes)}
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-center col-span-2 sm:col-span-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Active Days</span>
+                    <span className="text-base font-black text-orange-400 mt-0.5 block">
+                      {inspectingStudent.streakDays || 1} Days
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Security & Authentication Logs (ADMIN ONLY) */}
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-black text-xs sm:text-sm text-amber-300 flex items-center gap-2">
+                    <KeyRound className="w-4 h-4 text-amber-400" />
+                    <span>Authentication & Login Logs (Admin Only)</span>
+                  </h4>
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">
+                    ADMIN CONFIDENTIAL
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span className="text-slate-400 block text-[10px] font-medium uppercase">Last Authenticated</span>
+                    <span className="text-white font-mono font-bold text-xs mt-0.5 block">
+                      {inspectingStudent.lastLoginAt ? new Date(inspectingStudent.lastLoginAt).toLocaleString() : 'No recorded login'}
+                    </span>
+                  </div>
+
+                  <div className="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span className="text-slate-400 block text-[10px] font-medium uppercase">Current Password</span>
+                    <span className="text-emerald-400 font-mono font-bold text-xs mt-0.5 block">
+                      {inspectingStudent.password}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Recent Login History Log */}
+                <div className="pt-1">
+                  <span className="text-slate-400 text-[11px] font-bold block mb-1">Recent Login Sessions:</span>
+                  {(!inspectingStudent.loginHistory || inspectingStudent.loginHistory.length === 0) ? (
+                    <p className="text-xs text-slate-500 italic">No session logs recorded yet.</p>
+                  ) : (
+                    <div className="space-y-1 max-h-24 overflow-y-auto pr-1">
+                      {inspectingStudent.loginHistory.slice().reverse().map((entry, idx) => (
+                        <div key={idx} className="px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between text-[11px] font-mono">
+                          <span className="text-slate-300">{new Date(entry.timestamp).toLocaleString()}</span>
+                          <span className="text-indigo-400 font-bold">{entry.device || 'Web'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Core Progression Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-center">

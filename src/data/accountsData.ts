@@ -2,16 +2,14 @@ import { UserProfile } from '../types';
 
 /**
  * Initial Default Accounts:
- * - Admin (Teacher)
- * - 5 Students (Dilnuraxon, Ruxshona, Gulasal, Omina, Bahodir)
- * 
- * Simple, memorable, unique short logins and passwords:
- * - Admin: admin / adm7
- * - Dilnuraxon: dilnura / dn24 (woman)
- * - Ruxshona: ruxshona / rx81 (woman)
- * - Gulasal: gulasal / gl53 (woman)
- * - Omina: omina / om19 (woman)
- * - Bahodir: bahodir / bh76 (man)
+ * - Admin (Teacher): admin / adm7
+ * - Robiya (Support): robiya / rb88 (woman)
+ * - 5 Students:
+ *   - Dilnuraxon: dilnura / dn24 (woman)
+ *   - Ruxshona: ruxshona / rx81 (woman)
+ *   - Gulasal: gulasal / gl53 (woman)
+ *   - Omina: omina / om19 (woman)
+ *   - Bahodir: bahodir / bh76 (man)
  */
 
 export const INITIAL_ACCOUNTS: UserProfile[] = [
@@ -61,6 +59,61 @@ export const INITIAL_ACCOUNTS: UserProfile[] = [
     grammarHearts: 5,
   },
 
+
+  // -------------------------------------------------------------
+  // SUPPORT ASSISTANT: Robiya (woman)
+  // -------------------------------------------------------------
+  {
+    id: 'usr_robiya',
+    name: 'Robiya',
+    username: 'robiya',
+    password: 'rb88',
+    role: 'support',
+    isOnboarded: true,
+    character: {
+      gender: 'woman',
+      skinTone: '#FFDFC4',
+      hairStyle: 'braids',
+      hairColor: '#4A2E18',
+      outfit: 'blazer',
+      outfitColor: '#8B5CF6',
+      hat: 'none',
+      glasses: 'specs',
+      accessory: 'none',
+      pet: 'none',
+      background: 'default',
+      expression: 'happy',
+    },
+    levelId: 'pre_intermediate',
+    currentUnitId: 'pre_u1',
+    xp: 410,
+    coins: 160,
+    diamonds: 8,
+    streakDays: 7,
+    lastActiveDate: new Date().toISOString(),
+    lastSeenAt: new Date(Date.now() - 4 * 60 * 1000).toISOString(), // 4m ago
+    isOnline: false,
+    totalTimeSpentMinutes: 145,
+    todayTimeSpentMinutes: 25,
+    dailyTimeSpent: {},
+    lastLoginAt: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+    loginHistory: [
+      { timestamp: new Date(Date.now() - 25 * 60 * 1000).toISOString(), device: 'Desktop' }
+    ],
+    inventory: ['char_woman', 'outfit_hoodie_indigo', 'glasses_specs'],
+    unlockedStickers: ['sticker_lets_go', 'sticker_fire'],
+    unitMasteries: { pre_u0: 95 },
+    completedUnits: ['pre_u0'],
+    mistakes: [],
+    soundEnabled: true,
+    speechSpeed: 'normal',
+    grammarLevel: 'level_2',
+    grammarMasteries: { l2_u1_t1: 90 },
+    completedGrammarTopics: ['l2_u1_t1'],
+    completedGrammarExams: {},
+    grammarMistakes: [],
+    grammarHearts: 5,
+  },
   // -------------------------------------------------------------
   // 1. Dilnuraxon (woman)
   // -------------------------------------------------------------

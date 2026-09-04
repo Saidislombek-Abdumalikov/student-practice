@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGame } from '../../context/GameContext';
 import { AppScreen } from '../../types';
-import { BookOpen, Gamepad2, Trophy, ShoppingBag, Gift, User, Home, Sparkles, ShieldCheck } from 'lucide-react';
+import { BookOpen, Gamepad2, Trophy, ShoppingBag, Gift, User, Home, Sparkles, ShieldCheck, Users } from 'lucide-react';
 import { soundService } from '../../services/soundService';
 
 interface NavItem {
@@ -17,6 +17,7 @@ export const Navbar: React.FC = () => {
   const navItems: NavItem[] = [
     { id: 'home', label: 'HOME', mobileLabel: 'Home', icon: <Home className="w-5 h-5" /> },
     ...(profile.role === 'admin' ? [{ id: 'admin' as AppScreen, label: 'ADMIN', mobileLabel: 'Admin', icon: <ShieldCheck className="w-5 h-5 text-amber-400" /> }] : []),
+    ...(profile.role === 'support' ? [{ id: 'support' as AppScreen, label: 'STUDENTS', mobileLabel: 'Students', icon: <Users className="w-5 h-5 text-purple-400" /> }] : []),
     { id: 'grammar', label: 'GRAMMAR', mobileLabel: 'Grammar', icon: <Sparkles className="w-5 h-5" /> },
     { id: 'learn', label: 'VOCABULARY', mobileLabel: 'Vocab', icon: <BookOpen className="w-5 h-5" /> },
     { id: 'play', label: 'PLAY', mobileLabel: 'Play', icon: <Gamepad2 className="w-5 h-5" /> },
