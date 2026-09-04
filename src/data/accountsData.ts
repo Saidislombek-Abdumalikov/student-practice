@@ -91,15 +91,10 @@ export const INITIAL_ACCOUNTS: UserProfile[] = [
     diamonds: 8,
     streakDays: 7,
     lastActiveDate: new Date().toISOString(),
-    lastSeenAt: new Date(Date.now() - 4 * 60 * 1000).toISOString(), // 4m ago
     isOnline: false,
-    totalTimeSpentMinutes: 145,
-    todayTimeSpentMinutes: 25,
+    totalTimeSpentMinutes: 0,
+    todayTimeSpentMinutes: 0,
     dailyTimeSpent: {},
-    lastLoginAt: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
-    loginHistory: [
-      { timestamp: new Date(Date.now() - 25 * 60 * 1000).toISOString(), device: 'Desktop' }
-    ],
     inventory: ['char_woman', 'outfit_hoodie_indigo', 'glasses_specs'],
     unlockedStickers: ['sticker_lets_go', 'sticker_fire'],
     unitMasteries: { pre_u0: 95 },

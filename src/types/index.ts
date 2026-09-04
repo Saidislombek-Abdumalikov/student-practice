@@ -313,6 +313,7 @@ export interface CurriculumUnit {
 
 // Practice & Game Types
 export type PracticeMode = 
+  | 'mixed'
   | 'flashcards' 
   | 'multiple_choice' 
   | 'true_false' 

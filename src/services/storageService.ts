@@ -79,7 +79,7 @@ export function sanitizeProfile(raw: any): UserProfile {
     diamonds: role === 'admin' ? 999999 : (typeof raw.diamonds === 'number' ? raw.diamonds : 0),
     streakDays: typeof raw.streakDays === 'number' ? raw.streakDays : 1,
     lastActiveDate: raw.lastActiveDate || new Date().toISOString(),
-    lastSeenAt: raw.lastSeenAt || raw.lastActiveDate || new Date().toISOString(),
+    lastSeenAt: raw.lastSeenAt,
     isOnline: raw.isOnline ?? false,
     totalTimeSpentMinutes: typeof raw.totalTimeSpentMinutes === 'number' ? raw.totalTimeSpentMinutes : 0,
     todayTimeSpentMinutes: typeof raw.todayTimeSpentMinutes === 'number' ? raw.todayTimeSpentMinutes : 0,

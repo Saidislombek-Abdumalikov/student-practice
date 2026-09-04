@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { ModularCharacter } from '../character/ModularCharacter';
 import { CharacterGender, LevelId, UserProfile, MysteryBoxPrize, MysteryBoxTier } from '../../types';
-import { formatPresence, formatTimeSpent } from '../../services/presenceService';
+import { formatPresence, formatTimeSpent, formatExactDateTime } from '../../services/presenceService';
 import { MysteryBoxService, MYSTERY_BOX_PRICES } from '../../services/mysteryBoxService';
 import { soundService } from '../../services/soundService';
 import { 
@@ -644,7 +644,7 @@ export const AdminDashboard: React.FC = () => {
                   <div className="flex items-center justify-between pt-1 border-t border-slate-800/60 text-[11px]">
                     <span className="text-slate-400 font-medium">Last Login (Admin Only):</span>
                     <span className="font-mono text-amber-300 font-bold">
-                      {student.lastLoginAt ? new Date(student.lastLoginAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' }) : 'Never logged in'}
+                      {formatExactDateTime(student.lastLoginAt)}
                     </span>
                   </div>
                 </div>
@@ -933,7 +933,7 @@ export const AdminDashboard: React.FC = () => {
                   <div className="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
                     <span className="text-slate-400 block text-[10px] font-medium uppercase">Last Authenticated</span>
                     <span className="text-white font-mono font-bold text-xs mt-0.5 block">
-                      {inspectingStudent.lastLoginAt ? new Date(inspectingStudent.lastLoginAt).toLocaleString() : 'No recorded login'}
+                      {formatExactDateTime(inspectingStudent.lastLoginAt)}
                     </span>
                   </div>
 

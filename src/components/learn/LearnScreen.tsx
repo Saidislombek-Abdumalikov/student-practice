@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGame } from '../../context/GameContext';
-import { LevelId, CurriculumUnit } from '../../types';
+import { LevelId, CurriculumUnit, PracticeMode } from '../../types';
 import { LEVELS } from '../../data/curriculumData';
 import { FlashcardViewer } from './FlashcardViewer';
 import { VocabularyPractice, WordCountMode } from './VocabularyPractice';
@@ -29,6 +29,7 @@ export const LearnScreen: React.FC = () => {
   const [selectedLevelId, setSelectedLevelId] = useState<LevelId>(() => profile.levelId || 'beginner');
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [practiceCountMode, setPracticeCountMode] = useState<WordCountMode>('whole');
+  const [practiceMode, setPracticeMode] = useState<PracticeMode>('mixed');
   const [activeTab, setActiveTab] = useState<'units' | 'flashcards' | 'practice' | 'mistakes'>(() => {
     if (currentScreen === 'flashcards') return 'flashcards';
     if (currentScreen === 'practice') return 'practice';
@@ -50,6 +51,7 @@ export const LearnScreen: React.FC = () => {
       <VocabularyPractice 
         onBack={() => setActiveTab('units')} 
         initialCountMode={practiceCountMode}
+        initialMode={practiceMode}
       />
     );
   }
@@ -184,6 +186,7 @@ export const LearnScreen: React.FC = () => {
                         e.stopPropagation();
                         soundService.playSuccess();
                         setPracticeCountMode('whole');
+                        setPracticeMode('mixed');
                         setActiveTab('practice');
                       }}
                       className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black flex items-center justify-center gap-2 text-xs shadow-game-btn"
@@ -209,6 +212,7 @@ export const LearnScreen: React.FC = () => {
                           e.stopPropagation();
                           soundService.playClick();
                           setPracticeCountMode('10');
+                          setPracticeMode('mixed');
                           setActiveTab('practice');
                         }}
                         className="btn-game-emerald py-2.5 px-3 flex items-center justify-center gap-1.5 text-xs font-bold"
@@ -248,6 +252,7 @@ export const LearnScreen: React.FC = () => {
                   onClick={() => {
                     soundService.playSuccess();
                     setPracticeCountMode('whole');
+                    setPracticeMode('mixed');
                     setActiveTab('practice');
                   }}
                   className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black flex items-center justify-center gap-2 text-sm shadow-game-btn hover:brightness-110 active:scale-98 transition-all"
@@ -272,6 +277,7 @@ export const LearnScreen: React.FC = () => {
                     onClick={() => {
                       soundService.playClick();
                       setPracticeCountMode('10');
+                      setPracticeMode('mixed');
                       setActiveTab('practice');
                     }}
                     className="btn-game-emerald py-3 px-4 flex items-center justify-center gap-2 text-xs font-bold"

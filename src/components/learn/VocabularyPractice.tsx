@@ -14,7 +14,8 @@ import {
   ArrowRight,
   RotateCcw,
   Trophy,
-  Shuffle
+  Shuffle,
+  Timer
 } from 'lucide-react';
 
 export type WordCountMode = '5' | '10' | 'whole';
@@ -32,9 +33,14 @@ function shuffleArray<T>(array: T[]): T[] {
 interface VocabularyPracticeProps {
   onBack: () => void;
   initialCountMode?: WordCountMode;
+  initialMode?: PracticeMode;
 }
 
-export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, initialCountMode = '10' }) => {
+export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ 
+  onBack, 
+  initialCountMode = '10',
+  initialMode = 'mixed' 
+}) => {
   const { 
     curriculumUnits, 
     activeUnitId, 
@@ -83,8 +89,9 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
   };
 
   // Selected practice mode tab
-  const [mode, setMode] = useState<PracticeMode>('multiple_choice');
+  const [mode, setMode] = useState<PracticeMode>(initialMode);
   const [questionIndex, setQuestionIndex] = useState<number>(0);
+  const [matchRound, setMatchRound] = useState<number>(0);
   const [combo, setCombo] = useState<number>(0);
   const [maxCombo, setMaxCombo] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
@@ -114,9 +121,69 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
   // Feedback State
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
 
+  // Derive dynamic question type for mixed exam mode (rotates through all 4 interactive types)
+  const mixedTypes: ('multiple_choice' | 'true_false' | 'typing' | 'unscramble')[] = [
+    'multiple_choice',
+    'true_false',
+    'typing',
+    'unscramble',
+  ];
+  const activeQuestionType = mode === 'mixed' ? mixedTypes[questionIndex % mixedTypes.length] : mode;
+
+  // Fixed Countdown Timer (20s per question, 45s for matching rounds)
+  const [timeLeft, setTimeLeft] = useState<number>(mode === 'matching' ? 45 : 20);
+  const [isTimerPaused, setIsTimerPaused] = useState<boolean>(false);
+  const [totalElapsedTime, setTotalElapsedTime] = useState<number>(0);
+
+  // Reset timer on question change, mode change, or round change
+  useEffect(() => {
+    setTimeLeft(mode === 'matching' ? 45 : 20);
+  }, [questionIndex, mode, matchRound]);
+
+  // Main countdown timer interval
+  useEffect(() => {
+    if (isFinished || isTimerPaused) return;
+
+    const timer = setInterval(() => {
+      setTotalElapsedTime(t => t + 1);
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          // Time expired!
+          if (mode === 'matching') {
+            const startIdx = matchRound * 5;
+            if (startIdx + 5 < activeWords.length) {
+              setMatchRound(r => r + 1);
+              return 45;
+            } else {
+              finishSession();
+              return 0;
+            }
+          } else {
+            handleTimeOut();
+            return 20;
+          }
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isFinished, isTimerPaused, mode, matchRound, questionIndex, activeWords.length]);
+
+  const handleTimeOut = () => {
+    if (feedback) return;
+    soundService.playError();
+    setFeedback('wrong');
+    setCombo(0);
+    recordMistake(currentWord);
+    setTimeout(() => {
+      proceedNext();
+    }, 1200);
+  };
+
   const currentWord = activeWords[questionIndex % activeWords.length];
 
-  // Initialize questions on mode or index change
+  // Initialize questions on activeQuestionType or index change
   useEffect(() => {
     if (!currentWord || isFinished) return;
     setFeedback(null);
@@ -124,7 +191,7 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
     setTypedInput('');
 
     // Generate Multiple Choice Options (Properly shuffled with Fisher-Yates)
-    if (mode === 'multiple_choice') {
+    if (activeQuestionType === 'multiple_choice') {
       const wrong = shuffleArray(
         currentUnit.words.filter((w: VocabularyWord) => w.id !== currentWord.id)
       ).slice(0, 3).map((w: VocabularyWord) => w.uzbekTranslation);
@@ -134,7 +201,7 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
     }
 
     // Generate True / False
-    if (mode === 'true_false') {
+    if (activeQuestionType === 'true_false') {
       const isMatch = Math.random() > 0.5;
       if (isMatch) {
         setTfStatement({ displayedMeaning: currentWord.uzbekTranslation, isCorrect: true });
@@ -146,21 +213,27 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
     }
 
     // Generate Unscramble
-    if (mode === 'unscramble') {
+    if (activeQuestionType === 'unscramble') {
       const letters = currentWord.word.toUpperCase().split('').map((l, i) => ({ id: `l_${i}`, letter: l }));
-      setScrambledLetters([...letters].sort(() => Math.random() - 0.5));
+      setScrambledLetters(shuffleArray(letters));
       setPickedLetters([]);
     }
+  }, [activeQuestionType, questionIndex, isFinished, activeWords]);
 
-    // Generate Matching (up to 5 pairs from activeWords)
-    if (mode === 'matching' && questionIndex === 0) {
-      const pairCount = Math.min(5, activeWords.length);
-      const sliceWords = [...activeWords].slice(0, pairCount);
-      setMatchPairsEn([...sliceWords].sort(() => Math.random() - 0.5));
-      setMatchPairsUz([...sliceWords].sort(() => Math.random() - 0.5));
-      setMatchedIds([]);
+  // Generate Matching (paginated 5 pairs per round across activeWords)
+  useEffect(() => {
+    if (mode === 'matching' && !isFinished) {
+      const startIdx = matchRound * 5;
+      const roundSlice = activeWords.slice(startIdx, startIdx + 5);
+      if (roundSlice.length > 0) {
+        setMatchPairsEn(shuffleArray(roundSlice));
+        setMatchPairsUz(shuffleArray(roundSlice));
+        setMatchedIds([]);
+        setSelectedEn(null);
+        setSelectedUz(null);
+      }
     }
-  }, [mode, questionIndex, isFinished, activeWords]);
+  }, [mode, matchRound, activeWords, isFinished]);
 
   // Handle Correct Answer Reward
   const handleCorrect = () => {
@@ -173,7 +246,7 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
 
     const xpEarned = 10 + Math.min(newCombo, 5) * 2;
     // Spelling (typing) and Unscramble award 2 coins
-    const isSpellingOrUnscramble = mode === 'typing' || mode === 'unscramble';
+    const isSpellingOrUnscramble = activeQuestionType === 'typing' || activeQuestionType === 'unscramble';
     const baseCoins = isSpellingOrUnscramble ? 2 : 1;
     const coinsEarned = baseCoins + (newCombo >= 3 ? 1 : 0);
 
@@ -313,8 +386,20 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
       setTotalXpEarned(p => p + 15);
       setTotalCoinsEarned(p => p + 1);
 
-      if (updated.length === Math.min(5, activeWords.length)) {
-        setTimeout(() => finishSession(), 600);
+      const startIdx = matchRound * 5;
+      const currentRoundWords = activeWords.slice(startIdx, startIdx + 5);
+      if (updated.length === currentRoundWords.length) {
+        if (startIdx + 5 < activeWords.length) {
+          // Advance to next round of matching!
+          setTimeout(() => {
+            soundService.playSuccess();
+            setMatchRound(r => r + 1);
+            setTimeLeft(45);
+          }, 600);
+        } else {
+          // Finished all matching rounds!
+          setTimeout(() => finishSession(), 600);
+        }
       }
     } else {
       soundService.playError();
@@ -360,6 +445,13 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
             <span className="text-xs text-slate-400 block font-bold">Coins Earned</span>
             <span className="text-2xl font-black text-amber-400">+{totalCoinsEarned} 🪙</span>
           </div>
+
+          <div className="p-3 rounded-2xl bg-slate-800/80 border border-slate-700 col-span-2 flex items-center justify-between">
+            <span className="text-xs text-slate-400 font-bold">⏱️ Total Time Taken</span>
+            <span className="text-sm font-black text-white font-mono">
+              {Math.floor(totalElapsedTime / 60)}m {totalElapsedTime % 60}s
+            </span>
+          </div>
         </div>
 
         {wordCountMode === 'whole' && (
@@ -381,6 +473,9 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
               setShuffleCounter(c => c + 1); // Automatically shuffles after each practice!
               setIsFinished(false);
               setQuestionIndex(0);
+              setMatchRound(0);
+              setTimeLeft(mode === 'matching' ? 45 : 20);
+              setTotalElapsedTime(0);
               setCombo(0);
               setCorrectCount(0);
               setTotalXpEarned(0);
@@ -407,35 +502,52 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
     <div className="max-w-2xl mx-auto space-y-5 pb-24 md:pb-12 animate-in fade-in duration-300">
       
       {/* Top Navigation & Combo Bar */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
         <button
           onClick={onBack}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold shrink-0"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Exit</span>
         </button>
 
+        {/* Locked, Stationary Exam Timer (Tabular Monospaced Numbers, Zero Screen Flicker) */}
+        <div 
+          onClick={() => setIsTimerPaused(p => !p)}
+          className={`w-20 sm:w-24 px-2 py-1.5 rounded-xl border text-xs font-mono font-black tabular-nums flex items-center justify-center gap-1.5 shrink-0 cursor-pointer select-none transition-all ${
+            timeLeft <= 5 
+              ? 'bg-rose-500/20 border-rose-500/50 text-rose-300 animate-pulse' 
+              : 'bg-slate-800 border-slate-700 text-amber-300'
+          }`}
+          title={isTimerPaused ? "Timer paused. Click to resume" : "Click to pause/resume timer"}
+        >
+          <Timer className={`w-3.5 h-3.5 shrink-0 ${timeLeft <= 5 ? 'text-rose-400' : 'text-amber-400'}`} />
+          <span className="w-[30px] text-right">{timeLeft}s</span>
+        </div>
+
         {/* Combo Multiplier Flame */}
-        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl font-extrabold text-xs transition-all ${
+        <div className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-2xl font-extrabold text-xs transition-all shrink-0 ${
           combo > 1 
             ? 'bg-orange-500/25 border border-orange-500/50 text-orange-300 shadow-glow-gold scale-105' 
             : 'bg-slate-800/80 border border-slate-700 text-slate-400'
         }`}>
           <Flame className={`w-4 h-4 ${combo > 1 ? 'text-orange-400 fill-orange-400 animate-flame-wobble' : 'text-slate-500'}`} />
-          <span>{combo > 0 ? `${combo}x COMBO` : 'COMBO 1x'}</span>
+          <span className="hidden sm:inline">{combo > 0 ? `${combo}x COMBO` : 'COMBO 1x'}</span>
+          <span className="sm:hidden">{combo}x</span>
         </div>
 
         {/* Question Counter & Mode Tag */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {wordCountMode === 'whole' && (
             <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[11px] font-black uppercase">
               <Trophy className="w-3 h-3 text-amber-400" />
-              Full Unit Exam
+              Full Unit
             </span>
           )}
-          <div className="text-xs font-extrabold text-indigo-400 bg-indigo-500/10 px-3 py-1.5 rounded-xl border border-indigo-500/20">
-            {questionIndex + 1} / {activeWords.length}
+          <div className="text-xs font-extrabold text-indigo-400 bg-indigo-500/10 px-2.5 sm:px-3 py-1.5 rounded-xl border border-indigo-500/20 font-mono tabular-nums">
+            {mode === 'matching' 
+              ? `R${matchRound + 1}/${Math.ceil(activeWords.length / 5)}`
+              : `${questionIndex + 1} / ${activeWords.length}`}
           </div>
         </div>
       </div>
@@ -493,26 +605,40 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
         </button>
       </div>
 
-      {/* Mode Selector Tabs (5 Distinct Visual Engines) */}
+      {/* Mode Selector Tabs (6 Distinct Visual Engines) */}
       <div className="flex items-center gap-1.5 p-1 bg-slate-800/80 border border-slate-700/80 rounded-2xl overflow-x-auto text-xs font-bold scrollbar-none">
         <button
-          onClick={() => setMode('multiple_choice')}
+          onClick={() => { soundService.playClick(); setMode('mixed'); setQuestionIndex(0); setFeedback(null); }}
+          className={`py-2 px-3 rounded-xl whitespace-nowrap transition-all flex items-center gap-1.5 ${
+            mode === 'mixed' 
+              ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black shadow-game-btn' 
+              : 'text-amber-400/90 hover:text-amber-300'
+          }`}
+        >
+          <Trophy className="w-3.5 h-3.5" />
+          <span>Mixed Exam (All Types)</span>
+        </button>
+
+        <button
+          onClick={() => { soundService.playClick(); setMode('multiple_choice'); setQuestionIndex(0); setFeedback(null); }}
           className={`py-2 px-3 rounded-xl whitespace-nowrap transition-all ${
             mode === 'multiple_choice' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           Multiple Choice
         </button>
+
         <button
-          onClick={() => setMode('true_false')}
+          onClick={() => { soundService.playClick(); setMode('true_false'); setQuestionIndex(0); setFeedback(null); }}
           className={`py-2 px-3 rounded-xl whitespace-nowrap transition-all ${
             mode === 'true_false' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           True / False
         </button>
+
         <button
-          onClick={() => setMode('typing')}
+          onClick={() => { soundService.playClick(); setMode('typing'); setQuestionIndex(0); setFeedback(null); }}
           className={`py-2 px-3 rounded-xl whitespace-nowrap transition-all flex items-center gap-1.5 ${
             mode === 'typing' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
           }`}
@@ -522,8 +648,9 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
             +2 🪙
           </span>
         </button>
+
         <button
-          onClick={() => setMode('unscramble')}
+          onClick={() => { soundService.playClick(); setMode('unscramble'); setQuestionIndex(0); setFeedback(null); }}
           className={`py-2 px-3 rounded-xl whitespace-nowrap transition-all flex items-center gap-1.5 ${
             mode === 'unscramble' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
           }`}
@@ -533,8 +660,9 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
             +2 🪙
           </span>
         </button>
+
         <button
-          onClick={() => setMode('matching')}
+          onClick={() => { soundService.playClick(); setMode('matching'); setMatchRound(0); setMatchedIds([]); setFeedback(null); }}
           className={`py-2 px-3 rounded-xl whitespace-nowrap transition-all ${
             mode === 'matching' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
           }`}
@@ -550,8 +678,26 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
         'border-slate-700'
       }`}>
 
+        {/* Mixed Exam Indicator Header */}
+        {mode === 'mixed' && (
+          <div className="flex items-center justify-between pb-3 border-b border-slate-700/60">
+            <span className="px-3 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold text-xs flex items-center gap-1.5 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>
+                {activeQuestionType === 'multiple_choice' ? 'EXAM: MULTIPLE CHOICE (1 of 4)' :
+                 activeQuestionType === 'true_false' ? 'EXAM: TRUE OR FALSE' :
+                 activeQuestionType === 'typing' ? 'EXAM: SPELLING & TYPING' :
+                 'EXAM: LETTER UNSCRAMBLE'}
+              </span>
+            </span>
+            <span className="text-slate-400 font-mono text-xs">
+              Word {questionIndex + 1} of {activeWords.length}
+            </span>
+          </div>
+        )}
+
         {/* 1. MULTIPLE CHOICE MODE */}
-        {mode === 'multiple_choice' && (
+        {(mode === 'multiple_choice' || (mode === 'mixed' && activeQuestionType === 'multiple_choice')) && (
           <div className="space-y-6 text-center">
             <div className="space-y-2">
               <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-400">
@@ -602,7 +748,7 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
         )}
 
         {/* 2. TRUE / FALSE MODE */}
-        {mode === 'true_false' && (
+        {(mode === 'true_false' || (mode === 'mixed' && activeQuestionType === 'true_false')) && (
           <div className="space-y-6 text-center">
             <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-400">
               Does this word match the translation?
@@ -638,7 +784,7 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
         )}
 
         {/* 3. TYPING & SPELLING MODE */}
-        {mode === 'typing' && (
+        {(mode === 'typing' || (mode === 'mixed' && activeQuestionType === 'typing')) && (
           <div className="space-y-6 text-center">
             <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-400">
               Type the English word
@@ -675,7 +821,7 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
         )}
 
         {/* 4. UNSCRAMBLE MODE */}
-        {mode === 'unscramble' && (
+        {(mode === 'unscramble' || (mode === 'mixed' && activeQuestionType === 'unscramble')) && (
           <div className="space-y-6 text-center">
             <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-400">
               Tap the tiles to rebuild the word
@@ -724,7 +870,7 @@ export const VocabularyPractice: React.FC<VocabularyPracticeProps> = ({ onBack, 
         {mode === 'matching' && (
           <div className="space-y-6 text-center">
             <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-400">
-              Match English words with their Uzbek translations
+              Match English words with their Uzbek translations • Round {matchRound + 1} of {Math.ceil(activeWords.length / 5)}
             </span>
 
             <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto">

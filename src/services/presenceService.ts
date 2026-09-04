@@ -1,29 +1,56 @@
 import { UserProfile, UserRole } from '../types';
 
 /**
- * Format a user's presence into a clean, human-friendly label.
- * Rules:
- * - Online (if marked online or lastSeenAt within 3 minutes)
- * - "Last seen 5m ago" (if within 60 minutes)
- * - "Last seen today at 14:20" (if earlier today)
- * - "Last seen yesterday"
- * - "Last seen 3 days ago" (if within 7 days)
- * - "Last seen on M/D/YYYY"
+ * Format an ISO date-time string into a clear, exact human-readable date & time.
+ * e.g., "Sep 4, 2026, 09:15 AM". If empty or invalid, returns "Not entered yet".
+ */
+export function formatExactDateTime(isoString?: string): string {
+  if (!isoString) return 'Not entered yet';
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return 'Not entered yet';
+
+  const datePart = date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  const timePart = date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+  return `${datePart}, ${timePart}`;
+}
+
+/**
+ * Format a user's presence into a clean, human-friendly label with exact timestamps.
+ * If user has never logged in/entered, returns "Not entered yet".
  */
 export function formatPresence(lastSeenAt?: string, isOnline?: boolean): {
   isOnline: boolean;
   label: string;
   shortLabel: string;
+  exact: string;
 } {
   if (!lastSeenAt) {
     return {
       isOnline: false,
-      label: 'Offline',
-      shortLabel: 'Offline',
+      label: 'Not entered yet',
+      shortLabel: 'Not entered',
+      exact: 'Not entered yet',
     };
   }
 
   const date = new Date(lastSeenAt);
+  if (isNaN(date.getTime())) {
+    return {
+      isOnline: false,
+      label: 'Not entered yet',
+      shortLabel: 'Not entered',
+      exact: 'Not entered yet',
+    };
+  }
+
   const diffMs = Math.max(0, Date.now() - date.getTime());
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
@@ -33,56 +60,16 @@ export function formatPresence(lastSeenAt?: string, isOnline?: boolean): {
       isOnline: true,
       label: '🟢 Online',
       shortLabel: 'Online',
+      exact: 'Online now',
     };
   }
 
-  // Within an hour
-  if (diffMinutes < 60) {
-    const mins = Math.max(1, diffMinutes);
-    return {
-      isOnline: false,
-      label: `Last seen ${mins}m ago`,
-      shortLabel: `${mins}m ago`,
-    };
-  }
-
-  const now = new Date();
-  const isToday = date.toDateString() === now.toDateString();
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-  const isYesterday = date.toDateString() === yesterday.toDateString();
-
-  if (isToday) {
-    const hours = date.getHours().toString().padStart(2, '0');
-    const mins = date.getMinutes().toString().padStart(2, '0');
-    return {
-      isOnline: false,
-      label: `Last seen today at ${hours}:${mins}`,
-      shortLabel: `Today ${hours}:${mins}`,
-    };
-  }
-
-  if (isYesterday) {
-    return {
-      isOnline: false,
-      label: 'Last seen yesterday',
-      shortLabel: 'Yesterday',
-    };
-  }
-
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  if (diffDays <= 7) {
-    return {
-      isOnline: false,
-      label: `Last seen ${Math.max(1, diffDays)} days ago`,
-      shortLabel: `${Math.max(1, diffDays)}d ago`,
-    };
-  }
-
+  const exactStr = formatExactDateTime(lastSeenAt);
   return {
     isOnline: false,
-    label: `Last seen on ${date.toLocaleDateString()}`,
-    shortLabel: date.toLocaleDateString(),
+    label: `Last online: ${exactStr}`,
+    shortLabel: exactStr,
+    exact: exactStr,
   };
 }
 

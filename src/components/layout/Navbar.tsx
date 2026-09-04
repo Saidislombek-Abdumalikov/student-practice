@@ -34,9 +34,9 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      {/* Mobile Bottom Dock (100% visible, zero scroll, Profile permanently visible) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/98 border-t border-slate-800/90 backdrop-blur-xl px-1 py-1 safe-area-pb shadow-2xl">
-        <div className="flex items-center justify-between w-full max-w-lg mx-auto">
+      {/* Mobile Bottom Dock (100% accessible touch targets, scrollable if 9+ items, Compete never clipped) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/98 border-t border-slate-800/90 backdrop-blur-xl px-1 py-1 safe-area-pb shadow-2xl overflow-x-auto scrollbar-none">
+        <div className="flex items-center justify-between w-full min-w-max mx-auto gap-0.5 px-0.5">
           {navItems.map(item => {
             const isActive = currentScreen === item.id || 
               (item.id === 'learn' && (currentScreen === 'flashcards' || currentScreen === 'practice' || currentScreen === 'mistakes')) ||
@@ -46,7 +46,7 @@ export const Navbar: React.FC = () => {
               <button
                 key={item.id}
                 onClick={() => handleNav(item.id)}
-                className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl transition-all duration-150 active:scale-95 ${
+                className={`min-w-[46px] sm:min-w-[54px] flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-150 active:scale-95 ${
                   isActive
                     ? 'text-indigo-400 font-black'
                     : 'text-slate-400 hover:text-slate-200'
@@ -57,7 +57,7 @@ export const Navbar: React.FC = () => {
                 }`}>
                   {item.icon}
                 </div>
-                <span className={`text-[8px] tracking-tighter mt-0.5 truncate max-w-full leading-none text-center ${isActive ? 'font-black text-indigo-300' : 'font-medium'}`}>
+                <span className={`text-[9px] tracking-tight mt-0.5 whitespace-nowrap leading-none text-center ${isActive ? 'font-black text-indigo-300' : 'font-medium'}`}>
                   {item.mobileLabel}
                 </span>
               </button>

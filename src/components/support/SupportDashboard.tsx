@@ -17,11 +17,13 @@ import {
   CheckCircle2, 
   Ticket,
   Eye,
-  Activity
+  Activity,
+  Trophy,
+  Gamepad2
 } from 'lucide-react';
 
 export const SupportDashboard: React.FC = () => {
-  const { profile, allAccounts } = useGame();
+  const { profile, allAccounts, setScreen } = useGame();
   const [inspectingStudent, setInspectingStudent] = useState<UserProfile | null>(null);
 
   // Filter students (exclude admin and self from the student roster list)
@@ -79,6 +81,56 @@ export const SupportDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Quick Action Portals (Compete, Duels, Vocab, Grammar) */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button
+          onClick={() => { soundService.playClick(); setScreen('compete'); }}
+          className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border-2 border-amber-500/40 hover:border-amber-400 hover:scale-[1.02] text-left transition-all shadow-md group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+            <Trophy className="w-5 h-5 text-amber-400" />
+          </div>
+          <h3 className="font-black text-sm text-white flex items-center gap-1.5">
+            <span>Compete Arena</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-300 font-bold">TOP</span>
+          </h3>
+          <p className="text-[11px] text-slate-400 mt-0.5">Leaderboards & achievements</p>
+        </button>
+
+        <button
+          onClick={() => { soundService.playClick(); setScreen('play'); }}
+          className="p-4 rounded-2xl bg-gradient-to-br from-sky-500/20 to-blue-500/10 border-2 border-sky-500/40 hover:border-sky-400 hover:scale-[1.02] text-left transition-all shadow-md group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-300 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+            <Gamepad2 className="w-5 h-5 text-sky-400" />
+          </div>
+          <h3 className="font-black text-sm text-white">Peer Duels</h3>
+          <p className="text-[11px] text-slate-400 mt-0.5">Live 2-player battles & sprint</p>
+        </button>
+
+        <button
+          onClick={() => { soundService.playClick(); setScreen('learn'); }}
+          className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/20 to-indigo-500/10 border-2 border-purple-500/40 hover:border-purple-400 hover:scale-[1.02] text-left transition-all shadow-md group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+            <BookOpen className="w-5 h-5 text-purple-400" />
+          </div>
+          <h3 className="font-black text-sm text-white">Vocabulary</h3>
+          <p className="text-[11px] text-slate-400 mt-0.5">Units, flashcards & exams</p>
+        </button>
+
+        <button
+          onClick={() => { soundService.playClick(); setScreen('grammar'); }}
+          className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border-2 border-emerald-500/40 hover:border-emerald-400 hover:scale-[1.02] text-left transition-all shadow-md group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+            <Sparkles className="w-5 h-5 text-emerald-400" />
+          </div>
+          <h3 className="font-black text-sm text-white">Grammar Hub</h3>
+          <p className="text-[11px] text-slate-400 mt-0.5">Level topics & practice</p>
+        </button>
       </div>
 
       {/* Student Roster Header */}
