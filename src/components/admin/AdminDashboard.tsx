@@ -13,6 +13,7 @@ import { SUPABASE_SQL_SETUP, SupabaseService } from '../../services/supabaseServ
 import { 
   ShieldCheck, 
   Users, 
+  User,
   Zap, 
   Coins, 
   Flame, 

@@ -31,9 +31,9 @@ export const HomeScreen: React.FC = () => {
     cycleCharacterMood,
   } = useGame();
 
-  const currentUnit = curriculumUnits.find(u => u.id === activeUnitId) || curriculumUnits[0];
-  const unitMastery = profile.unitMasteries[currentUnit.id] || 0;
-  const mistakeCount = profile.mistakes.length;
+  const currentUnit = (curriculumUnits && curriculumUnits.find(u => u.id === activeUnitId)) || (curriculumUnits && curriculumUnits[0]) || { id: 'u1', unitNumber: 1, title: 'Introduction' };
+  const unitMastery = (profile?.unitMasteries && currentUnit?.id) ? (profile.unitMasteries[currentUnit.id] || 0) : 0;
+  const mistakeCount = (profile?.mistakes || []).length;
 
   const handleStartLearn = () => {
     soundService.playClick();
@@ -87,14 +87,14 @@ export const HomeScreen: React.FC = () => {
 
             <div className="flex-1 bg-white/15 backdrop-blur-md rounded-2xl py-2 px-1 border border-white/20 text-center shadow-sm">
               <div className="text-base leading-none">⭐</div>
-              <div className="text-white font-black text-base mt-1 leading-tight">{profile.xp.toLocaleString()}</div>
+              <div className="text-white font-black text-base mt-1 leading-tight">{(profile?.xp || 0).toLocaleString()}</div>
               <div className="text-violet-200 text-[10px] font-bold">XP</div>
             </div>
 
             <div className="flex-1 bg-white/15 backdrop-blur-md rounded-2xl py-2 px-1 border border-white/20 text-center shadow-sm">
               <div className="text-base leading-none">🪙</div>
               <div className="text-white font-black text-base mt-1 leading-tight">
-                {profile.role === 'admin' ? '∞' : profile.coins.toLocaleString()}
+                {profile?.role === 'admin' ? '∞' : (profile?.coins || 0).toLocaleString()}
               </div>
               <div className="text-violet-200 text-[10px] font-bold">Coins</div>
             </div>
