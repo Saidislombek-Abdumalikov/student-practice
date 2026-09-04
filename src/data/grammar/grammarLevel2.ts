@@ -73,6 +73,40 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"while"dan keyin davomiy harakat boʻlgani uchun "were walking".',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l2_u1_2",
+            "topicId": "l2_u1_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with the past continuous form of the verb in brackets:",
+            "sentenceWithBlank": "While I ___ (cook) dinner, my brother was setting the table.",
+            "options": [
+                        "was cooking",
+                        "cooked",
+                        "were cooking",
+                        "am cooking"
+            ],
+            "correctAnswer": "was cooking",
+            "explanationEn": "Two ongoing simultaneous actions in the past both use Past Continuous.",
+            "explanationUz": "Oʻtgan zamonda bir vaqtda parallel davom etgan ikki harakat Past Continuous da boʻladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u1_3",
+            "topicId": "l2_u1_t1",
+            "type": "multiple_choice",
+            "prompt": "Which conjunction normally introduces the shorter interrupting action in Past Simple?",
+            "sentenceWithBlank": "We were walking in the park ___ it started to rain.",
+            "options": [
+                        "when",
+                        "while",
+                        "as long as",
+                        "during"
+            ],
+            "correctAnswer": "when",
+            "explanationEn": "'when' is used before a sudden interrupting event in Past Simple.",
+            "explanationUz": "Oʻtgan zamondagi toʻsatdan sodir boʻlgan qisqa harakat oldidan 'when' keladi.",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -99,6 +133,57 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Toʻgʻri soʻz tartibi.',
             difficulty: 'medium',
           },
+          {
+            "id": "p_l2_u1_3",
+            "topicId": "l2_u1_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the correct pair of verb forms:",
+            "sentenceWithBlank": "I ___ my knee while I ___ football.",
+            "options": [
+                        "hurt / was playing",
+                        "was hurting / played",
+                        "hurt / played",
+                        "was hurting / was playing"
+            ],
+            "correctAnswer": "hurt / was playing",
+            "explanationEn": "Short sudden action = Past Simple (hurt); longer background action = Past Continuous (was playing).",
+            "explanationUz": "Qisqa toʻsatdan yuz bergan harakat Past Simple (hurt), fon boʻlgan davomli harakat Past Continuous.",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l2_u1_4",
+            "topicId": "l2_u1_t1",
+            "type": "fill_blank",
+            "prompt": "Complete the question in Past Continuous:",
+            "sentenceWithBlank": "What ___ you ___ at 9:00 PM last night when I called?",
+            "options": [
+                        "were / doing",
+                        "did / do",
+                        "was / doing",
+                        "are / doing"
+            ],
+            "correctAnswer": "were / doing",
+            "explanationEn": "Asking about an action in progress at a specific past point in time requires Past Continuous.",
+            "explanationUz": "Oʻtgan zamondagi aniq bir paytda davom etayotgan harakat: What were you doing?",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l2_u1_5",
+            "topicId": "l2_u1_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Ular uyga kelganida, biz kino koʻrayotgan edik.",
+            "options": [
+                        "When they arrived home, we were watching a movie.",
+                        "While they were arriving home, we watched a movie.",
+                        "When they were arriving home, we watched a movie.",
+                        "When they arrived home, we watched a movie."
+            ],
+            "correctAnswer": "When they arrived home, we were watching a movie.",
+            "explanationEn": "'When they arrived (short), we were watching (ongoing background).'",
+            "explanationUz": "Ular kelganda (qisqa harakat - arrived), biz koʻrayotgan edik (davomli - were watching).",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -112,6 +197,54 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Past Continuous soʻrogʻi: What were you doing?',
             difficulty: 'easy',
           },
+          {
+            "id": "t_l2_u1_2",
+            "topicId": "l2_u1_t1",
+            "type": "multiple_choice",
+            "prompt": "The electricity went out while she ___ an important presentation.",
+            "options": [
+                        "was preparing",
+                        "prepared",
+                        "prepares",
+                        "is preparing"
+            ],
+            "correctAnswer": "was preparing",
+            "explanationEn": "The background activity in progress when power failed was 'was preparing'.",
+            "explanationUz": "Chiroq oʻchganda davom etayotgan orqa fon harakati: was preparing.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l2_u1_3",
+            "topicId": "l2_u1_t1",
+            "type": "multiple_choice",
+            "prompt": "Why is 'While I was knowing the teacher, I listened' incorrect?",
+            "options": [
+                        "'know' is a state verb and cannot be used in continuous tenses.",
+                        "'while' cannot be used with 'I'.",
+                        "'listened' should be 'listen'.",
+                        "'knowing' needs the auxiliary 'did'."
+            ],
+            "correctAnswer": "'know' is a state verb and cannot be used in continuous tenses.",
+            "explanationEn": "Stative verbs like know, believe, understand cannot take continuous aspects.",
+            "explanationUz": "'know' holat feʼli boʻlib, continuous shaklda ishlatilmaydi.",
+            "difficulty": "hard"
+},
+          {
+            "id": "t_l2_u1_4",
+            "topicId": "l2_u1_t1",
+            "type": "multiple_choice",
+            "prompt": "At midnight, the wind ___ fiercely outside.",
+            "options": [
+                        "was blowing",
+                        "blew",
+                        "has blown",
+                        "is blowing"
+            ],
+            "correctAnswer": "was blowing",
+            "explanationEn": "Action in progress at a precise hour in the past: was blowing.",
+            "explanationUz": "Oʻtgan zamonda aniq soatda davom etayotgan harakat: was blowing.",
+            "difficulty": "easy"
+}
         ],
         flashcards: [
           {
@@ -225,6 +358,23 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"yet" (hali) inkor gaplarning oxirida keladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l2_u2_3",
+            "topicId": "l2_u2_t1",
+            "type": "fill_blank",
+            "prompt": "Choose the correct position and word for 'just':",
+            "sentenceWithBlank": "I have ___ finished my assignment.",
+            "options": [
+                        "just",
+                        "yet",
+                        "ever",
+                        "ago"
+            ],
+            "correctAnswer": "just",
+            "explanationEn": "'just' is placed between 'have/has' and the past participle (V3) to mean 'a moment ago'.",
+            "explanationUz": "'just' have/has va V3 oʻrtasida kelib, 'hozirgina' maʼnosini beradi.",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -251,6 +401,57 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"already" have/has va asosiy feʼl oʻrtasida keladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "p_l2_u2_3",
+            "topicId": "l2_u2_t1",
+            "type": "multiple_choice",
+            "prompt": "Where does 'yet' go in a sentence?",
+            "sentenceWithBlank": "Have you received the confirmation email ___?",
+            "options": [
+                        "yet",
+                        "already",
+                        "just",
+                        "ever"
+            ],
+            "correctAnswer": "yet",
+            "explanationEn": "'yet' goes at the end of negative sentences and questions in Present Perfect.",
+            "explanationUz": "'yet' (hali, allaqachon) inkor va soʻroq gaplarning oxirida keladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l2_u2_4",
+            "topicId": "l2_u2_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with 'already':",
+            "sentenceWithBlank": "Don't worry about booking the hotel; I have ___ done it.",
+            "options": [
+                        "already",
+                        "yet",
+                        "still",
+                        "never"
+            ],
+            "correctAnswer": "already",
+            "explanationEn": "'already' expresses that an action happened sooner than expected.",
+            "explanationUz": "'already' ish kutilgandan oldinroq bajarilganini bildiradi (allaqachon).",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l2_u2_5",
+            "topicId": "l2_u2_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Biz hali tushlik qilganimiz yoʻq.",
+            "options": [
+                        "We haven't had lunch yet.",
+                        "We didn't had lunch yet.",
+                        "We haven't lunch yet.",
+                        "We don't have lunch yet."
+            ],
+            "correctAnswer": "We haven't had lunch yet.",
+            "explanationEn": "Negative Present Perfect: haven't + had + ... + yet.",
+            "explanationUz": "Inkor Present Perfect: 'We haven\\'t had lunch yet.'",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -264,6 +465,54 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'U toʻq, chunki hozirgina tushlik qildi: has just had.',
             difficulty: 'medium',
           },
+          {
+            "id": "t_l2_u2_2",
+            "topicId": "l2_u2_t1",
+            "type": "multiple_choice",
+            "prompt": "She ___ her keys, so she cannot get into her flat right now.",
+            "options": [
+                        "has lost",
+                        "lost",
+                        "loses",
+                        "had lost"
+            ],
+            "correctAnswer": "has lost",
+            "explanationEn": "Present Perfect links a past event with a direct present result (cannot enter now).",
+            "explanationUz": "Hozirgi natijaga ega oʻtgan harakat Present Perfect da beriladi (has lost).",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l2_u2_3",
+            "topicId": "l2_u2_t1",
+            "type": "multiple_choice",
+            "prompt": "Which sentence is INCORRECT?",
+            "options": [
+                        "I have seen that movie yesterday.",
+                        "I saw that movie yesterday.",
+                        "I have already seen that movie.",
+                        "I have never seen that movie."
+            ],
+            "correctAnswer": "I have seen that movie yesterday.",
+            "explanationEn": "Specific past time markers like 'yesterday' MUST use Past Simple, NOT Present Perfect.",
+            "explanationUz": "'yesterday' aniq oʻtgan zamon belgisi boʻlib, Present Perfect bilan ishlatilmaydi!",
+            "difficulty": "hard"
+},
+          {
+            "id": "t_l2_u2_4",
+            "topicId": "l2_u2_t1",
+            "type": "multiple_choice",
+            "prompt": "Has the train arrived ___?",
+            "options": [
+                        "yet",
+                        "already",
+                        "just",
+                        "since"
+            ],
+            "correctAnswer": "yet",
+            "explanationEn": "'yet' is the standard word at the end of questions to ask if an expected event has happened.",
+            "explanationUz": "Kutilgan harakat sodir boʻlganini soʻrashda gap oxirida 'yet' ishlatiladi.",
+            "difficulty": "easy"
+}
         ],
         flashcards: [
           {
@@ -351,6 +600,39 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"If" ergash gapida "will" emas, Present Simple (passes) ishlatiladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l2_u7_2",
+            "topicId": "l2_u7_t1",
+            "type": "fill_blank",
+            "prompt": "Complete the First Conditional sentence:",
+            "sentenceWithBlank": "If it rains tomorrow, we ___ (cancel) the picnic.",
+            "options": [
+                        "will cancel",
+                        "cancel",
+                        "would cancel",
+                        "cancelled"
+            ],
+            "correctAnswer": "will cancel",
+            "explanationEn": "First Conditional formula: If + Present Simple, will + V1.",
+            "explanationUz": "Birinchi shart formulasi: If + Present Simple, will + V1.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u7_3",
+            "topicId": "l2_u7_t1",
+            "type": "multiple_choice",
+            "prompt": "Which verb tense MUST be in the if-clause of First Conditional?",
+            "options": [
+                        "Present Simple (even though it refers to future)",
+                        "Future Simple with will",
+                        "Past Simple",
+                        "Past Continuous"
+            ],
+            "correctAnswer": "Present Simple (even though it refers to future)",
+            "explanationEn": "Time and conditional clauses use Present Simple to refer to the future.",
+            "explanationUz": "Kelasi zamon nazarda tutilsa ham, if qismida Present Simple ishlatiladi.",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -366,6 +648,74 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"If" qismidagi "will" olib tashlanadi -> If I see him.',
             difficulty: 'medium',
           },
+          {
+            "id": "p_l2_u7_2",
+            "topicId": "l2_u7_t1",
+            "type": "multiple_choice",
+            "prompt": "What does 'unless' mean?",
+            "sentenceWithBlank": "We will be late ___ we take a taxi.",
+            "options": [
+                        "unless",
+                        "if",
+                        "as if",
+                        "whether"
+            ],
+            "correctAnswer": "unless",
+            "explanationEn": "'unless' means 'if not' (unless we take a taxi = if we do not take a taxi).",
+            "explanationUz": "'unless' = 'if not' (agar taksi olmasak).",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l2_u7_3",
+            "topicId": "l2_u7_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with the correct present tense form:",
+            "sentenceWithBlank": "If she ___ (study) hard, she will pass the entrance exam.",
+            "options": [
+                        "studies",
+                        "will study",
+                        "studied",
+                        "study"
+            ],
+            "correctAnswer": "studies",
+            "explanationEn": "'she' takes third-person singular 'studies' in Present Simple.",
+            "explanationUz": "'she' uchun Present Simple da 'studies' boʻladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l2_u7_4",
+            "topicId": "l2_u7_t1",
+            "type": "multiple_choice",
+            "prompt": "Which modal can replace 'will' in First Conditional to express possibility?",
+            "sentenceWithBlank": "If you ask politely, he ___ help you.",
+            "options": [
+                        "might",
+                        "must to",
+                        "would have",
+                        "could have"
+            ],
+            "correctAnswer": "might",
+            "explanationEn": "'might' expresses possibility instead of absolute certainty in First Conditional.",
+            "explanationUz": "'might' qatʼiy aniqlik oʻrniga ehtimollikni bildirish uchun 'will' oʻrnida kelishi mumkin.",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l2_u7_5",
+            "topicId": "l2_u7_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Agar vaqtim boʻlsa, sizga qoʻngʻiroq qilaman.",
+            "options": [
+                        "If I have time, I will call you.",
+                        "If I will have time, I call you.",
+                        "If I have time, I call you.",
+                        "If I had time, I will call you."
+            ],
+            "correctAnswer": "If I have time, I will call you.",
+            "explanationEn": "Real future condition: 'If I have time, I will call you.'",
+            "explanationUz": "Kelajakdagi real shart: 'If I have time, I will call you.'",
+            "difficulty": "easy"
+}
         ],
         testQuestions: [
           {
@@ -379,6 +729,54 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"Unless" oʻzida inkor saqlaydi, shuning uchun "leave" qoʻyiladi.',
             difficulty: 'hard',
           },
+          {
+            "id": "t_l2_u7_2",
+            "topicId": "l2_u7_t1",
+            "type": "multiple_choice",
+            "prompt": "As soon as he ___, we will start the meeting.",
+            "options": [
+                        "arrives",
+                        "will arrive",
+                        "arrived",
+                        "is arriving"
+            ],
+            "correctAnswer": "arrives",
+            "explanationEn": "Time conjunctions (as soon as, when, before) follow the same rule: use Present Simple for future.",
+            "explanationUz": "Vaqt bogʻlovchilari (as soon as, when) dan keyin kelasi zamon uchun Present Simple ishlatiladi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l2_u7_3",
+            "topicId": "l2_u7_t1",
+            "type": "multiple_choice",
+            "prompt": "You won't get good grades unless you ___ every day.",
+            "options": [
+                        "revise",
+                        "don't revise",
+                        "won't revise",
+                        "revised"
+            ],
+            "correctAnswer": "revise",
+            "explanationEn": "Because 'unless' already means 'if not', the verb must be positive: revise.",
+            "explanationUz": "'unless' oʻzida inkor saqlaganligi uchun feʼl tasdiq shaklida keladi: revise.",
+            "difficulty": "hard"
+},
+          {
+            "id": "t_l2_u7_4",
+            "topicId": "l2_u7_t1",
+            "type": "multiple_choice",
+            "prompt": "If you ___ hungry, help yourself to some fruit in the kitchen.",
+            "options": [
+                        "are",
+                        "will be",
+                        "were",
+                        "would be"
+            ],
+            "correctAnswer": "are",
+            "explanationEn": "Imperative result ('help yourself') pairs with Present Simple ('are').",
+            "explanationUz": "Buyruq natija bilan Present Simple ishlatiladi: If you are hungry.",
+            "difficulty": "easy"
+}
         ],
         flashcards: [
           {
@@ -466,6 +864,40 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"English" birlikda, hozirgi majhul nisbat: is learned.',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l2_u9_2",
+            "topicId": "l2_u9_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with Present Simple Passive:",
+            "sentenceWithBlank": "English ___ (speak) by millions of people worldwide.",
+            "options": [
+                        "is spoken",
+                        "is speak",
+                        "are spoken",
+                        "speaks"
+            ],
+            "correctAnswer": "is spoken",
+            "explanationEn": "Formula: am/is/are + V3 (past participle): is spoken.",
+            "explanationUz": "Hozirgi zamon majhul nisbati: is + spoken (V3).",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u9_3",
+            "topicId": "l2_u9_t1",
+            "type": "multiple_choice",
+            "prompt": "What preposition introduces the agent who performed the action?",
+            "sentenceWithBlank": "The Mona Lisa was painted ___ Leonardo da Vinci.",
+            "options": [
+                        "by",
+                        "with",
+                        "from",
+                        "at"
+            ],
+            "correctAnswer": "by",
+            "explanationEn": "Use 'by' to indicate who or what performed the passive action.",
+            "explanationUz": "Majhul nisbatda ish-harakat ijrochisi 'by' predlogi bilan koʻrsatiladi.",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -485,6 +917,73 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Oʻtgan zamon majhul nisbati: was written.',
             difficulty: 'medium',
           },
+          {
+            "id": "p_l2_u9_2",
+            "topicId": "l2_u9_t1",
+            "type": "multiple_choice",
+            "prompt": "Complete with Past Simple Passive:",
+            "sentenceWithBlank": "These ancient monuments ___ over two thousand years ago.",
+            "options": [
+                        "were built",
+                        "was built",
+                        "are built",
+                        "built"
+            ],
+            "correctAnswer": "were built",
+            "explanationEn": "Plural subject ('monuments') in the past takes 'were built'.",
+            "explanationUz": "Koʻplikdagi ot (monuments) oʻtgan zamonda 'were built' boʻladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l2_u9_3",
+            "topicId": "l2_u9_t1",
+            "type": "fill_blank",
+            "prompt": "Complete the negative passive sentence:",
+            "sentenceWithBlank": "Smoking ___ allowed anywhere inside this airport.",
+            "options": [
+                        "isn't",
+                        "doesn't",
+                        "hasn't",
+                        "wasn't to"
+            ],
+            "correctAnswer": "isn't",
+            "explanationEn": "Negative present passive: is not allowed (isn\\'t allowed).",
+            "explanationUz": "Hozirgi zamon inkor majhul nisbati: isn\\'t allowed.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l2_u9_4",
+            "topicId": "l2_u9_t1",
+            "type": "multiple_choice",
+            "prompt": "Why do we use the passive voice?",
+            "options": [
+                        "When the action or receiver is more important than who did it.",
+                        "Because active sentences are always informal.",
+                        "Only when writing about historical events.",
+                        "Passive voice is only used in British English."
+            ],
+            "correctAnswer": "When the action or receiver is more important than who did it.",
+            "explanationEn": "Passive voice shifts focus to the recipient or the action itself.",
+            "explanationUz": "Harakatning oʻzi yoki uni qabul qiluvchi obyekt ijrochidan muhimroq boʻlganda majhul nisbat qoʻllanadi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l2_u9_5",
+            "topicId": "l2_u9_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Telefonim kecha avtobusda oʻgʻirlab ketildi.",
+            "options": [
+                        "My phone was stolen on the bus yesterday.",
+                        "My phone stole on the bus yesterday.",
+                        "My phone is stolen on the bus yesterday.",
+                        "My phone had stolen on the bus yesterday."
+            ],
+            "correctAnswer": "My phone was stolen on the bus yesterday.",
+            "explanationEn": "Past passive: was + stolen (V3).",
+            "explanationUz": "Oʻtgan zamon majhul nisbati: was stolen.",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -498,6 +997,54 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"pyramids" koʻplik boʻlgani uchun: were built.',
             difficulty: 'medium',
           },
+          {
+            "id": "t_l2_u9_2",
+            "topicId": "l2_u9_t1",
+            "type": "multiple_choice",
+            "prompt": "Millions of emails ___ every single minute.",
+            "options": [
+                        "are sent",
+                        "is sent",
+                        "were sent",
+                        "send"
+            ],
+            "correctAnswer": "are sent",
+            "explanationEn": "Plural regular fact: are + sent (V3).",
+            "explanationUz": "Koʻplikdagi muntazam fakt: are sent.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l2_u9_3",
+            "topicId": "l2_u9_t1",
+            "type": "multiple_choice",
+            "prompt": "The famous novel ___ by George Orwell in 1949.",
+            "options": [
+                        "was written",
+                        "is written",
+                        "wrote",
+                        "had written by"
+            ],
+            "correctAnswer": "was written",
+            "explanationEn": "Specific past year (1949) with singular book: was written.",
+            "explanationUz": "1949-yildagi voqea va birlikdagi kitob: was written.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l2_u9_4",
+            "topicId": "l2_u9_t1",
+            "type": "multiple_choice",
+            "prompt": "The soup was cooked ___ fresh organic herbs.",
+            "options": [
+                        "with",
+                        "by",
+                        "from",
+                        "in"
+            ],
+            "correctAnswer": "with",
+            "explanationEn": "Use 'with' for tools, instruments, and ingredients (use 'by' for the human agent).",
+            "explanationUz": "Masalliqlar va asboblar uchun 'with', shaxs-ijrochi uchun 'by' ishlatiladi.",
+            "difficulty": "hard"
+}
         ],
         flashcards: [
           {
@@ -563,7 +1110,59 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
           ],
           studyTips: ['Remember: "been to" means gone and returned; "gone to" means still there!']
         },
-        guidedQuestions: [],
+        guidedQuestions: [
+          {
+            "id": "g_l2_u3_1",
+            "topicId": "l2_u3_t1",
+            "type": "fill_blank",
+            "prompt": "Ask about someone's life experience:",
+            "sentenceWithBlank": "Have you ___ eaten sushi?",
+            "options": [
+                        "ever",
+                        "never",
+                        "already",
+                        "yet"
+            ],
+            "correctAnswer": "ever",
+            "explanationEn": "Use 'ever' in questions to mean 'at any time in your life'.",
+            "explanationUz": "Hayotiy tajriba haqidagi soʻroq gaplarda 'ever' (umringizda biror marta) ishlatiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u3_2",
+            "topicId": "l2_u3_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the correct placement of 'never':",
+            "sentenceWithBlank": "He has ___ flown in an airplane.",
+            "options": [
+                        "never",
+                        "ever",
+                        "not never",
+                        "yet"
+            ],
+            "correctAnswer": "never",
+            "explanationEn": "'never' already makes the sentence negative, so do not add 'not': has never flown.",
+            "explanationUz": "'never' oʻzi inkor maʼnoni bildiradi, qoʻshimcha 'not' kerak emas: has never flown.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u3_3",
+            "topicId": "l2_u3_t1",
+            "type": "multiple_choice",
+            "prompt": "Difference between 'been to' and 'gone to':",
+            "sentenceWithBlank": "Sarah is in Italy right now on vacation. She has ___ Italy.",
+            "options": [
+                        "gone to",
+                        "been to",
+                        "visited to",
+                        "being to"
+            ],
+            "correctAnswer": "gone to",
+            "explanationEn": "'gone to' means she went and is still there now. 'been to' means visited and returned.",
+            "explanationUz": "'gone to' hali ham oʻsha yerda ekanini bildiradi; 'been to' esa borib kelganini.",
+            "difficulty": "medium"
+}
+        ],
         practiceQuestions: [
           {
             id: 'l2_u3_q1',
@@ -612,7 +1211,24 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationEn: 'After "have never", the verb must be in V3 form: "seen".',
             explanationUz: '"Have never" dan keyin feʼl 3-shaklda: seen boʻlishi shart.',
             difficulty: 'hard'
-          }
+          },
+          {
+            "id": "p_l2_u3_5",
+            "topicId": "l2_u3_t1",
+            "type": "multiple_choice",
+            "prompt": "Complete the dialogue:",
+            "sentenceWithBlank": "Have you ever visited London? — Yes, I ___ there two years ago.",
+            "options": [
+                        "went",
+                        "have been",
+                        "have gone",
+                        "was going"
+            ],
+            "correctAnswer": "went",
+            "explanationEn": "The life question is Present Perfect, but specific past details ('two years ago') require Past Simple.",
+            "explanationUz": "Umumiy savol Present Perfect boʻlsa ham, aniq vaqt ('two years ago') koʻrsatilganda Past Simple (went) ishlatiladi.",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -636,7 +1252,39 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationEn: '"just" means a very short time ago and sits between "have" and V3.',
             explanationUz: '"Just" yaqindagina maʼnosida have va feʼl oʻrtasida keladi.',
             difficulty: 'medium'
-          }
+          },
+          {
+            "id": "t_l2_u3_3",
+            "topicId": "l2_u3_t1",
+            "type": "multiple_choice",
+            "prompt": "This is the most delicious dish I have ___ tasted.",
+            "options": [
+                        "ever",
+                        "never",
+                        "already",
+                        "yet"
+            ],
+            "correctAnswer": "ever",
+            "explanationEn": "Superlatives ('the most delicious') take 'ever' with Present Perfect.",
+            "explanationUz": "Orttirma darajadagi sifatlar (the most delicious) bilan 'ever' qoʻllanadi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l2_u3_4",
+            "topicId": "l2_u3_t1",
+            "type": "multiple_choice",
+            "prompt": "Where is Mark? — He has ___ to the supermarket to buy milk.",
+            "options": [
+                        "gone",
+                        "been",
+                        "went",
+                        "go"
+            ],
+            "correctAnswer": "gone",
+            "explanationEn": "He is not here right now because he has gone to the store.",
+            "explanationUz": "U hozir bu yerda yoʻq, magazinga ketgan: has gone.",
+            "difficulty": "medium"
+}
         ],
         flashcards: [
           {
@@ -702,7 +1350,58 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
           ],
           studyTips: ['FOR = counting time (1, 2, 3...). SINCE = clock or calendar name (May, 2021, 9 o\'clock).']
         },
-        guidedQuestions: [],
+        guidedQuestions: [
+          {
+            "id": "g_l2_u4_1",
+            "topicId": "l2_u4_t1",
+            "type": "fill_blank",
+            "prompt": "Choose between 'for' and 'since':",
+            "sentenceWithBlank": "They have lived in Samarkand ___ 2015.",
+            "options": [
+                        "since",
+                        "for",
+                        "from",
+                        "in"
+            ],
+            "correctAnswer": "since",
+            "explanationEn": "2015 is a specific starting point in time, so use 'since'.",
+            "explanationUz": "2015 aniq boshlangʻich nuqta boʻlgani uchun 'since' ishlatiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u4_2",
+            "topicId": "l2_u4_t1",
+            "type": "fill_blank",
+            "prompt": "Choose between 'for' and 'since' for duration:",
+            "sentenceWithBlank": "I have known my best friend ___ ten years.",
+            "options": [
+                        "for",
+                        "since",
+                        "during",
+                        "from"
+            ],
+            "correctAnswer": "for",
+            "explanationEn": "'ten years' is a duration / period of time, so use 'for'.",
+            "explanationUz": "'ten years' vaqt davomiyligi boʻlgani uchun 'for' qoʻyiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u4_3",
+            "topicId": "l2_u4_t1",
+            "type": "multiple_choice",
+            "prompt": "Which time expression correctly takes 'since'?",
+            "options": [
+                        "since last Monday",
+                        "since three days",
+                        "since two hours",
+                        "since five weeks"
+            ],
+            "correctAnswer": "since last Monday",
+            "explanationEn": "'last Monday' is a specific starting moment, whereas the others are periods of time.",
+            "explanationUz": "'last Monday' aniq boshlanish vaqti, qolganlari esa davomiylik (period).",
+            "difficulty": "easy"
+}
+        ],
         practiceQuestions: [
           {
             id: 'l2_u4_q1',
@@ -737,7 +1436,40 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationEn: 'The question phrase for duration is "How long".',
             explanationUz: 'Davomiylikni soʻrash iborasi: "How long".',
             difficulty: 'easy'
-          }
+          },
+          {
+            "id": "p_l2_u4_4",
+            "topicId": "l2_u4_t1",
+            "type": "multiple_choice",
+            "prompt": "How long ___ you ___ English?",
+            "options": [
+                        "have / studied",
+                        "did / study",
+                        "are / studying",
+                        "do / study"
+            ],
+            "correctAnswer": "have / studied",
+            "explanationEn": "'How long' asking about duration from past up to now uses Present Perfect.",
+            "explanationUz": "Hozirgacha boʻlgan davomiylikni soʻrashda: How long have you studied...?",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l2_u4_5",
+            "topicId": "l2_u4_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "U bolaligidan beri shu shaharda yashaydi.",
+            "options": [
+                        "He has lived in this city since his childhood.",
+                        "He lived in this city for his childhood.",
+                        "He is living in this city from childhood.",
+                        "He lives in this city since childhood."
+            ],
+            "correctAnswer": "He has lived in this city since his childhood.",
+            "explanationEn": "Living from childhood until now: has lived ... since childhood.",
+            "explanationUz": "Bolaligidan beri hozirgacha davom etayotgan holat: has lived ... since childhood.",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -750,7 +1482,55 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationEn: 'A finished past time like "in 2022" strictly requires Past Simple "bought".',
             explanationUz: 'Tugagan vaqt (in 2022) boʻlgani uchun Past Simple: bought.',
             difficulty: 'medium'
-          }
+          },
+          {
+            "id": "t_l2_u4_2",
+            "topicId": "l2_u4_t1",
+            "type": "multiple_choice",
+            "prompt": "She hasn't checked her email ___ this morning.",
+            "options": [
+                        "since",
+                        "for",
+                        "in",
+                        "at"
+            ],
+            "correctAnswer": "since",
+            "explanationEn": "'this morning' marks a specific point in the past: since this morning.",
+            "explanationUz": "'this morning' aniq nuqta boʻlgani uchun: since this morning.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l2_u4_3",
+            "topicId": "l2_u4_t1",
+            "type": "multiple_choice",
+            "prompt": "We haven't seen each other ___ ages!",
+            "options": [
+                        "for",
+                        "since",
+                        "from",
+                        "during"
+            ],
+            "correctAnswer": "for",
+            "explanationEn": "The idiom is 'for ages' (meaning for a very long period of time).",
+            "explanationUz": "Qotib qolgan ibora: 'for ages' (juda uzoq vaqtdan beri).",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l2_u4_4",
+            "topicId": "l2_u4_t1",
+            "type": "multiple_choice",
+            "prompt": "He has worked here ___ he graduated from university.",
+            "options": [
+                        "since",
+                        "for",
+                        "from",
+                        "when"
+            ],
+            "correctAnswer": "since",
+            "explanationEn": "'since' can introduce a clause in Past Simple denoting the starting point.",
+            "explanationUz": "'since' dan keyin boshlangʻich voqea Past Simple da kelishi mumkin.",
+            "difficulty": "medium"
+}
         ],
         flashcards: []
       }
@@ -807,7 +1587,58 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
           ],
           studyTips: ['Draw a timeline: Past Perfect happens FIRST, then Past Simple, then Now.']
         },
-        guidedQuestions: [],
+        guidedQuestions: [
+          {
+            "id": "g_l2_u5_1",
+            "topicId": "l2_u5_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with the past perfect form:",
+            "sentenceWithBlank": "When we arrived at the cinema, the film ___ (already / start).",
+            "options": [
+                        "had already started",
+                        "has already started",
+                        "already started",
+                        "was already starting"
+            ],
+            "correctAnswer": "had already started",
+            "explanationEn": "The film started BEFORE we arrived in the past: had started (Past Perfect).",
+            "explanationUz": "Biz yetib kelishimizdan oldinroq boshlangan harakat Past Perfect (had started) boʻladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u5_2",
+            "topicId": "l2_u5_t1",
+            "type": "multiple_choice",
+            "prompt": "What is the formula of the Past Perfect tense?",
+            "options": [
+                        "had + V3 (past participle)",
+                        "have/has + V3",
+                        "had + V-ing",
+                        "was/were + V3"
+            ],
+            "correctAnswer": "had + V3 (past participle)",
+            "explanationEn": "Past Perfect is formed by 'had' + third form of the verb (V3).",
+            "explanationUz": "Past Perfect formulasi: had + feʼlning 3-shakli (V3).",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u5_3",
+            "topicId": "l2_u5_t1",
+            "type": "multiple_choice",
+            "prompt": "Which event happened FIRST in the timeline?",
+            "sentenceWithBlank": "After John had finished his dinner, he called his friend.",
+            "options": [
+                        "John finished his dinner.",
+                        "John called his friend.",
+                        "Both happened simultaneously.",
+                        "Neither happened."
+            ],
+            "correctAnswer": "John finished his dinner.",
+            "explanationEn": "The Past Perfect action ('had finished') always happened first.",
+            "explanationUz": "Past Perfect ('had finished') har doim birinchi sodir boʻlgan harakatdir.",
+            "difficulty": "easy"
+}
+        ],
         practiceQuestions: [
           {
             id: 'l2_u5_q1',
@@ -831,7 +1662,57 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationEn: 'Earlier past action takes "had finished".',
             explanationUz: 'Oldinroq tugatilgan ish: had finished.',
             difficulty: 'medium'
-          }
+          },
+          {
+            "id": "p_l2_u5_3",
+            "topicId": "l2_u5_t1",
+            "type": "multiple_choice",
+            "prompt": "By the time the police arrived, the burglar ___.",
+            "options": [
+                        "had escaped",
+                        "escaped",
+                        "has escaped",
+                        "was escaping"
+            ],
+            "correctAnswer": "had escaped",
+            "explanationEn": "'By the time' indicates an event completed before another past event: had escaped.",
+            "explanationUz": "'By the time' biror oʻtgan paytgacha yakunlangan harakatni bildiradi: had escaped.",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l2_u5_4",
+            "topicId": "l2_u5_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with Past Simple or Past Perfect:",
+            "sentenceWithBlank": "I couldn't board the flight because I ___ (lose) my passport.",
+            "options": [
+                        "had lost",
+                        "lost",
+                        "have lost",
+                        "was losing"
+            ],
+            "correctAnswer": "had lost",
+            "explanationEn": "Losing the passport happened before the attempt to board the plane: had lost.",
+            "explanationUz": "Pasportni yoʻqotish samolyotga chiqishdan oldin sodir boʻlgan: had lost.",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l2_u5_5",
+            "topicId": "l2_u5_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "U ilgari hech qachon bunday goʻzal joyni koʻrmagan edi.",
+            "options": [
+                        "She had never seen such a beautiful place before.",
+                        "She has never seen such a beautiful place before.",
+                        "She never saw such a beautiful place before.",
+                        "She had ever seen such a beautiful place before."
+            ],
+            "correctAnswer": "She had never seen such a beautiful place before.",
+            "explanationEn": "Past experience up to a past moment: 'had never seen ... before'.",
+            "explanationUz": "Oʻtmishdagi maʼlum bir paytgacha boʻlgan tajriba: had never seen before.",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -845,7 +1726,55 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationEn: 'Losing the purse happened before she noticed she had no money.',
             explanationUz: 'Hamyonini oldinroq yoʻqotib qoʻygan: had lost.',
             difficulty: 'medium'
-          }
+          },
+          {
+            "id": "t_l2_u5_2",
+            "topicId": "l2_u5_t1",
+            "type": "multiple_choice",
+            "prompt": "He felt sick because he ___ too much cake at the party.",
+            "options": [
+                        "had eaten",
+                        "ate",
+                        "has eaten",
+                        "was eating"
+            ],
+            "correctAnswer": "had eaten",
+            "explanationEn": "Eating cake happened first and caused him to feel sick later: had eaten.",
+            "explanationUz": "Tort yeyish birinchi boʻlib, kasal boʻlishga sabab boʻlgan: had eaten.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l2_u5_3",
+            "topicId": "l2_u5_t1",
+            "type": "multiple_choice",
+            "prompt": "They didn't recognize each other because they ___ for over twenty years.",
+            "options": [
+                        "hadn't met",
+                        "didn't meet",
+                        "haven't met",
+                        "weren't meeting"
+            ],
+            "correctAnswer": "hadn't met",
+            "explanationEn": "Negative duration before the past meeting requires Past Perfect: hadn't met.",
+            "explanationUz": "Oʻtgan voqeadan oldingi uzoq muddat koʻrishmaslik: hadn't met.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l2_u5_4",
+            "topicId": "l2_u5_t1",
+            "type": "multiple_choice",
+            "prompt": "Hardly ___ the station when the train pulled in.",
+            "options": [
+                        "had we reached",
+                        "we had reached",
+                        "did we reach",
+                        "have we reached"
+            ],
+            "correctAnswer": "had we reached",
+            "explanationEn": "Inverted structure: 'Hardly had + subject + V3 ... when'.",
+            "explanationUz": "Inversiya strukturasi: 'Hardly had we reached ... when'.",
+            "difficulty": "hard"
+}
         ],
         flashcards: []
       }
@@ -902,7 +1831,58 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
           ],
           studyTips: ['In formal English, use "were" for all subjects in Second Conditional: "If I were you...", "If he were rich...".']
         },
-        guidedQuestions: [],
+        guidedQuestions: [
+          {
+            "id": "g_l2_u6_1",
+            "topicId": "l2_u6_t1",
+            "type": "fill_blank",
+            "prompt": "Complete the Second Conditional sentence:",
+            "sentenceWithBlank": "If I had more free time, I ___ (travel) around the world.",
+            "options": [
+                        "would travel",
+                        "will travel",
+                        "travel",
+                        "traveled"
+            ],
+            "correctAnswer": "would travel",
+            "explanationEn": "Second conditional main clause: would + base verb (travel).",
+            "explanationUz": "Ikkinchi shart ergash gapining asosiy qismi: would + feʼl asosi (travel).",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u6_2",
+            "topicId": "l2_u6_t1",
+            "type": "multiple_choice",
+            "prompt": "What does the Second Conditional express?",
+            "options": [
+                        "Unreal, hypothetical or imaginary situations in the present/future.",
+                        "Real guaranteed facts in the future.",
+                        "Past actions that already happened.",
+                        "General universal scientific truths."
+            ],
+            "correctAnswer": "Unreal, hypothetical or imaginary situations in the present/future.",
+            "explanationEn": "Second Conditional expresses hypothetical or imaginary present/future situations.",
+            "explanationUz": "Ikkinchi shart mayli hozirgi yoki kelasi zamondagi xayoliy, noreal vaziyatlarni ifodalaydi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u6_3",
+            "topicId": "l2_u6_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the correct formal form of TO BE in the if-clause:",
+            "sentenceWithBlank": "If I ___ you, I would consult a doctor immediately.",
+            "options": [
+                        "were",
+                        "was",
+                        "am",
+                        "be"
+            ],
+            "correctAnswer": "were",
+            "explanationEn": "In formal conditional grammar and advice, 'were' is used with all subjects (If I were you).",
+            "explanationUz": "Maslahat berishda va rasmiy ingliz tilida barcha shaxslar uchun 'were' ishlatiladi: If I were you.",
+            "difficulty": "medium"
+}
+        ],
         practiceQuestions: [
           {
             id: 'l2_u6_q1',
@@ -925,7 +1905,57 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationEn: 'Main clause of Second Conditional uses "would + V1".',
             explanationUz: 'Natija qismida "would" ishlatiladi.',
             difficulty: 'easy'
-          }
+          },
+          {
+            "id": "p_l2_u6_3",
+            "topicId": "l2_u6_t1",
+            "type": "multiple_choice",
+            "prompt": "What ___ you do if you won the lottery?",
+            "options": [
+                        "would",
+                        "will",
+                        "do",
+                        "did"
+            ],
+            "correctAnswer": "would",
+            "explanationEn": "Question form in Second Conditional: What would + subject + V1 + if + Past Simple?",
+            "explanationUz": "Ikkinchi shart savol shakli: What would you do if...?",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l2_u6_4",
+            "topicId": "l2_u6_t1",
+            "type": "fill_blank",
+            "prompt": "Complete the if-clause:",
+            "sentenceWithBlank": "If she ___ (know) his phone number, she would call him right away.",
+            "options": [
+                        "knew",
+                        "knows",
+                        "would know",
+                        "had known"
+            ],
+            "correctAnswer": "knew",
+            "explanationEn": "The if-clause in Second Conditional takes Past Simple (knew), never 'would'.",
+            "explanationUz": "If qismida hech qachon 'would' ishlatilmaydi, faqat Past Simple (knew) keladi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l2_u6_5",
+            "topicId": "l2_u6_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Agar menda mashina boʻlganida, har kuni ishga haydab borardim.",
+            "options": [
+                        "If I had a car, I would drive to work every day.",
+                        "If I have a car, I will drive to work every day.",
+                        "If I had a car, I will drive to work every day.",
+                        "If I would have a car, I would drive to work every day."
+            ],
+            "correctAnswer": "If I had a car, I would drive to work every day.",
+            "explanationEn": "If + had (Past Simple), would drive (would + V1).",
+            "explanationUz": "If + had (oʻtgan zamon), asosiy gapda would drive.",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -938,7 +1968,55 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationEn: '"could" is used as the hypothetical past modal for "would be able to".',
             explanationUz: 'Imkoniyatni bildirish uchun "could" ishlatiladi.',
             difficulty: 'medium'
-          }
+          },
+          {
+            "id": "t_l2_u6_2",
+            "topicId": "l2_u6_t1",
+            "type": "multiple_choice",
+            "prompt": "If we lived by the sea, we ___ go swimming every morning.",
+            "options": [
+                        "could",
+                        "can",
+                        "will",
+                        "are able to"
+            ],
+            "correctAnswer": "could",
+            "explanationEn": "'could' can be used instead of 'would be able to' in Second Conditional.",
+            "explanationUz": "'could' ikkinchi shartda 'would be able to' oʻrnida erkin qoʻllanishi mumkin.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l2_u6_3",
+            "topicId": "l2_u6_t1",
+            "type": "multiple_choice",
+            "prompt": "Which sentence is grammatically INCORRECT?",
+            "options": [
+                        "If I would be rich, I would buy a yacht.",
+                        "If I were rich, I would buy a yacht.",
+                        "If I was rich, I would buy a yacht.",
+                        "If I had money, I would buy a yacht."
+            ],
+            "correctAnswer": "If I would be rich, I would buy a yacht.",
+            "explanationEn": "Never use 'would' inside the if-clause.",
+            "explanationUz": "If ergash gapida 'would' ishlatish qoʻpol xatodir.",
+            "difficulty": "hard"
+},
+          {
+            "id": "t_l2_u6_4",
+            "topicId": "l2_u6_t1",
+            "type": "multiple_choice",
+            "prompt": "If he ___ harder, he would pass all his exams easily.",
+            "options": [
+                        "studied",
+                        "studies",
+                        "study",
+                        "would study"
+            ],
+            "correctAnswer": "studied",
+            "explanationEn": "If + Past Simple (studied) pairs with would + V1 (would pass).",
+            "explanationUz": "If + Past Simple (studied) -> would pass.",
+            "difficulty": "easy"
+}
         ],
         flashcards: []
       }
@@ -996,7 +2074,59 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
           ],
           studyTips: ['Think: WHO = human; WHICH = object/animal; WHERE = place.']
         },
-        guidedQuestions: [],
+        guidedQuestions: [
+          {
+            "id": "g_l2_u8_1",
+            "topicId": "l2_u8_t1",
+            "type": "fill_blank",
+            "prompt": "Choose the relative pronoun for people:",
+            "sentenceWithBlank": "The doctor ___ treated my father was very experienced.",
+            "options": [
+                        "who",
+                        "which",
+                        "where",
+                        "whose"
+            ],
+            "correctAnswer": "who",
+            "explanationEn": "Use 'who' (or 'that') to refer to people.",
+            "explanationUz": "Odamlar uchun 'who' (yoki 'that') nisbiy olmoshi ishlatiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u8_2",
+            "topicId": "l2_u8_t1",
+            "type": "fill_blank",
+            "prompt": "Choose the relative pronoun for objects/things:",
+            "sentenceWithBlank": "I bought a laptop ___ has an incredible battery life.",
+            "options": [
+                        "which",
+                        "who",
+                        "where",
+                        "whose"
+            ],
+            "correctAnswer": "which",
+            "explanationEn": "Use 'which' (or 'that') to refer to things and animals.",
+            "explanationUz": "Narsalar va hayvonlar uchun 'which' (yoki 'that') ishlatiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u8_3",
+            "topicId": "l2_u8_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the relative pronoun for possession:",
+            "sentenceWithBlank": "I met a student ___ sister is an Olympic champion.",
+            "options": [
+                        "whose",
+                        "who",
+                        "whom",
+                        "which"
+            ],
+            "correctAnswer": "whose",
+            "explanationEn": "'whose' expresses possession (his/her sister -> whose sister).",
+            "explanationUz": "'whose' egalikni bildiradi (singlisi chempion boʻlgan talaba).",
+            "difficulty": "medium"
+}
+        ],
         practiceQuestions: [
           {
             id: 'l2_u8_q1',
@@ -1019,7 +2149,57 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationEn: 'Refers to a location where an action happened: use "where".',
             explanationUz: 'Harakat sodir boʻlgan joyni ifodalash uchun "where" qoʻyiladi.',
             difficulty: 'easy'
-          }
+          },
+          {
+            "id": "p_l2_u8_3",
+            "topicId": "l2_u8_t1",
+            "type": "multiple_choice",
+            "prompt": "That is the bakery ___ they make the best croissants.",
+            "options": [
+                        "where",
+                        "which",
+                        "that",
+                        "who"
+            ],
+            "correctAnswer": "where",
+            "explanationEn": "Use 'where' to refer to a place where an action occurs.",
+            "explanationUz": "Harakat sodir boʻladigan joyni ifodalash uchun 'where' qoʻllanadi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l2_u8_4",
+            "topicId": "l2_u8_t1",
+            "type": "fill_blank",
+            "prompt": "Fill in the relative pronoun:",
+            "sentenceWithBlank": "The car ___ broke down on the motorway belonged to David.",
+            "options": [
+                        "which",
+                        "who",
+                        "where",
+                        "whom"
+            ],
+            "correctAnswer": "which",
+            "explanationEn": "'car' is an object, so use 'which' or 'that'.",
+            "explanationUz": "'car' jonsiz buyum boʻlgani uchun 'which' tanlanadi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l2_u8_5",
+            "topicId": "l2_u8_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Men bu yerda ishlaydigan odamni taniyman.",
+            "options": [
+                        "I know the person who works here.",
+                        "I know the person which works here.",
+                        "I know the person where works here.",
+                        "I know the person whose works here."
+            ],
+            "correctAnswer": "I know the person who works here.",
+            "explanationEn": "Person -> 'who works here'.",
+            "explanationUz": "Shaxs -> 'who works here'.",
+            "difficulty": "easy"
+}
         ],
         testQuestions: [
           {
@@ -1033,7 +2213,55 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
 
             explanationUz: 'Egalikni ifodalash uchun "whose" (uning otasi) qoʻyiladi.',
             difficulty: 'medium'
-          }
+          },
+          {
+            "id": "t_l2_u8_2",
+            "topicId": "l2_u8_t1",
+            "type": "multiple_choice",
+            "prompt": "Is this the hotel in ___ you stayed last summer?",
+            "options": [
+                        "which",
+                        "where",
+                        "that",
+                        "who"
+            ],
+            "correctAnswer": "which",
+            "explanationEn": "After a preposition ('in'), use 'which', NOT 'where' or 'that': in which you stayed.",
+            "explanationUz": "Predlogdan keyin (in) 'which' keladi: in which you stayed.",
+            "difficulty": "hard"
+},
+          {
+            "id": "t_l2_u8_3",
+            "topicId": "l2_u8_t1",
+            "type": "multiple_choice",
+            "prompt": "The scientist ___ discovered the element won a Nobel Prize.",
+            "options": [
+                        "who",
+                        "which",
+                        "where",
+                        "whose"
+            ],
+            "correctAnswer": "who",
+            "explanationEn": "'scientist' is human, requiring 'who'.",
+            "explanationUz": "'scientist' (olim) inson boʻlgani uchun 'who' qoʻyiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l2_u8_4",
+            "topicId": "l2_u8_t1",
+            "type": "multiple_choice",
+            "prompt": "A widow is a woman ___ husband has died.",
+            "options": [
+                        "whose",
+                        "who",
+                        "whom",
+                        "which"
+            ],
+            "correctAnswer": "whose",
+            "explanationEn": "Possessive relationship: her husband -> whose husband.",
+            "explanationUz": "Egalik munosabati: uning eri -> whose husband.",
+            "difficulty": "medium"
+}
         ],
         flashcards: []
       }
@@ -1091,7 +2319,59 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
           ],
           studyTips: ['SAID that... vs TOLD ME that... Never say "told that"!']
         },
-        guidedQuestions: [],
+        guidedQuestions: [
+          {
+            "id": "g_l2_u10_1",
+            "topicId": "l2_u10_t1",
+            "type": "fill_blank",
+            "prompt": "Backshift Present Simple to Past Simple in Reported Speech:",
+            "sentenceWithBlank": "\"I live in Madrid,\" he said. ➔ He said that he ___ in Madrid.",
+            "options": [
+                        "lived",
+                        "lives",
+                        "had lived",
+                        "would live"
+            ],
+            "correctAnswer": "lived",
+            "explanationEn": "Present Simple 'live' backshifts to Past Simple 'lived'.",
+            "explanationUz": "Koʻchirma gapdagi Present Simple 'live' oʻzlashtirma gapda Past Simple 'lived' ga oʻzgaradi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u10_2",
+            "topicId": "l2_u10_t1",
+            "type": "multiple_choice",
+            "prompt": "How does 'will' change in reported speech?",
+            "sentenceWithBlank": "\"I will call you tomorrow,\" she told me. ➔ She told me she ___ call me.",
+            "options": [
+                        "would",
+                        "will",
+                        "had",
+                        "should"
+            ],
+            "correctAnswer": "would",
+            "explanationEn": "'will' backshifts to 'would' in reported speech.",
+            "explanationUz": "'will' oʻzlashtirma gapda 'would' ga aylanadi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u10_3",
+            "topicId": "l2_u10_t1",
+            "type": "multiple_choice",
+            "prompt": "Difference between 'say' and 'tell':",
+            "sentenceWithBlank": "She ___ me that she was leaving.",
+            "options": [
+                        "told",
+                        "said",
+                        "spoke",
+                        "talked"
+            ],
+            "correctAnswer": "told",
+            "explanationEn": "'tell' requires a personal object (told me); 'say' does not (said that...).",
+            "explanationUz": "'tell' toʻgʻridan-toʻgʻri shaxs obyekti bilan keladi (told me), 'said me' xato.",
+            "difficulty": "medium"
+}
+        ],
         practiceQuestions: [
           {
             id: 'l2_u10_q1',
@@ -1114,7 +2394,57 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationEn: 'The verb "told" requires an indirect object pronoun: "told me".',
             explanationUz: '"Told"dan keyin toʻldiruvchi (me/him/us) keladi: told me.',
             difficulty: 'easy'
-          }
+          },
+          {
+            "id": "p_l2_u10_3",
+            "topicId": "l2_u10_t1",
+            "type": "multiple_choice",
+            "prompt": "\"I am tired,\" Tom said. ➔ Tom said that he ___ tired.",
+            "options": [
+                        "was",
+                        "is",
+                        "had been",
+                        "were"
+            ],
+            "correctAnswer": "was",
+            "explanationEn": "'am' backshifts to 'was'.",
+            "explanationUz": "'am' oʻtgan zamonga surilib 'was' boʻladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l2_u10_4",
+            "topicId": "l2_u10_t1",
+            "type": "fill_blank",
+            "prompt": "How does the time word 'now' shift in reported speech?",
+            "sentenceWithBlank": "\"We are studying now.\" ➔ They said they were studying ___.",
+            "options": [
+                        "then",
+                        "now",
+                        "today",
+                        "before"
+            ],
+            "correctAnswer": "then",
+            "explanationEn": "Time expression 'now' backshifts to 'then' or 'at that time'.",
+            "explanationUz": "Vaqt soʻzi 'now' oʻzlashtirma gapda 'then' (oʻsha paytda) ga aylanadi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l2_u10_5",
+            "topicId": "l2_u10_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "U (oʻgʻil bola) menga ertaga kelishini aytdi.",
+            "options": [
+                        "He told me that he would come the following day.",
+                        "He said me that he will come tomorrow.",
+                        "He told that he would come tomorrow.",
+                        "He told me he will come yesterday."
+            ],
+            "correctAnswer": "He told me that he would come the following day.",
+            "explanationEn": "told me + would come + the following day.",
+            "explanationUz": "told me + would come + the following day toʻgʻri oʻzlashtirma shakldir.",
+            "difficulty": "hard"
+}
         ],
         testQuestions: [
           {
@@ -1127,7 +2457,55 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationEn: 'In reported speech, "will" changes to "would".',
             explanationUz: '"Will" oʻzlashtirma gapda "would"ga aylanadi.',
             difficulty: 'medium'
-          }
+          },
+          {
+            "id": "t_l2_u10_2",
+            "topicId": "l2_u10_t1",
+            "type": "multiple_choice",
+            "prompt": "\"I have lost my passport,\" Jack said. ➔ Jack said that he ___ his passport.",
+            "options": [
+                        "had lost",
+                        "has lost",
+                        "lost",
+                        "loses"
+            ],
+            "correctAnswer": "had lost",
+            "explanationEn": "Present Perfect (have lost) backshifts to Past Perfect (had lost).",
+            "explanationUz": "Present Perfect (have lost) Past Perfect (had lost) ga oʻzgaradi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l2_u10_3",
+            "topicId": "l2_u10_t1",
+            "type": "multiple_choice",
+            "prompt": "Which sentence is reported correctly?",
+            "options": [
+                        "She said that she couldn't swim.",
+                        "She said me that she couldn't swim.",
+                        "She told that she couldn't swim.",
+                        "She said she can't swum."
+            ],
+            "correctAnswer": "She said that she couldn't swim.",
+            "explanationEn": "'said that' is correct without an object ('said me' and 'told that' are grammatical errors).",
+            "explanationUz": "'said that' toʻgʻri ('said me' va shaxssiz 'told that' xato).",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l2_u10_4",
+            "topicId": "l2_u10_t1",
+            "type": "multiple_choice",
+            "prompt": "\"Don't be late,\" the teacher told us. ➔ The teacher told us ___ late.",
+            "options": [
+                        "not to be",
+                        "to not be",
+                        "don't be",
+                        "not be"
+            ],
+            "correctAnswer": "not to be",
+            "explanationEn": "Negative reported imperative: told us + not to + infinitive (not to be).",
+            "explanationUz": "Inkor buyruq gaplarda: told + shaxs + not to be.",
+            "difficulty": "hard"
+}
         ],
         flashcards: []
       }
@@ -1191,7 +2569,59 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
           ],
           studyTips: ['MUST = 100% YES. CAN\'T = 100% NO. MIGHT = 50% MAYBE.']
         },
-        guidedQuestions: [],
+        guidedQuestions: [
+          {
+            "id": "g_l2_u11_1",
+            "topicId": "l2_u11_t1",
+            "type": "fill_blank",
+            "prompt": "Choose the modal for 100% positive logical certainty:",
+            "sentenceWithBlank": "He has three luxury cars and a mansion. He ___ be very rich.",
+            "options": [
+                        "must",
+                        "can't",
+                        "might",
+                        "should"
+            ],
+            "correctAnswer": "must",
+            "explanationEn": "'must be' indicates logical deduction that something is almost certainly true.",
+            "explanationUz": "'must be' 100% ishonch bilan qilingan mantiqiy xulosani bildiradi (shubhasiz boy boʻlsa kerak).",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u11_2",
+            "topicId": "l2_u11_t1",
+            "type": "fill_blank",
+            "prompt": "Choose the modal for logical impossibility:",
+            "sentenceWithBlank": "Alex is abroad in Japan. That ___ be him across the street!",
+            "options": [
+                        "can't",
+                        "mustn't",
+                        "might",
+                        "couldn't to"
+            ],
+            "correctAnswer": "can't",
+            "explanationEn": "'can\\'t be' expresses that something is logically impossible.",
+            "explanationUz": "'can\\'t be' mantiqan mutlaqo imkonsiz narsani bildiradi ('boʻlishi mumkin emas').",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l2_u11_3",
+            "topicId": "l2_u11_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the modal for 50% possibility:",
+            "sentenceWithBlank": "Where is Linda? — I am not sure, she ___ be in the cafeteria.",
+            "options": [
+                        "might",
+                        "must",
+                        "can't",
+                        "should to"
+            ],
+            "correctAnswer": "might",
+            "explanationEn": "'might / may / could' expresses around 50% possibility when uncertain.",
+            "explanationUz": "'might / may / could' 50% atrofidagi ehtimollikni bildiradi ('balki').",
+            "difficulty": "easy"
+}
+        ],
         practiceQuestions: [
           {
             id: 'l2_u11_q1',
@@ -1217,7 +2647,57 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: "Uchta burger yeb och boʻlishi mutlaqo imkonsiz: can\'t be.",
 
             difficulty: 'easy'
-          }
+          },
+          {
+            "id": "p_l2_u11_3",
+            "topicId": "l2_u11_t1",
+            "type": "multiple_choice",
+            "prompt": "Why is 'He mustn't be American' incorrect to express impossibility?",
+            "options": [
+                        "To express logical impossibility in English, we use 'can\\'t be', not 'mustn\\'t be'.",
+                        "'mustn\\'t' can only be used with food.",
+                        "'American' must be capitalized twice.",
+                        "'mustn\\'t' is only for past tenses."
+            ],
+            "correctAnswer": "To express logical impossibility in English, we use 'can\\'t be', not 'mustn\\'t be'.",
+            "explanationEn": "'mustn\\'t' means prohibition (not allowed). Logical impossibility is ALWAYS 'can\\'t be'.",
+            "explanationUz": "'mustn\\'t' faqat taqiq uchun ishlatiladi. Mantiqiy imkonsizlik har doim 'can\\'t be' boʻladi.",
+            "difficulty": "hard"
+},
+          {
+            "id": "p_l2_u11_4",
+            "topicId": "l2_u11_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with deduction modal:",
+            "sentenceWithBlank": "You haven't eaten anything all day. You ___ be starving!",
+            "options": [
+                        "must",
+                        "can't",
+                        "might",
+                        "are"
+            ],
+            "correctAnswer": "must",
+            "explanationEn": "Strong logical certainty based on evidence: must be starving.",
+            "explanationUz": "Kun boʻyi ovqat yemaganlik daliliga asoslangan xulosa: must be starving.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l2_u11_5",
+            "topicId": "l2_u11_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "U (qiz bola) hozir ishda boʻlishi mumkin emas, chunki u kasal.",
+            "options": [
+                        "She can't be at work right now because she is ill.",
+                        "She mustn't be at work right now because she is ill.",
+                        "She may not to be at work right now because she is ill.",
+                        "She cannot being at work right now because she is ill."
+            ],
+            "correctAnswer": "She can't be at work right now because she is ill.",
+            "explanationEn": "Logical impossibility: 'She can\\'t be at work...'",
+            "explanationUz": "Mantiqiy imkonsizlik: 'She can\\'t be at work...'",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -1231,7 +2711,55 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationEn: 'You are not sure (50% possibility), so use "might be".',
             explanationUz: 'Ishonchsizlik va 50% ehtimollik boʻlsa: might be.',
             difficulty: 'medium'
-          }
+          },
+          {
+            "id": "t_l2_u11_2",
+            "topicId": "l2_u11_t1",
+            "type": "multiple_choice",
+            "prompt": "The phone is ringing. It ___ be my mother; she promised to call around this time.",
+            "options": [
+                        "could",
+                        "can't",
+                        "mustn't",
+                        "won't"
+            ],
+            "correctAnswer": "could",
+            "explanationEn": "'could' indicates strong possibility in present deduction.",
+            "explanationUz": "'could' hozirgi ehtimollikni bildiradi ('boʻlishi mumkin').",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l2_u11_3",
+            "topicId": "l2_u11_t1",
+            "type": "multiple_choice",
+            "prompt": "He has won five marathon races this year. He ___ be extremely fit.",
+            "options": [
+                        "must",
+                        "can't",
+                        "should to",
+                        "is being"
+            ],
+            "correctAnswer": "must",
+            "explanationEn": "Definite certainty: must be fit.",
+            "explanationUz": "Aniq dalilga asoslangan ishonch: must be fit.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l2_u11_4",
+            "topicId": "l2_u11_t1",
+            "type": "multiple_choice",
+            "prompt": "Whose jacket is this? — I am not sure, it ___ belong to David.",
+            "options": [
+                        "might",
+                        "must",
+                        "can't",
+                        "ought"
+            ],
+            "correctAnswer": "might",
+            "explanationEn": "Uncertainty ('I am not sure') calls for 'might'.",
+            "explanationUz": "Noaniqlik mavjud boʻlganda 'might' ishlatiladi.",
+            "difficulty": "easy"
+}
         ],
         flashcards: []
       }
@@ -1331,6 +2859,86 @@ export const GRAMMAR_LEVEL_2_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"milk" sanalmaydigan ot, inkor gapda "much" ishlatiladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "exam_l2_6",
+            "topicId": "l2_u12_t1",
+            "type": "multiple_choice",
+            "prompt": "If I ___ more money, I would travel to Australia.",
+            "options": [
+                        "had",
+                        "have",
+                        "would have",
+                        "had had"
+            ],
+            "correctAnswer": "had",
+            "explanationEn": "Second conditional if-clause: If + Past Simple (had).",
+            "explanationUz": "Ikkinchi shart ergash gapida: If + had.",
+            "difficulty": "medium"
+},
+          {
+            "id": "exam_l2_7",
+            "topicId": "l2_u12_t1",
+            "type": "multiple_choice",
+            "prompt": "This ancient palace ___ in the fifteenth century.",
+            "options": [
+                        "was built",
+                        "built",
+                        "is built",
+                        "has been built"
+            ],
+            "correctAnswer": "was built",
+            "explanationEn": "Historical past passive: was built.",
+            "explanationUz": "Tarixiy oʻtgan zamon majhul nisbati: was built.",
+            "difficulty": "easy"
+},
+          {
+            "id": "exam_l2_8",
+            "topicId": "l2_u12_t1",
+            "type": "multiple_choice",
+            "prompt": "He told me that he ___ never seen snow before.",
+            "options": [
+                        "had",
+                        "has",
+                        "was",
+                        "did"
+            ],
+            "correctAnswer": "had",
+            "explanationEn": "Reported speech backshifting for past experience: had never seen.",
+            "explanationUz": "Oʻzlashtirma gapda: had never seen.",
+            "difficulty": "medium"
+},
+          {
+            "id": "exam_l2_9",
+            "topicId": "l2_u12_t1",
+            "type": "multiple_choice",
+            "prompt": "Look at the light in his office; he ___ still be working.",
+            "options": [
+                        "must",
+                        "can't",
+                        "mustn't",
+                        "couldn't"
+            ],
+            "correctAnswer": "must",
+            "explanationEn": "Strong deduction based on seeing the light: must.",
+            "explanationUz": "Chiroq yonib turganiga qarab chiqarilgan xulosa: must.",
+            "difficulty": "easy"
+},
+          {
+            "id": "exam_l2_10",
+            "topicId": "l2_u12_t1",
+            "type": "multiple_choice",
+            "prompt": "She hasn't phoned me ___ she arrived in London.",
+            "options": [
+                        "since",
+                        "for",
+                        "when",
+                        "during"
+            ],
+            "correctAnswer": "since",
+            "explanationEn": "'since' marks the past starting point clause: since she arrived.",
+            "explanationUz": "Boshlanish nuqtasi: since she arrived.",
+            "difficulty": "medium"
+}
         ],
         flashcards: [],
       },

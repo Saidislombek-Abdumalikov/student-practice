@@ -31,12 +31,22 @@ export const GrammarTopicPage: React.FC<GrammarTopicPageProps> = ({ topic, onBac
   const [activeFlashcardIdx, setActiveFlashcardIdx] = useState<number>(0);
   const [isCardFlipped, setIsCardFlipped] = useState<boolean>(false);
 
+  const guidedSet = topic.guidedQuestions.length > 0 
+    ? topic.guidedQuestions 
+    : topic.practiceQuestions.slice(0, Math.min(3, topic.practiceQuestions.length));
+  const practiceSet = topic.practiceQuestions.length > 0 
+    ? topic.practiceQuestions 
+    : topic.testQuestions;
+  const testSet = topic.testQuestions.length > 0 
+    ? topic.testQuestions 
+    : topic.practiceQuestions;
+
   // Switch to Runner when Practice, Guided, or Test is selected
-  if (activeRunnerMode === 'guided' && topic.guidedQuestions.length > 0) {
+  if (activeRunnerMode === 'guided' && guidedSet.length > 0) {
     return (
       <GrammarExerciseRunner
         topic={topic}
-        questions={topic.guidedQuestions}
+        questions={guidedSet}
         mode="guided"
         onComplete={() => setActiveRunnerMode(null)}
         onExit={() => setActiveRunnerMode(null)}
@@ -44,8 +54,7 @@ export const GrammarTopicPage: React.FC<GrammarTopicPageProps> = ({ topic, onBac
     );
   }
 
-  if (activeRunnerMode === 'practice') {
-    const practiceSet = topic.practiceQuestions.length > 0 ? topic.practiceQuestions : topic.testQuestions;
+  if (activeRunnerMode === 'practice' && practiceSet.length > 0) {
     return (
       <GrammarExerciseRunner
         topic={topic}
@@ -57,8 +66,7 @@ export const GrammarTopicPage: React.FC<GrammarTopicPageProps> = ({ topic, onBac
     );
   }
 
-  if (activeRunnerMode === 'test') {
-    const testSet = topic.testQuestions.length > 0 ? topic.testQuestions : topic.practiceQuestions;
+  if (activeRunnerMode === 'test' && testSet.length > 0) {
     return (
       <GrammarExerciseRunner
         topic={topic}
@@ -166,7 +174,7 @@ export const GrammarTopicPage: React.FC<GrammarTopicPageProps> = ({ topic, onBac
           className="flex-1 min-w-[100px] py-2 px-3 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-white hover:bg-slate-800"
         >
           <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
-          <span>Guided Drill</span>
+          <span>Guided ({guidedSet.length})</span>
         </button>
 
         <button
@@ -174,7 +182,7 @@ export const GrammarTopicPage: React.FC<GrammarTopicPageProps> = ({ topic, onBac
           className="flex-1 min-w-[90px] py-2 px-3 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-white hover:bg-slate-800"
         >
           <Zap className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Practice</span>
+          <span>Practice ({practiceSet.length})</span>
         </button>
 
         <button
@@ -182,7 +190,7 @@ export const GrammarTopicPage: React.FC<GrammarTopicPageProps> = ({ topic, onBac
           className="flex-1 min-w-[90px] py-2 px-3 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-white hover:bg-slate-800"
         >
           <Trophy className="w-3.5 h-3.5 text-amber-400" />
-          <span>Topic Test</span>
+          <span>Test ({testSet.length})</span>
         </button>
 
         {topic.flashcards.length > 0 && (
@@ -315,13 +323,13 @@ export const GrammarTopicPage: React.FC<GrammarTopicPageProps> = ({ topic, onBac
                 onClick={() => setActiveRunnerMode('guided')}
                 className="py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-colors"
               >
-                Guided Drill
+                Guided Drill ({guidedSet.length})
               </button>
               <button
                 onClick={() => setActiveRunnerMode('practice')}
                 className="py-2 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors"
               >
-                Start Practice ⚡
+                Start Practice ⚡ ({practiceSet.length})
               </button>
             </div>
           </div>

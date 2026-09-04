@@ -336,6 +336,23 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"jacket" oti oldida egalik sifati "her" ishlatiladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l1_u1_6",
+            "topicId": "l1_u1_t2",
+            "type": "multiple_choice",
+            "prompt": "Complete with the correct possessive adjective:",
+            "sentenceWithBlank": "We love ___ new English teacher.",
+            "options": [
+                        "our",
+                        "ours",
+                        "us",
+                        "we"
+            ],
+            "correctAnswer": "our",
+            "explanationEn": "Before the noun phrase 'new English teacher', use possessive adjective 'our'.",
+            "explanationUz": "'new English teacher' oti oldidan 'our' (bizning) egalik sifati qoʻyiladi.",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -363,6 +380,57 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"backpack" oti oldida "my" boʻlishi shart.',
             difficulty: 'easy',
           },
+          {
+            "id": "p_l1_u1_8",
+            "topicId": "l1_u1_t2",
+            "type": "fill_blank",
+            "prompt": "Choose the correct word:",
+            "sentenceWithBlank": "This is my coffee and that one is ___.",
+            "options": [
+                        "yours",
+                        "your",
+                        "you",
+                        "yours coffee"
+            ],
+            "correctAnswer": "yours",
+            "explanationEn": "Use 'yours' when replacing the noun phrase 'your coffee'.",
+            "explanationUz": "Gap oxirida ot takrorlanmasligi uchun 'yours' (sizniki) ishlatiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u1_9",
+            "topicId": "l1_u1_t2",
+            "type": "multiple_choice",
+            "prompt": "Which sentence is grammatically correct?",
+            "sentenceWithBlank": "Choose the correct sentence:",
+            "options": [
+                        "The cat licked its paws.",
+                        "The cat licked it's paws.",
+                        "The cat licked its' paws.",
+                        "The cat licked paws its."
+            ],
+            "correctAnswer": "The cat licked its paws.",
+            "explanationEn": "'its' (without apostrophe) is possessive. 'it\\'s' means 'it is'.",
+            "explanationUz": "Egalik uchun apostrofsiz 'its' ishlatiladi. 'it\\'s' bu 'it is' ning qisqartmasi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l1_u1_10",
+            "topicId": "l1_u1_t2",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Bu telefon siznikimi yoki unikimi (oʻgʻil bola)?",
+            "options": [
+                        "Is this phone yours or his?",
+                        "Is this phone your or him?",
+                        "Is this phone yours or he?",
+                        "Is this phone you or his?"
+            ],
+            "correctAnswer": "Is this phone yours or his?",
+            "explanationEn": "Both 'yours' and 'his' are possessive pronouns standing without nouns.",
+            "explanationUz": "Ikkala olmosh ham otsiz mustaqil kelgani uchun 'yours' va 'his' qoʻllanadi.",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -387,6 +455,38 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Notoʻgʻri! Egalik olmoshi apostrofsiz "its" boʻladi. it\'s = it is.',
             difficulty: 'medium',
           },
+          {
+            "id": "t_l1_u1_8",
+            "topicId": "l1_u1_t2",
+            "type": "multiple_choice",
+            "prompt": "Their house is large, but ___ has a swimming pool.",
+            "options": [
+                        "ours",
+                        "our",
+                        "we",
+                        "us"
+            ],
+            "correctAnswer": "ours",
+            "explanationEn": "'ours' functions as the subject pronoun meaning 'our house'.",
+            "explanationUz": "'ours' bu yerda ega vazifasida 'bizning uyimiz' maʼnosini bildiradi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l1_u1_9",
+            "topicId": "l1_u1_t2",
+            "type": "fill_blank",
+            "prompt": "Alex forgot ___ keys at home this morning.",
+            "options": [
+                        "his",
+                        "him",
+                        "he",
+                        "its"
+            ],
+            "correctAnswer": "his",
+            "explanationEn": "Alex is male, so his possessive adjective before 'keys' is 'his'.",
+            "explanationUz": "Alex oʻgʻil bola, 'keys' oldida egalik sifati 'his' boʻladi.",
+            "difficulty": "easy"
+}
         ],
         flashcards: [
           {
@@ -477,6 +577,40 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"hour" soʻzida "h" oʻqilmaydi, unli tovush boʻlgani uchun "an" qoʻyiladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l1_u2_2",
+            "topicId": "l1_u2_t1",
+            "type": "fill_blank",
+            "prompt": "Choose the correct article:",
+            "sentenceWithBlank": "She ordered ___ cup of coffee and ___ orange juice.",
+            "options": [
+                        "a / an",
+                        "an / a",
+                        "the / the",
+                        "a / a"
+            ],
+            "correctAnswer": "a / an",
+            "explanationEn": "'cup' begins with consonant /k/ (a cup); 'orange' begins with vowel /ɒ/ (an orange).",
+            "explanationUz": "'cup' undosh tovush bilan (a cup), 'orange' esa unli bilan (an orange) boshlanadi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l1_u2_3",
+            "topicId": "l1_u2_t1",
+            "type": "multiple_choice",
+            "prompt": "Why do we use 'the' in 'Close the door, please'?",
+            "sentenceWithBlank": "Close the door, please.",
+            "options": [
+                        "Because both speaker and listener know which specific door.",
+                        "Because doors always take 'the'.",
+                        "Because door starts with a consonant.",
+                        "Because it is plural."
+            ],
+            "correctAnswer": "Because both speaker and listener know which specific door.",
+            "explanationEn": "'the' is used when the speaker and listener understand which specific object is meant.",
+            "explanationUz": "Ikkala suhbatdosh ham aynan qaysi eshik haqida gap ketayotganini aniq bilishadi.",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -491,6 +625,74 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Koinotdagi yagona narsalar (the moon, the sun) oldidan "the" qoʻyiladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "p_l1_u2_2",
+            "topicId": "l1_u2_t1",
+            "type": "multiple_choice",
+            "prompt": "Which sentence uses articles correctly?",
+            "sentenceWithBlank": "Choose the correct sentence:",
+            "options": [
+                        "He is an honest police officer.",
+                        "He is a honest police officer.",
+                        "He is the honest police officer always.",
+                        "He is an police officer honest."
+            ],
+            "correctAnswer": "He is an honest police officer.",
+            "explanationEn": "'honest' starts with a silent 'h', producing a vowel sound /ɒ/, requiring 'an'.",
+            "explanationUz": "'honest' soʻzida 'h' oʻqilmaydi, unli tovush bilan boshlanganligi sababli 'an' qoʻyiladi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l1_u2_3",
+            "topicId": "l1_u2_t1",
+            "type": "fill_blank",
+            "prompt": "Fill in the blanks with the correct articles:",
+            "sentenceWithBlank": "I bought ___ shirt yesterday. ___ shirt is blue.",
+            "options": [
+                        "a / The",
+                        "the / A",
+                        "an / The",
+                        "a / A"
+            ],
+            "correctAnswer": "a / The",
+            "explanationEn": "First mention is indefinite (a shirt); second mention is specific (the shirt).",
+            "explanationUz": "Birinchi bor tilga olinganda 'a', ikkinchi bor aniq boʻlganda 'the' qoʻyiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u2_4",
+            "topicId": "l1_u2_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the correct article for musical instruments:",
+            "sentenceWithBlank": "My younger sister plays ___ guitar beautifully.",
+            "options": [
+                        "the",
+                        "a",
+                        "an",
+                        "no article"
+            ],
+            "correctAnswer": "the",
+            "explanationEn": "We use 'the' with musical instruments after 'play' (play the guitar, play the piano).",
+            "explanationUz": "Musiqa asboblarini chalish haqida gapirganda 'the' ishlatiladi (play the guitar).",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l1_u2_5",
+            "topicId": "l1_u2_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "U universitetda oʻqiydi.",
+            "options": [
+                        "She studies at a university.",
+                        "She studies at an university.",
+                        "She studies at university a.",
+                        "She studies at an university school."
+            ],
+            "correctAnswer": "She studies at a university.",
+            "explanationEn": "'university' starts with the consonant glide /j/, requiring 'a'.",
+            "explanationUz": "'university' soʻzi /j/ undosh tovush bilan boshlangani uchun 'a' qoʻyiladi.",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -504,6 +706,54 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"university" soʻzi /j/ undosh tovush bilan boshlanadi, shuning uchun "a" toʻgʻri.',
             difficulty: 'medium',
           },
+          {
+            "id": "t_l1_u2_2",
+            "topicId": "l1_u2_t1",
+            "type": "multiple_choice",
+            "prompt": "Paris is ___ capital of France.",
+            "options": [
+                        "the",
+                        "a",
+                        "an",
+                        "—"
+            ],
+            "correctAnswer": "the",
+            "explanationEn": "Countries only have one unique capital city, so 'the' is required.",
+            "explanationUz": "Fransiyaning poytaxti yagona boʻlgani uchun 'the capital' boʻladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l1_u2_3",
+            "topicId": "l1_u2_t1",
+            "type": "multiple_choice",
+            "prompt": "He works as ___ architect in New York.",
+            "options": [
+                        "an",
+                        "a",
+                        "the",
+                        "—"
+            ],
+            "correctAnswer": "an",
+            "explanationEn": "Jobs take 'a' or 'an'. 'architect' begins with vowel /ɑː/, requiring 'an'.",
+            "explanationUz": "Kasblar oldidan 'a/an' ishlatiladi. 'architect' unli bilan boshlangani uchun 'an'.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l1_u2_4",
+            "topicId": "l1_u2_t1",
+            "type": "multiple_choice",
+            "prompt": "Do you prefer ___ tea or coffee in the morning?",
+            "options": [
+                        "— (no article)",
+                        "the",
+                        "a",
+                        "an"
+            ],
+            "correctAnswer": "— (no article)",
+            "explanationEn": "Uncountable nouns in general statements do not take articles.",
+            "explanationUz": "Umumiy maʼnoda choy yoki kofe sanalmaydigan ot boʻlgani uchun artikl olinmaydi.",
+            "difficulty": "medium"
+}
         ],
         flashcards: [
           {
@@ -598,6 +848,40 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"My brother and I" bu "We" (biz), shuning uchun "are" ishlatiladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l1_u3_2",
+            "topicId": "l1_u3_t1",
+            "type": "fill_blank",
+            "prompt": "Complete the sentence with the correct form of TO BE:",
+            "sentenceWithBlank": "They ___ at the library right now.",
+            "options": [
+                        "are",
+                        "is",
+                        "am",
+                        "be"
+            ],
+            "correctAnswer": "are",
+            "explanationEn": "'They' is plural third-person and takes 'are'.",
+            "explanationUz": "'They' koʻplik olmoshi boʻlib, 'are' bilan qoʻllanadi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l1_u3_3",
+            "topicId": "l1_u3_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the correct negative form of TO BE:",
+            "sentenceWithBlank": "No, she ___ a doctor. She is a nurse.",
+            "options": [
+                        "isn't",
+                        "aren't",
+                        "am not",
+                        "doesn't"
+            ],
+            "correctAnswer": "isn't",
+            "explanationEn": "Negative of 'she is' is 'she isn't' (or 'she is not').",
+            "explanationUz": "'She' uchun inkor shakli 'isn\\'t' (is not).",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -611,6 +895,74 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Soʻroq tartibi: Are + they + ready for class?',
             difficulty: 'easy',
           },
+          {
+            "id": "p_l1_u3_2",
+            "topicId": "l1_u3_t1",
+            "type": "multiple_choice",
+            "prompt": "Select the correct question form:",
+            "sentenceWithBlank": "___ your brother an engineer?",
+            "options": [
+                        "Is",
+                        "Are",
+                        "Am",
+                        "Do"
+            ],
+            "correctAnswer": "Is",
+            "explanationEn": "'your brother' is singular (he), requiring 'Is'.",
+            "explanationUz": "'your brother' birlikda (u) boʻlgani uchun savol 'Is' bilan boshlanadi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u3_3",
+            "topicId": "l1_u3_t1",
+            "type": "fill_blank",
+            "prompt": "Complete the short answer:",
+            "sentenceWithBlank": "Are you ready for the test? — Yes, I ___.",
+            "options": [
+                        "am",
+                        "are",
+                        "is",
+                        "'m ready"
+            ],
+            "correctAnswer": "am",
+            "explanationEn": "In positive short answers, never contract: 'Yes, I am.' (not 'Yes, I\\'m').",
+            "explanationUz": "Qisqa tasdiq javoblarda qisqartma qilinmaydi: 'Yes, I am.' toʻgʻri.",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l1_u3_4",
+            "topicId": "l1_u3_t1",
+            "type": "multiple_choice",
+            "prompt": "Complete with the correct forms:",
+            "sentenceWithBlank": "Tom and Jerry ___ cartoon characters, and Mickey ___ too.",
+            "options": [
+                        "are / is",
+                        "is / is",
+                        "are / are",
+                        "is / are"
+            ],
+            "correctAnswer": "are / is",
+            "explanationEn": "'Tom and Jerry' is plural (are); 'Mickey' is singular (is).",
+            "explanationUz": "Tom va Jerry ikkita (are); Mickey esa bitta (is).",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u3_5",
+            "topicId": "l1_u3_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Biz bugun juda charchaganmiz.",
+            "options": [
+                        "We are very tired today.",
+                        "We is very tired today.",
+                        "We am very tired today.",
+                        "We tired are very today."
+            ],
+            "correctAnswer": "We are very tired today.",
+            "explanationEn": "'We' takes 'are': 'We are very tired today.'",
+            "explanationUz": "'We' bilan 'are' ishlatiladi: 'We are very tired today.'",
+            "difficulty": "easy"
+}
         ],
         testQuestions: [
           {
@@ -624,6 +976,54 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Qisqa ijobiy javoblarda qisqartirilmaydi: Yes, I am.',
             difficulty: 'medium',
           },
+          {
+            "id": "t_l1_u3_2",
+            "topicId": "l1_u3_t1",
+            "type": "multiple_choice",
+            "prompt": "Where ___ the children right now?",
+            "options": [
+                        "are",
+                        "is",
+                        "am",
+                        "do"
+            ],
+            "correctAnswer": "are",
+            "explanationEn": "'children' is the plural of 'child', taking 'are'.",
+            "explanationUz": "'children' (bolalar) koʻplik boʻlgani uchun 'are' tanlanadi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l1_u3_3",
+            "topicId": "l1_u3_t1",
+            "type": "multiple_choice",
+            "prompt": "I ___ cold. Can you please close the window?",
+            "options": [
+                        "am",
+                        "is",
+                        "are",
+                        "have"
+            ],
+            "correctAnswer": "am",
+            "explanationEn": "In English feelings and physical states use TO BE: 'I am cold' (not 'I have cold').",
+            "explanationUz": "Ingliz tilida sovuq qotish to be bilan aytiladi: 'I am cold'.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l1_u3_4",
+            "topicId": "l1_u3_t1",
+            "type": "multiple_choice",
+            "prompt": "Neither Mark nor his friends ___ here today.",
+            "options": [
+                        "are",
+                        "is",
+                        "am",
+                        "be"
+            ],
+            "correctAnswer": "are",
+            "explanationEn": "In 'neither... nor', the verb agrees with the closer subject ('his friends' -> are).",
+            "explanationUz": "'neither... nor' da feʼl oʻziga yaqin turgan otga moslashadi ('his friends' -> are).",
+            "difficulty": "hard"
+}
         ],
         flashcards: [
           {
@@ -713,6 +1113,40 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"She" bilan "has got" toʻgʻri keladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l1_u4_2",
+            "topicId": "l1_u4_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with the correct form of 'have got':",
+            "sentenceWithBlank": "She ___ a brand new red bicycle.",
+            "options": [
+                        "has got",
+                        "have got",
+                        "is got",
+                        "having"
+            ],
+            "correctAnswer": "has got",
+            "explanationEn": "'She' is third-person singular, so use 'has got'.",
+            "explanationUz": "'She' uchinchi shaxs birlik boʻlgani uchun 'has got' ishlatiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l1_u4_3",
+            "topicId": "l1_u4_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the correct question format:",
+            "sentenceWithBlank": "___ you got any brothers or sisters?",
+            "options": [
+                        "Have",
+                        "Do",
+                        "Are",
+                        "Has"
+            ],
+            "correctAnswer": "Have",
+            "explanationEn": "In British English 'have got' questions invert: 'Have you got...?'",
+            "explanationUz": "'Have you got...?' soʻrogʻida 'Have' oldinga chiqadi.",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -727,6 +1161,74 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"Have you got" soʻroq shakli toʻgʻri.',
             difficulty: 'easy',
           },
+          {
+            "id": "p_l1_u4_2",
+            "topicId": "l1_u4_t1",
+            "type": "multiple_choice",
+            "prompt": "Which sentence is in correct American English?",
+            "sentenceWithBlank": "Choose the correct sentence:",
+            "options": [
+                        "Do you have any pets?",
+                        "Have you any pets?",
+                        "Do you have got pets?",
+                        "Are you have any pets?"
+            ],
+            "correctAnswer": "Do you have any pets?",
+            "explanationEn": "In standard American English, 'Do you have...?' is standard for possession questions.",
+            "explanationUz": "Amerikacha ingliz tilida soʻroq 'Do you have...?' shaklida yasaladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u4_3",
+            "topicId": "l1_u4_t1",
+            "type": "fill_blank",
+            "prompt": "Fill in the negative blank:",
+            "sentenceWithBlank": "We ___ enough time to finish this today.",
+            "options": [
+                        "haven't got",
+                        "hasn't got",
+                        "not have",
+                        "no have got"
+            ],
+            "correctAnswer": "haven't got",
+            "explanationEn": "'We' takes 'haven\\'t got' in the negative.",
+            "explanationUz": "'We' uchun inkor shakl 'haven\\'t got'.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u4_4",
+            "topicId": "l1_u4_t1",
+            "type": "multiple_choice",
+            "prompt": "Which sentence is INCORRECT?",
+            "sentenceWithBlank": "Find the incorrect sentence:",
+            "options": [
+                        "I had got a bicycle when I was 7.",
+                        "I had a bicycle when I was 7.",
+                        "I have got a bicycle now.",
+                        "I have a bicycle now."
+            ],
+            "correctAnswer": "I had got a bicycle when I was 7.",
+            "explanationEn": "'Have got' is ONLY used in the Present. In the Past, always use 'had' alone.",
+            "explanationUz": "'Have got' faqat hozirgi zamonda ishlatiladi! Oʻtgan zamonda faqat 'had' boʻladi.",
+            "difficulty": "hard"
+},
+          {
+            "id": "p_l1_u4_5",
+            "topicId": "l1_u4_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Uning (qiz bola) ikkita ukasi bor.",
+            "options": [
+                        "She has got two younger brothers.",
+                        "She have got two younger brothers.",
+                        "She is got two younger brothers.",
+                        "She having two younger brothers."
+            ],
+            "correctAnswer": "She has got two younger brothers.",
+            "explanationEn": "'She has got two younger brothers' correctly expresses possession.",
+            "explanationUz": "'She' bilan 'has got' ishlatiladi.",
+            "difficulty": "easy"
+}
         ],
         testQuestions: [
           {
@@ -740,6 +1242,54 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'He uchun inkor shakl "hasn\'t got".',
             difficulty: 'easy',
           },
+          {
+            "id": "t_l1_u4_2",
+            "topicId": "l1_u4_t1",
+            "type": "multiple_choice",
+            "prompt": "___ he got a spare pen I could borrow?",
+            "options": [
+                        "Has",
+                        "Have",
+                        "Does",
+                        "Is"
+            ],
+            "correctAnswer": "Has",
+            "explanationEn": "'he' requires 'Has' with 'got': 'Has he got...?'",
+            "explanationUz": "'he' uchinchi shaxs boʻlgani uchun 'Has he got' boʻladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l1_u4_3",
+            "topicId": "l1_u4_t1",
+            "type": "multiple_choice",
+            "prompt": "He ___ a shower every morning at 7:00 AM.",
+            "options": [
+                        "has",
+                        "has got",
+                        "is having got",
+                        "having"
+            ],
+            "correctAnswer": "has",
+            "explanationEn": "For actions and routines (have a shower, have lunch), use 'have', NEVER 'have got'.",
+            "explanationUz": "Dush qabul qilish, ovqatlanish kabi harakatlarda faqat 'have' ishlatiladi ('have got' emas).",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l1_u4_4",
+            "topicId": "l1_u4_t1",
+            "type": "multiple_choice",
+            "prompt": "They don't ___ any homework for tomorrow.",
+            "options": [
+                        "have",
+                        "has",
+                        "have got",
+                        "having"
+            ],
+            "correctAnswer": "have",
+            "explanationEn": "After the auxiliary 'don\\'t', the base verb 'have' is used.",
+            "explanationUz": "'don\\'t' yordamchi feʼlidan keyin feʼlning asosi 'have' keladi.",
+            "difficulty": "medium"
+}
         ],
         flashcards: [
           {
@@ -847,6 +1397,23 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Uchinchi shaxs birlik uchun inkor "doesn\'t".',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l1_u5_3",
+            "topicId": "l1_u5_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with the third-person singular form:",
+            "sentenceWithBlank": "My mother ___ delicious bread every Sunday.",
+            "options": [
+                        "bakes",
+                        "bake",
+                        "baking",
+                        "is bake"
+            ],
+            "correctAnswer": "bakes",
+            "explanationEn": "'My mother' is she, so add -s to the verb: 'bakes'.",
+            "explanationUz": "'My mother' (u) uchinchi shaxs birlik boʻlgani uchun feʼlga -s qoʻshiladi: bakes.",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -890,6 +1457,39 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Present Simple soʻrogʻi "Do you read...?" bilan tuziladi.',
             difficulty: 'medium',
           },
+          {
+            "id": "p_l1_u5_4",
+            "topicId": "l1_u5_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the correct question form:",
+            "sentenceWithBlank": "___ your father work on weekends?",
+            "options": [
+                        "Does",
+                        "Do",
+                        "Is",
+                        "Are"
+            ],
+            "correctAnswer": "Does",
+            "explanationEn": "Third-person singular questions in Present Simple use 'Does'.",
+            "explanationUz": "'your father' birlikda (he) boʻlgani uchun savol 'Does' bilan yasaladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u5_5",
+            "topicId": "l1_u5_t1",
+            "type": "multiple_choice",
+            "prompt": "He ___ to school by bus; he usually walks.",
+            "options": [
+                        "doesn't go",
+                        "don't go",
+                        "doesn't goes",
+                        "isn't go"
+            ],
+            "correctAnswer": "doesn't go",
+            "explanationEn": "Negative third-person: doesn\\'t + base form (go).",
+            "explanationUz": "Inkor shaklida 'doesn\\'t' dan keyin feʼlning oʻzi (go) keladi, -s olinmaydi.",
+            "difficulty": "easy"
+}
         ],
         testQuestions: [
           {
@@ -914,6 +1514,38 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Notoʻgʻri! "doesn\'t" dan keyin feʼlga -s qoʻshilmaydi: doesn\'t speak.',
             difficulty: 'medium',
           },
+          {
+            "id": "t_l1_u5_3",
+            "topicId": "l1_u5_t1",
+            "type": "multiple_choice",
+            "prompt": "Water ___ at 100 degrees Celsius.",
+            "options": [
+                        "boils",
+                        "boil",
+                        "is boiling",
+                        "boiled"
+            ],
+            "correctAnswer": "boils",
+            "explanationEn": "Scientific facts and general truths always use Present Simple with third-person -s.",
+            "explanationUz": "Ilmiy faktlar va tabiat qonunlari har doim Present Simple da boʻladi (boils).",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l1_u5_4",
+            "topicId": "l1_u5_t1",
+            "type": "multiple_choice",
+            "prompt": "What time ___ the train leave?",
+            "options": [
+                        "does",
+                        "do",
+                        "is",
+                        "will"
+            ],
+            "correctAnswer": "does",
+            "explanationEn": "Scheduled timetables use Present Simple with 'does' for singular 'the train'.",
+            "explanationUz": "Jadval boʻyicha qatnovchi poyezd (the train) uchun 'does' ishlatiladi.",
+            "difficulty": "medium"
+}
         ],
         flashcards: [
           {
@@ -999,6 +1631,40 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"The birds" koʻplik, "Listen!" esa harakat ayni paytda boʻlayotganini bildiradi.',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l1_u6_2",
+            "topicId": "l1_u6_t1",
+            "type": "fill_blank",
+            "prompt": "Complete the sentence in Present Continuous:",
+            "sentenceWithBlank": "They ___ football in the park at the moment.",
+            "options": [
+                        "are playing",
+                        "is playing",
+                        "play",
+                        "playing"
+            ],
+            "correctAnswer": "are playing",
+            "explanationEn": "'They' requires 'are' + verb-ing: 'are playing'.",
+            "explanationUz": "'They' uchun 'are' + feʼl-ing ishlatiladi: 'are playing'.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l1_u6_3",
+            "topicId": "l1_u6_t1",
+            "type": "multiple_choice",
+            "prompt": "Which spelling of the -ing form is correct?",
+            "sentenceWithBlank": "The children are ___ in the pool.",
+            "options": [
+                        "swimming",
+                        "swiming",
+                        "swimying",
+                        "swim"
+            ],
+            "correctAnswer": "swimming",
+            "explanationEn": "Short vowel + single consonant doubles the final consonant: swim -> swimming.",
+            "explanationUz": "Qisqa unli va bitta undosh bilan tugagan feʼllarda oxirgi harf ikkilanadi: swim -> swimming.",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -1013,6 +1679,74 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"today" odatdan tashqari vaqtinchalik harakatni ifodalaydi -> is taking.',
             difficulty: 'medium',
           },
+          {
+            "id": "p_l1_u6_2",
+            "topicId": "l1_u6_t1",
+            "type": "multiple_choice",
+            "prompt": "Why is 'I am knowing the answer' incorrect?",
+            "sentenceWithBlank": "I ___ the answer.",
+            "options": [
+                        "know",
+                        "am knowing",
+                        "knowing",
+                        "am know"
+            ],
+            "correctAnswer": "know",
+            "explanationEn": "'know' is a stative verb and is NOT used in continuous tenses.",
+            "explanationUz": "'know' holat feʼli boʻlib, Continuous (davomli) zamonlarda ishlatilmaydi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "p_l1_u6_3",
+            "topicId": "l1_u6_t1",
+            "type": "fill_blank",
+            "prompt": "Complete the negative sentence:",
+            "sentenceWithBlank": "Be quiet! The baby ___ right now.",
+            "options": [
+                        "is sleeping",
+                        "sleeps",
+                        "is sleep",
+                        "slept"
+            ],
+            "correctAnswer": "is sleeping",
+            "explanationEn": "'Be quiet!' signals an action currently happening right now.",
+            "explanationUz": "'Be quiet!' hozir sodir boʻlayotgan harakat belgisi: is sleeping.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u6_4",
+            "topicId": "l1_u6_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the correct question in Present Continuous:",
+            "sentenceWithBlank": "___ you ___ for the bus?",
+            "options": [
+                        "Are / waiting",
+                        "Do / waiting",
+                        "Are / wait",
+                        "Is / waiting"
+            ],
+            "correctAnswer": "Are / waiting",
+            "explanationEn": "Question form: Are + subject (you) + verb-ing (waiting)?",
+            "explanationUz": "Soʻroq shakli: Are you waiting?",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u6_5",
+            "topicId": "l1_u6_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "U (qiz bola) hozir kitob oʻqiyapti.",
+            "options": [
+                        "She is reading a book now.",
+                        "She reads a book now.",
+                        "She is read a book now.",
+                        "She reading a book now."
+            ],
+            "correctAnswer": "She is reading a book now.",
+            "explanationEn": "'She is reading a book now' correctly expresses an action in progress.",
+            "explanationUz": "Ayni paytdagi davomli harakat: 'She is reading a book now'.",
+            "difficulty": "easy"
+}
         ],
         testQuestions: [
           {
@@ -1026,6 +1760,54 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Why are you wearing... ?',
             difficulty: 'easy',
           },
+          {
+            "id": "t_l1_u6_2",
+            "topicId": "l1_u6_t1",
+            "type": "multiple_choice",
+            "prompt": "Look! It ___ outside.",
+            "options": [
+                        "is snowing",
+                        "snows",
+                        "snowed",
+                        "is snow"
+            ],
+            "correctAnswer": "is snowing",
+            "explanationEn": "'Look!' alerts us to an action happening right in front of us: is snowing.",
+            "explanationUz": "'Look!' ayni daqiqadagi harakatga eʼtibor qaratadi: is snowing.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l1_u6_3",
+            "topicId": "l1_u6_t1",
+            "type": "multiple_choice",
+            "prompt": "I usually drink coffee, but today I ___ tea.",
+            "options": [
+                        "am drinking",
+                        "drink",
+                        "drank",
+                        "drinks"
+            ],
+            "correctAnswer": "am drinking",
+            "explanationEn": "Routine = Simple (drink); Temporary exception = Continuous (am drinking).",
+            "explanationUz": "Doimiy odat Present Simple, lekin vaqtinchalik oʻzgarish Present Continuous boʻladi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l1_u6_4",
+            "topicId": "l1_u6_t1",
+            "type": "multiple_choice",
+            "prompt": "Which of the following verbs can NEVER be continuous?",
+            "options": [
+                        "believe",
+                        "run",
+                        "eat",
+                        "watch"
+            ],
+            "correctAnswer": "believe",
+            "explanationEn": "'believe' is a stative verb expressing mental state; it cannot take -ing in continuous.",
+            "explanationUz": "'believe' (ishonmoq) aqliy holat feʼli boʻlib, Continuous shaklda ishlatilmaydi.",
+            "difficulty": "hard"
+}
         ],
         flashcards: [
           {
@@ -1115,6 +1897,40 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"can" feʼliga -s qoʻshilmaydi.',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l1_u7_2",
+            "topicId": "l1_u7_t1",
+            "type": "fill_blank",
+            "prompt": "Complete the sentence with the modal verb for ability:",
+            "sentenceWithBlank": "He ___ speak four different languages fluently.",
+            "options": [
+                        "can",
+                        "cans",
+                        "is can",
+                        "can to"
+            ],
+            "correctAnswer": "can",
+            "explanationEn": "Modal 'can' never takes -s or 'to': 'can speak'.",
+            "explanationUz": "Modal feʼl 'can' hech qachon -s olmaydi va undan keyin 'to' kelmaydi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l1_u7_3",
+            "topicId": "l1_u7_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the correct polite request:",
+            "sentenceWithBlank": "___ you please open the window?",
+            "options": [
+                        "Can",
+                        "Are",
+                        "Do",
+                        "May to"
+            ],
+            "correctAnswer": "Can",
+            "explanationEn": "'Can you please...' is used for common informal requests.",
+            "explanationUz": "'Can you please...' kundalik iltimoslarda ishlatiladi.",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -1134,6 +1950,73 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'can + feʼlning asosi (drive).',
             difficulty: 'easy',
           },
+          {
+            "id": "p_l1_u7_2",
+            "topicId": "l1_u7_t1",
+            "type": "multiple_choice",
+            "prompt": "Which sentence has correct grammar?",
+            "sentenceWithBlank": "Choose the correct sentence:",
+            "options": [
+                        "She can swim very well.",
+                        "She can swims very well.",
+                        "She cans swim very well.",
+                        "She can to swim very well."
+            ],
+            "correctAnswer": "She can swim very well.",
+            "explanationEn": "Modal verbs are followed by bare infinitive without 'to' or '-s'.",
+            "explanationUz": "Modal feʼllardan soʻng feʼl oʻzgarishsiz keladi (to va s siz).",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u7_3",
+            "topicId": "l1_u7_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with the negative of 'can':",
+            "sentenceWithBlank": "I am so busy that I ___ come to your party tonight.",
+            "options": [
+                        "can't",
+                        "don't can",
+                        "am not can",
+                        "can not to"
+            ],
+            "correctAnswer": "can't",
+            "explanationEn": "Negative of can is 'can\\'t' (or 'cannot').",
+            "explanationUz": "'can' ning inkori 'can\\'t' yoki 'cannot' boʻladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u7_4",
+            "topicId": "l1_u7_t1",
+            "type": "multiple_choice",
+            "prompt": "Can penguins fly? — No, they ___.",
+            "options": [
+                        "can't",
+                        "don't",
+                        "aren't",
+                        "won't"
+            ],
+            "correctAnswer": "can't",
+            "explanationEn": "Short answer to 'Can...?': 'No, they can\\'t.'",
+            "explanationUz": "'Can' bilan berilgan savolga qisqa javob: 'No, they can\\'t.'",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u7_5",
+            "topicId": "l1_u7_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Siz gitara chala olasizmi?",
+            "options": [
+                        "Can you play the guitar?",
+                        "Do you can play guitar?",
+                        "Are you play guitar?",
+                        "Can you to play guitar?"
+            ],
+            "correctAnswer": "Can you play the guitar?",
+            "explanationEn": "Invert 'Can' and 'you': 'Can you play the guitar?'",
+            "explanationUz": "Qobiliyat soʻrogʻi: 'Can you play the guitar?'",
+            "difficulty": "easy"
+}
         ],
         testQuestions: [
           {
@@ -1148,6 +2031,54 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Eshita olmayapman -> can\'t hear.',
             difficulty: 'easy',
           },
+          {
+            "id": "t_l1_u7_2",
+            "topicId": "l1_u7_t1",
+            "type": "multiple_choice",
+            "prompt": "I am sorry, but you ___ park your car here; it is forbidden.",
+            "options": [
+                        "can't",
+                        "don't have to",
+                        "should",
+                        "can"
+            ],
+            "correctAnswer": "can't",
+            "explanationEn": "'can\\'t' expresses prohibition / lack of permission.",
+            "explanationUz": "'can\\'t' bu yerda taqiqni va ruxsat yoʻqligini bildiradi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l1_u7_3",
+            "topicId": "l1_u7_t1",
+            "type": "multiple_choice",
+            "prompt": "How many languages ___ your grandfather speak?",
+            "options": [
+                        "can",
+                        "does can",
+                        "is can",
+                        "cans"
+            ],
+            "correctAnswer": "can",
+            "explanationEn": "In wh-questions with modal can: Question word + can + subject + verb.",
+            "explanationUz": "Wh-soʻroqlarda: How many languages + can + subject + verb.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l1_u7_4",
+            "topicId": "l1_u7_t1",
+            "type": "multiple_choice",
+            "prompt": "Which sentence expresses permission?",
+            "options": [
+                        "You can leave the room when you finish.",
+                        "Cheetahs can run up to 100 km/h.",
+                        "I can lift 50 kilograms.",
+                        "Fish can breathe underwater."
+            ],
+            "correctAnswer": "You can leave the room when you finish.",
+            "explanationEn": "'You can leave' grants permission; the other options describe physical ability.",
+            "explanationUz": "'You can leave' ruxsat berishni bildiradi, qolganlari jismoniy qobiliyat haqida.",
+            "difficulty": "medium"
+}
         ],
         flashcards: [
           {
@@ -1239,6 +2170,40 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Aniq soat vaqtlari oldidan "at" ishlatiladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l1_u8_2",
+            "topicId": "l1_u8_t1",
+            "type": "fill_blank",
+            "prompt": "Fill in the correct preposition of time:",
+            "sentenceWithBlank": "Our final exam is ___ Monday morning.",
+            "options": [
+                        "on",
+                        "in",
+                        "at",
+                        "by"
+            ],
+            "correctAnswer": "on",
+            "explanationEn": "Days of the week (Monday, Monday morning) always take 'on'.",
+            "explanationUz": "Hafta kunlari oldidan har doim 'on' qoʻyiladi (on Monday morning).",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l1_u8_3",
+            "topicId": "l1_u8_t1",
+            "type": "multiple_choice",
+            "prompt": "Which preposition is used for specific clock times?",
+            "sentenceWithBlank": "The movie starts ___ 8:30 PM.",
+            "options": [
+                        "at",
+                        "on",
+                        "in",
+                        "to"
+            ],
+            "correctAnswer": "at",
+            "explanationEn": "Precise times on the clock take 'at' (at 8:30 PM, at midnight).",
+            "explanationUz": "Aniq soat koʻrsatkichlari oldidan 'at' ishlatiladi (at 8:30 PM).",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -1253,6 +2218,74 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Aniq sanalar oldidan "on" qoʻyiladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "p_l1_u8_2",
+            "topicId": "l1_u8_t1",
+            "type": "multiple_choice",
+            "prompt": "Which preposition is used for seasons and years?",
+            "sentenceWithBlank": "They moved to Tashkent ___ 2021.",
+            "options": [
+                        "in",
+                        "on",
+                        "at",
+                        "since"
+            ],
+            "correctAnswer": "in",
+            "explanationEn": "Years, centuries, and seasons take 'in' (in 2021, in summer).",
+            "explanationUz": "Yillar, asrlar va fasllar oldidan 'in' ishlatiladi (in 2021, in summer).",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u8_3",
+            "topicId": "l1_u8_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with the correct preposition:",
+            "sentenceWithBlank": "I love drinking hot chocolate ___ winter.",
+            "options": [
+                        "in",
+                        "on",
+                        "at",
+                        "for"
+            ],
+            "correctAnswer": "in",
+            "explanationEn": "Seasons take 'in' (in winter, in spring).",
+            "explanationUz": "Fasllar oldidan 'in' qoʻyiladi: in winter.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u8_4",
+            "topicId": "l1_u8_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the correct pair of prepositions:",
+            "sentenceWithBlank": "The party is ___ Saturday ___ 7 o'clock.",
+            "options": [
+                        "on / at",
+                        "in / at",
+                        "at / on",
+                        "on / in"
+            ],
+            "correctAnswer": "on / at",
+            "explanationEn": "Day of the week takes 'on'; clock time takes 'at'.",
+            "explanationUz": "Kunlar uchun 'on', aniq soat uchun 'at'.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u8_5",
+            "topicId": "l1_u8_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "U tunda ishlashni yoqtiradi.",
+            "options": [
+                        "He likes working at night.",
+                        "He likes working in night.",
+                        "He likes working on night.",
+                        "He likes work by night."
+            ],
+            "correctAnswer": "He likes working at night.",
+            "explanationEn": "The fixed expression is 'at night' (contrast with 'in the morning/afternoon/evening').",
+            "explanationUz": "Tunda iborasi har doim 'at night' boʻladi.",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -1266,6 +2299,54 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Fasllar oldidan "in" ishlatiladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "t_l1_u8_2",
+            "topicId": "l1_u8_t1",
+            "type": "multiple_choice",
+            "prompt": "Independence Day of Uzbekistan is celebrated ___ September 1st.",
+            "options": [
+                        "on",
+                        "in",
+                        "at",
+                        "by"
+            ],
+            "correctAnswer": "on",
+            "explanationEn": "Specific calendar dates with a day number take 'on'.",
+            "explanationUz": "Aniq sana (kun koʻrsatilgan sana) oldidan 'on' qoʻyiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l1_u8_3",
+            "topicId": "l1_u8_t1",
+            "type": "multiple_choice",
+            "prompt": "What do you normally do ___ the weekend?",
+            "options": [
+                        "at / on",
+                        "in",
+                        "to",
+                        "for"
+            ],
+            "correctAnswer": "at / on",
+            "explanationEn": "British English commonly uses 'at the weekend'; American uses 'on the weekend'.",
+            "explanationUz": "Britaniya inglizchasida 'at the weekend', Amerikada 'on the weekend' toʻgʻri.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l1_u8_4",
+            "topicId": "l1_u8_t1",
+            "type": "multiple_choice",
+            "prompt": "We have a meeting ___ next Monday.",
+            "options": [
+                        "— (no preposition)",
+                        "on",
+                        "in",
+                        "at"
+            ],
+            "correctAnswer": "— (no preposition)",
+            "explanationEn": "Before 'next', 'last', 'this', and 'every', do NOT use a preposition.",
+            "explanationUz": "'next', 'last', 'this', 'every' soʻzlari oldidan predlog qoʻyilmaydi!",
+            "difficulty": "hard"
+}
         ],
         flashcards: [
           {
@@ -1361,6 +2442,40 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: '"yesterday" oʻtgan zamon belgisi, shuning uchun "watched".',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l1_u9_2",
+            "topicId": "l1_u9_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with the past tense of 'go':",
+            "sentenceWithBlank": "Last summer, my family ___ to Samarkand by train.",
+            "options": [
+                        "went",
+                        "goed",
+                        "goes",
+                        "gone"
+            ],
+            "correctAnswer": "went",
+            "explanationEn": "'go' is an irregular verb whose past simple form is 'went'.",
+            "explanationUz": "'go' notoʻgʻri feʼl boʻlib, oʻtgan zamon shakli 'went'.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l1_u9_3",
+            "topicId": "l1_u9_t1",
+            "type": "multiple_choice",
+            "prompt": "Choose the correct question in Past Simple:",
+            "sentenceWithBlank": "___ you ___ the new museum yesterday?",
+            "options": [
+                        "Did / visit",
+                        "Did / visited",
+                        "Do / visited",
+                        "Were / visit"
+            ],
+            "correctAnswer": "Did / visit",
+            "explanationEn": "In questions with 'Did', the main verb stays in base form: Did + subject + V1.",
+            "explanationUz": "'Did' ishlatilganda asosiy feʼl boshlangʻich shaklda qoladi (visit).",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -1387,6 +2502,57 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Did + ega + feʼl asosi + toʻldiruvchi.',
             difficulty: 'easy',
           },
+          {
+            "id": "p_l1_u9_3",
+            "topicId": "l1_u9_t1",
+            "type": "multiple_choice",
+            "prompt": "Which sentence has the correct negative past form?",
+            "sentenceWithBlank": "Choose the correct sentence:",
+            "options": [
+                        "I didn't see him at the conference.",
+                        "I didn't saw him at the conference.",
+                        "I not saw him at the conference.",
+                        "I didn't seen him at the conference."
+            ],
+            "correctAnswer": "I didn't see him at the conference.",
+            "explanationEn": "Negative is 'didn\\'t' + bare infinitive 'see'.",
+            "explanationUz": "Inkor shaklda: didn\\'t + feʼlning asosi (see).",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u9_4",
+            "topicId": "l1_u9_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with the irregular past form of 'buy':",
+            "sentenceWithBlank": "She ___ a new laptop two days ago.",
+            "options": [
+                        "bought",
+                        "buyed",
+                        "boughted",
+                        "buys"
+            ],
+            "correctAnswer": "bought",
+            "explanationEn": "The past simple of 'buy' is 'bought'.",
+            "explanationUz": "'buy' feʼlining oʻtgan zamoni 'bought'.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u9_5",
+            "topicId": "l1_u9_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Kecha biz juda qiziqarli kitob oʻqidik.",
+            "options": [
+                        "Yesterday we read a very interesting book.",
+                        "Yesterday we readed a very interesting book.",
+                        "Yesterday we did readed a very interesting book.",
+                        "Yesterday we were read a very interesting book."
+            ],
+            "correctAnswer": "Yesterday we read a very interesting book.",
+            "explanationEn": "Past simple of 'read' is spelled 'read' (pronounced /red/).",
+            "explanationUz": "'read' feʼlining oʻtgan zamon yozilishi oʻzgarmaydi ('read'), lekin talaffuzi /red/.",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -1400,6 +2566,54 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Oʻtgan zamon soʻrogʻi "did" bilan tuziladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "t_l1_u9_2",
+            "topicId": "l1_u9_t1",
+            "type": "multiple_choice",
+            "prompt": "They ___ at home last night; they were at the cinema.",
+            "options": [
+                        "weren't",
+                        "wasn't",
+                        "didn't be",
+                        "didn't were"
+            ],
+            "correctAnswer": "weren't",
+            "explanationEn": "Past negative of 'to be' for 'they' is 'weren\\'t'.",
+            "explanationUz": "'They' uchun to be ning oʻtgan zamon inkori 'weren\\'t'.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l1_u9_3",
+            "topicId": "l1_u9_t1",
+            "type": "multiple_choice",
+            "prompt": "Why did you ___ your keys?",
+            "options": [
+                        "lose",
+                        "lost",
+                        "loosing",
+                        "losed"
+            ],
+            "correctAnswer": "lose",
+            "explanationEn": "After 'did', always use the base form of the verb: 'lose'.",
+            "explanationUz": "'did' dan keyin feʼl asosi 'lose' keladi.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l1_u9_4",
+            "topicId": "l1_u9_t1",
+            "type": "multiple_choice",
+            "prompt": "He ___ down the stairs and ___ his arm.",
+            "options": [
+                        "fell / broke",
+                        "falled / breaked",
+                        "fell / breaked",
+                        "fall / broke"
+            ],
+            "correctAnswer": "fell / broke",
+            "explanationEn": "Both 'fall' (fell) and 'break' (broke) are irregular verbs.",
+            "explanationUz": "Ikkala feʼl ham notoʻgʻri: fall -> fell, break -> broke.",
+            "difficulty": "medium"
+}
         ],
         flashcards: [
           {
@@ -1485,6 +2699,40 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Ayni paytda chiqarilgan qaror uchun "will" ishlatiladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l1_u10_2",
+            "topicId": "l1_u10_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with the spontaneous decision form:",
+            "sentenceWithBlank": "The phone is ringing. — Don't worry, I ___ get it.",
+            "options": [
+                        "will",
+                        "am going to",
+                        "am getting",
+                        "go to"
+            ],
+            "correctAnswer": "will",
+            "explanationEn": "Spontaneous decision made at the moment of speaking takes 'will'.",
+            "explanationUz": "Gapirayotgan paytda toʻsatdan chiqarilgan qaror uchun 'will' ishlatiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l1_u10_3",
+            "topicId": "l1_u10_t1",
+            "type": "multiple_choice",
+            "prompt": "When do we use 'be going to'?",
+            "sentenceWithBlank": "Choose the correct usage:",
+            "options": [
+                        "For plans and intentions decided before speaking.",
+                        "Only for formal contracts.",
+                        "For actions that happened yesterday.",
+                        "Only with third-person subjects."
+            ],
+            "correctAnswer": "For plans and intentions decided before speaking.",
+            "explanationEn": "'be going to' expresses prior plans and intentions.",
+            "explanationUz": "'be going to' oldindan rejalashtirilgan maqsad va rejalar uchun qoʻllanadi.",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -1499,6 +2747,72 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Chiptalar olingan, demak aniq reja: are going to fly.',
             difficulty: 'medium',
           },
+          {
+            "id": "p_l1_u10_2",
+            "topicId": "l1_u10_t1",
+            "type": "multiple_choice",
+            "prompt": "Look at those dark clouds! It ___ rain.",
+            "options": [
+                        "is going to",
+                        "will",
+                        "rains",
+                        "is raining to"
+            ],
+            "correctAnswer": "is going to",
+            "explanationEn": "Predictions based on present visible evidence use 'be going to'.",
+            "explanationUz": "Koʻz oʻngimizdagi aniq dalilga (qora bulutlar) asoslangan bashoratda 'is going to' ishlatiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u10_3",
+            "topicId": "l1_u10_t1",
+            "type": "fill_blank",
+            "prompt": "Complete the promise with 'will':",
+            "sentenceWithBlank": "I promise I ___ tell anyone your secret.",
+            "options": [
+                        "won't",
+                        "am not going to",
+                        "don't",
+                        "not will"
+            ],
+            "correctAnswer": "won't",
+            "explanationEn": "Promises and guarantees commonly use 'will / won\\'t'.",
+            "explanationUz": "Vaʼdalar uchun 'will / won\\'t' ishlatiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u10_4",
+            "topicId": "l1_u10_t1",
+            "type": "multiple_choice",
+            "prompt": "What ___ you ___ do after graduation?",
+            "options": [
+                        "are / going to",
+                        "will / going to",
+                        "do / will",
+                        "are / will"
+            ],
+            "correctAnswer": "are / going to",
+            "explanationEn": "Question format for future plan: Are you going to do...?",
+            "explanationUz": "Kelajak reja soʻrogʻi: What are you going to do...?",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u10_5",
+            "topicId": "l1_u10_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Menimcha, ertaga havo quyoshli boʻladi.",
+            "options": [
+                        "I think it will be sunny tomorrow.",
+                        "I think it is going to be sunny tomorrow.",
+                        "I think it is sunny tomorrow.",
+                        "I think it will being sunny tomorrow."
+            ],
+            "correctAnswer": "I think it will be sunny tomorrow.",
+            "explanationEn": "Opinions with 'I think' typically take 'will'.",
+            "explanationUz": "'I think' (menimcha) bilan bildirilgan shaxsiy fikrlar odatda 'will' bilan aytiladi.",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -1512,6 +2826,54 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Koʻz oldimizdagi dalilga asoslangan bashorat: is going to.',
             difficulty: 'medium',
           },
+          {
+            "id": "t_l1_u10_2",
+            "topicId": "l1_u10_t1",
+            "type": "multiple_choice",
+            "prompt": "I forgot my wallet! — Don't worry, I ___ lend you some money.",
+            "options": [
+                        "will",
+                        "am going to",
+                        "lend",
+                        "am lending to"
+            ],
+            "correctAnswer": "will",
+            "explanationEn": "Instant offer / decision made right now: 'will'.",
+            "explanationUz": "Ayni paytda yordam taklif qilish: 'will'.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l1_u10_3",
+            "topicId": "l1_u10_t1",
+            "type": "multiple_choice",
+            "prompt": "They have already bought the tickets. They ___ visit Madrid next week.",
+            "options": [
+                        "are going to",
+                        "will",
+                        "would",
+                        "visited"
+            ],
+            "correctAnswer": "are going to",
+            "explanationEn": "They already bought tickets, showing an established prior plan: 'are going to'.",
+            "explanationUz": "Chiptalar sotib olingan, demak oldindan qatʼiy rejalashtirilgan: 'are going to'.",
+            "difficulty": "medium"
+},
+          {
+            "id": "t_l1_u10_4",
+            "topicId": "l1_u10_t1",
+            "type": "multiple_choice",
+            "prompt": "In fifty years, people ___ live on Mars.",
+            "options": [
+                        "will",
+                        "are going to",
+                        "is going to",
+                        "can to"
+            ],
+            "correctAnswer": "will",
+            "explanationEn": "Distant future speculation without present evidence uses 'will'.",
+            "explanationUz": "Uzoq kelajak haqidagi shaxsiy taxmin 'will' bilan aytiladi.",
+            "difficulty": "medium"
+}
         ],
         flashcards: [
           {
@@ -1597,6 +2959,40 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Doʻstona maslahat berishda "should" ishlatiladi.',
             difficulty: 'easy',
           },
+          {
+            "id": "g_l1_u11_2",
+            "topicId": "l1_u11_t1",
+            "type": "fill_blank",
+            "prompt": "Choose the modal verb for gentle advice:",
+            "sentenceWithBlank": "You look very tired. You ___ go to bed early tonight.",
+            "options": [
+                        "should",
+                        "must",
+                        "have to",
+                        "has to"
+            ],
+            "correctAnswer": "should",
+            "explanationEn": "'should' gives advice and recommendations ('it is a good idea').",
+            "explanationUz": "'should' maslahat berishda ishlatiladi ('yaxshi boʻlardi').",
+            "difficulty": "easy"
+},
+          {
+            "id": "g_l1_u11_3",
+            "topicId": "l1_u11_t1",
+            "type": "multiple_choice",
+            "prompt": "What does 'mustn't' mean?",
+            "sentenceWithBlank": "You mustn't smoke in the hospital.",
+            "options": [
+                        "It is strictly forbidden.",
+                        "You don't need to, but you can if you want.",
+                        "It is recommended.",
+                        "It is your choice."
+            ],
+            "correctAnswer": "It is strictly forbidden.",
+            "explanationEn": "'mustn\\'t' indicates strong prohibition (it is against the law/rules).",
+            "explanationUz": "'mustn\\'t' qatʼiy taqiqni bildiradi (mumkin emas, taqiqlangan).",
+            "difficulty": "easy"
+}
         ],
         practiceQuestions: [
           {
@@ -1611,6 +3007,73 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Xavfli taqiq uchun "mustn\'t" ishlatiladi.',
             difficulty: 'medium',
           },
+          {
+            "id": "p_l1_u11_2",
+            "topicId": "l1_u11_t1",
+            "type": "multiple_choice",
+            "prompt": "Tomorrow is Sunday, so I ___ wake up early.",
+            "options": [
+                        "don't have to",
+                        "mustn't",
+                        "shouldn't",
+                        "have to not"
+            ],
+            "correctAnswer": "don't have to",
+            "explanationEn": "'don\\'t have to' expresses lack of obligation (no need to do it).",
+            "explanationUz": "'don\\'t have to' majburiyat yoʻqligini bildiradi (zaruriyat yoʻq).",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u11_3",
+            "topicId": "l1_u11_t1",
+            "type": "fill_blank",
+            "prompt": "Complete with the third-person form of 'have to':",
+            "sentenceWithBlank": "Every doctor ___ wear a white coat.",
+            "options": [
+                        "has to",
+                        "have to",
+                        "must to",
+                        "should to"
+            ],
+            "correctAnswer": "has to",
+            "explanationEn": "'Every doctor' is singular, requiring 'has to'.",
+            "explanationUz": "'Every doctor' birlikda boʻlgani uchun 'has to' boʻladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u11_4",
+            "topicId": "l1_u11_t1",
+            "type": "multiple_choice",
+            "prompt": "Which sentence is grammatically correct?",
+            "sentenceWithBlank": "Choose the correct sentence:",
+            "options": [
+                        "You should eat more fresh vegetables.",
+                        "You should to eat more fresh vegetables.",
+                        "You should eating more fresh vegetables.",
+                        "You should eats more fresh vegetables."
+            ],
+            "correctAnswer": "You should eat more fresh vegetables.",
+            "explanationEn": "'should' is followed by bare infinitive without 'to'.",
+            "explanationUz": "'should' dan keyin feʼl hech qanday qoʻshimchasiz keladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "p_l1_u11_5",
+            "topicId": "l1_u11_t1",
+            "type": "translation_uz_en",
+            "prompt": "Translate into English:",
+            "sentenceWithBlank": "Muzeyda suratga olish mumkin emas (taqiqlangan).",
+            "options": [
+                        "You mustn't take photos in the museum.",
+                        "You don't have to take photos in the museum.",
+                        "You should take photos in the museum.",
+                        "You must to not take photos in the museum."
+            ],
+            "correctAnswer": "You mustn't take photos in the museum.",
+            "explanationEn": "Prohibition uses 'mustn\\'t': 'You mustn\\'t take photos in the museum.'",
+            "explanationUz": "Taqiq uchun 'mustn\\'t' ishlatiladi.",
+            "difficulty": "medium"
+}
         ],
         testQuestions: [
           {
@@ -1624,6 +3087,54 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Chipta olish shart emas (bepul): don\'t have to.',
             difficulty: 'medium',
           },
+          {
+            "id": "t_l1_u11_2",
+            "topicId": "l1_u11_t1",
+            "type": "multiple_choice",
+            "prompt": "All passengers ___ show their passports at immigration control.",
+            "options": [
+                        "must",
+                        "should",
+                        "can to",
+                        "ought"
+            ],
+            "correctAnswer": "must",
+            "explanationEn": "Official legal rule/requirement uses 'must' or 'have to'.",
+            "explanationUz": "Qonuniy talab va majburiyat: 'must'.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l1_u11_3",
+            "topicId": "l1_u11_t1",
+            "type": "multiple_choice",
+            "prompt": "You have a bad cough. You ___ see a doctor.",
+            "options": [
+                        "should",
+                        "have",
+                        "must to",
+                        "ought"
+            ],
+            "correctAnswer": "should",
+            "explanationEn": "Friendly sensible advice uses 'should'.",
+            "explanationUz": "Foydali doʻstona maslahat: 'should'.",
+            "difficulty": "easy"
+},
+          {
+            "id": "t_l1_u11_4",
+            "topicId": "l1_u11_t1",
+            "type": "multiple_choice",
+            "prompt": "Did you ___ wear a uniform when you were at school?",
+            "options": [
+                        "have to",
+                        "must",
+                        "had to",
+                        "should"
+            ],
+            "correctAnswer": "have to",
+            "explanationEn": "In past questions with 'Did', use base form 'have to': Did you have to...?",
+            "explanationUz": "'Did' bilan savol berilganda oʻtgan zamon majburiyati 'have to' orqali soʻraladi.",
+            "difficulty": "hard"
+}
         ],
         flashcards: [
           {
@@ -1736,6 +3247,86 @@ export const GRAMMAR_LEVEL_1_UNITS: GrammarUnitDefinition[] = [
             explanationUz: 'Dalilga asoslangan kelasi zamon bashorati: is going to.',
             difficulty: 'medium',
           },
+          {
+            "id": "exam_l1_6",
+            "topicId": "l1_u12_t1",
+            "type": "multiple_choice",
+            "prompt": "They ___ in London for three years before moving to Paris.",
+            "options": [
+                        "lived",
+                        "lives",
+                        "are living",
+                        "has lived"
+            ],
+            "correctAnswer": "lived",
+            "explanationEn": "Completed past state in the past uses Past Simple: lived.",
+            "explanationUz": "Oʻtgan zamonda yakunlangan holat: lived.",
+            "difficulty": "medium"
+},
+          {
+            "id": "exam_l1_7",
+            "topicId": "l1_u12_t1",
+            "type": "multiple_choice",
+            "prompt": "This backpack isn't mine. Is it ___?",
+            "options": [
+                        "yours",
+                        "your",
+                        "you",
+                        "you're"
+            ],
+            "correctAnswer": "yours",
+            "explanationEn": "Independent possessive pronoun: yours.",
+            "explanationUz": "Otsiz mustaqil egalik olmoshi: yours.",
+            "difficulty": "easy"
+},
+          {
+            "id": "exam_l1_8",
+            "topicId": "l1_u12_t1",
+            "type": "multiple_choice",
+            "prompt": "I usually have lunch ___ noon.",
+            "options": [
+                        "at",
+                        "in",
+                        "on",
+                        "by"
+            ],
+            "correctAnswer": "at",
+            "explanationEn": "'noon' takes preposition 'at' (at noon, at midnight).",
+            "explanationUz": "'noon' (peshin) oldidan 'at' ishlatiladi.",
+            "difficulty": "easy"
+},
+          {
+            "id": "exam_l1_9",
+            "topicId": "l1_u12_t1",
+            "type": "multiple_choice",
+            "prompt": "Look! The bus ___ around the corner.",
+            "options": [
+                        "is coming",
+                        "comes",
+                        "came",
+                        "will come"
+            ],
+            "correctAnswer": "is coming",
+            "explanationEn": "'Look!' signals an action occurring right now: is coming.",
+            "explanationUz": "'Look!' hozir sodir boʻlayotgan harakat: is coming.",
+            "difficulty": "easy"
+},
+          {
+            "id": "exam_l1_10",
+            "topicId": "l1_u12_t1",
+            "type": "multiple_choice",
+            "prompt": "You ___ touch that wire! It is extremely dangerous.",
+            "options": [
+                        "mustn't",
+                        "don't have to",
+                        "can",
+                        "should"
+            ],
+            "correctAnswer": "mustn't",
+            "explanationEn": "Direct warning and strong prohibition: mustn\\'t.",
+            "explanationUz": "Xavfli taqiq: mustn\\'t.",
+            "difficulty": "medium"
+}
         ],
         flashcards: [],
       },
