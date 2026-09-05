@@ -169,6 +169,38 @@ export const HomeScreen: React.FC = () => {
           </button>
         </div>
 
+        {/* ASSIGNED HOMEWORK HERO CARD (MOBILE) */}
+        <div className="px-4 mt-3">
+          <button
+            onClick={() => { soundService.playClick(); setScreen('homework'); }}
+            className="w-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-4 border-2 border-cyan-500/40 text-left shadow-xl shadow-cyan-950/20 active:scale-98 transition-all relative overflow-hidden group"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider text-cyan-300 bg-cyan-500/20 px-2.5 py-0.5 rounded-full border border-cyan-500/30 flex items-center gap-1">
+                <span>📝</span>
+                <span>ASSIGNED HOMEWORK</span>
+              </span>
+              <span className="text-[10px] font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30">
+                +150 XP • 💎 Diamond
+              </span>
+            </div>
+
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-white font-black text-sm sm:text-base group-hover:text-cyan-300 transition-colors">
+                  🎧 Listening & 🎙️ Reading Tasks
+                </h3>
+                <p className="text-slate-400 text-xs mt-0.5">
+                  Locked forward seeks, transcript upload, and dual voice recordings!
+                </p>
+              </div>
+              <div className="w-9 h-9 rounded-2xl bg-cyan-500 text-slate-950 flex items-center justify-center font-black text-sm shadow-md shrink-0 group-hover:scale-110 transition-transform">
+                →
+              </div>
+            </div>
+          </button>
+        </div>
+
         {/* 2x2 Vibrant Grid of Main App Cards (Figma Colors & Style) */}
         <div className="px-4 mt-5 grid grid-cols-2 gap-3">
           
@@ -320,6 +352,41 @@ export const HomeScreen: React.FC = () => {
             </div>
           </div>
 
+        </div>
+      </div>
+
+      {/* ASSIGNED HOMEWORK HERO CARD (DESKTOP) */}
+      <div className="card-game p-6 border-2 border-cyan-500/50 bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 shadow-xl relative overflow-hidden group">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1.5 max-w-xl">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black tracking-wider uppercase text-cyan-300 bg-cyan-500/20 px-2.5 py-0.5 rounded-md border border-cyan-500/40 flex items-center gap-1">
+                <span>📝</span>
+                <span>DAILY HOMEWORK ASSIGNMENT</span>
+              </span>
+              <span className="text-xs font-bold text-amber-300 bg-amber-500/15 px-2 py-0.5 rounded-md border border-amber-500/30">
+                +150 XP • +30 Coins • 💎 1 Diamond
+              </span>
+            </div>
+
+            <h2 className="text-xl sm:text-2xl font-black text-white">
+              🎧 Listening Dictation & 🎙️ Reading Voice Practice
+            </h2>
+            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              Listen to the assigned audio with locked forward scrubbing, write the transcript in your notebook, take a photo for AI scan verification, and record your dual reading voices for teacher evaluation.
+            </p>
+          </div>
+
+          <button
+            onClick={() => {
+              soundService.playClick();
+              setScreen('homework');
+            }}
+            className="btn-game-primary py-3.5 px-6 flex items-center justify-center gap-2 text-sm font-black shadow-game-btn self-start sm:self-center shrink-0"
+          >
+            <span>Open Homework Center</span>
+            <ArrowRight className="w-4 h-4 ml-0.5" />
+          </button>
         </div>
       </div>
 

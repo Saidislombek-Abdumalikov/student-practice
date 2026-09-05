@@ -5,6 +5,7 @@ import { LEVELS } from '../../data/curriculumData';
 import { FlashcardViewer } from './FlashcardViewer';
 import { VocabularyPractice, WordCountMode } from './VocabularyPractice';
 import { MistakesReview } from './MistakesReview';
+import { GrammarDashboard } from '../grammar/GrammarDashboard';
 import { soundService } from '../../services/soundService';
 import { 
   BookOpen, 
@@ -13,7 +14,8 @@ import {
   RotateCcw, 
   ChevronRight,
   MousePointerClick,
-  Trophy
+  Trophy,
+  Sparkles
 } from 'lucide-react';
 
 export const LearnScreen: React.FC = () => {
@@ -27,6 +29,7 @@ export const LearnScreen: React.FC = () => {
     getUnitProgress
   } = useGame();
 
+  const [learnCategory, setLearnCategory] = useState<'vocabulary' | 'grammar'>('vocabulary');
   const [selectedLevelId, setSelectedLevelId] = useState<LevelId>(() => profile.levelId || 'beginner');
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [practiceCountMode, setPracticeCountMode] = useState<WordCountMode>('whole');
@@ -75,14 +78,52 @@ export const LearnScreen: React.FC = () => {
   return (
     <div className="space-y-6 pb-24 md:pb-12 max-w-5xl mx-auto animate-in fade-in duration-300">
       
-      {/* Top Banner & Level Selector */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-400">
-            CURRICULUM TREE
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">
-            English Learning Journey
+      {/* Top Segmented Switch: Vocabulary vs Grammar */}
+      <div className="flex items-center p-1.5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl max-w-md mx-auto sm:mx-0">
+        <button
+          onClick={() => {
+            soundService.playClick();
+            setLearnCategory('vocabulary');
+          }}
+          className={`flex-1 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 ${
+            learnCategory === 'vocabulary'
+              ? 'bg-indigo-600 text-white shadow-game-btn scale-102'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <BookOpen className="w-4 h-4" />
+          <span>Vocabulary Units</span>
+        </button>
+
+        <button
+          onClick={() => {
+            soundService.playClick();
+            setLearnCategory('grammar');
+          }}
+          className={`flex-1 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 ${
+            learnCategory === 'grammar'
+              ? 'bg-indigo-600 text-white shadow-game-btn scale-102'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-amber-300" />
+          <span>Grammar Challenge</span>
+        </button>
+      </div>
+
+      {/* RENDER GRAMMAR DASHBOARD IF GRAMMAR SELECTED */}
+      {learnCategory === 'grammar' ? (
+        <GrammarDashboard />
+      ) : (
+        <>
+          {/* Top Banner & Level Selector */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-400">
+                CURRICULUM TREE
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">
+                English Learning Journey
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm">
             Progress through units, flip interactive flashcards, and master vocabulary.
@@ -423,6 +464,8 @@ export const LearnScreen: React.FC = () => {
         </div>
 
       </div>
+      </>
+      )}
 
     </div>
   );

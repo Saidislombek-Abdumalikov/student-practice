@@ -507,6 +507,7 @@ export interface UserProfile {
 // Active Screen Navigation
 export type AppScreen = 
   | 'home' 
+  | 'homework'
   | 'grammar' 
   | 'grammar_topic' 
   | 'learn' 
@@ -522,4 +523,47 @@ export type AppScreen =
   | 'admin'
   | 'support'
   | 'login';
+
+// -------------------------------------------------------------
+// Homework Management & Audio Submissions
+// -------------------------------------------------------------
+export type HomeworkType = 'listening' | 'reading';
+export type HomeworkStatus = 'pending' | 'submitted' | 'approved' | 'revision';
+
+export interface HomeworkAssignment {
+  id: string;
+  title: string;
+  type: HomeworkType;
+  levelId: LevelId;
+  dueDate: string; // ISO string
+  createdAt: string;
+  instructions: string;
+  // For Listening Homework:
+  audioUrl?: string;
+  audioText?: string;
+  targetMinListens?: number;
+  // For Reading Homework:
+  readingPassage?: string;
+  translationInstructions?: string;
+  assignedToUserIds?: string[];
+}
+
+export interface HomeworkSubmission {
+  id: string;
+  assignmentId: string;
+  studentId: string;
+  studentName: string;
+  submittedAt: string;
+  status: HomeworkStatus;
+  feedback?: string;
+  gradeScore?: number;
+  // For Listening Homework:
+  listenCount: number;
+  totalListenTimeSeconds: number;
+  transcriptPhotoUrl?: string;
+  aiCheckStatus?: 'verified' | 'checked';
+  // For Reading Homework:
+  readOutLoudAudioUrl?: string;
+  readTranslateAudioUrl?: string;
+}
 

@@ -19,6 +19,7 @@ import { GrammarDashboard } from './components/grammar/GrammarDashboard';
 import { LoginScreen } from './components/auth/LoginScreen';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { SupportDashboard } from './components/support/SupportDashboard';
+import { HomeworkScreen } from './components/homework/HomeworkScreen';
 
 const MainApp: React.FC = () => {
   const { profile, currentScreen, setScreen, isAuthenticated } = useGame();
@@ -37,6 +38,8 @@ const MainApp: React.FC = () => {
     switch (currentScreen) {
       case 'home':
         return <HomeScreen />;
+      case 'homework':
+        return <HomeworkScreen />;
       case 'admin':
         return (profile && profile.role === 'admin') ? <AdminDashboard /> : <HomeScreen />;
       case 'support':

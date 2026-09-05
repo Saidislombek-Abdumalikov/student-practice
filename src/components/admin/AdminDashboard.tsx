@@ -41,7 +41,8 @@ import {
   Pencil,
   BarChart3,
   CheckCircle2,
-  Ticket
+  Ticket,
+  FileText
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -356,6 +357,15 @@ export const AdminDashboard: React.FC = () => {
             >
               <Gift className="w-4 h-4 text-amber-400" />
               <span>Mystery Prizes</span>
+            </button>
+
+            <button
+              onClick={() => setScreen('homework')}
+              className="py-2.5 px-3.5 rounded-2xl text-xs font-bold bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 flex items-center gap-2 shadow-sm transition-all active:scale-95"
+              title="Review student homework submissions & voice audios"
+            >
+              <FileText className="w-4 h-4 text-cyan-400" />
+              <span>Homework Center</span>
             </button>
 
             <button
