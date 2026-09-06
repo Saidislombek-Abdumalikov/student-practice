@@ -540,10 +540,12 @@ export interface HomeworkAssignment {
   instructions: string;
   // For Listening Homework:
   audioUrl?: string;
+  audioFileName?: string;
   audioText?: string;
   targetMinListens?: number;
   // For Reading Homework:
   readingPassage?: string;
+  readingImageUrl?: string;
   translationInstructions?: string;
   assignedToUserIds?: string[];
 }

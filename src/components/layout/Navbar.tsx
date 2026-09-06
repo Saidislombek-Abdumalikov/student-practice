@@ -26,16 +26,12 @@ interface NavItem {
 export const Navbar: React.FC = () => {
   const { profile, currentScreen, setScreen } = useGame();
 
-  // Streamlined, high-priority Mobile Dock Items (No cramped tabs, profile via avatar, grammar in learn)
+  // Phone mode: Only Home and Homework (Compete, Play, Learn, Shop, Profile accessed via Home screen)
   const mobileNavItems: NavItem[] = [
     { id: 'home', label: 'HOME', mobileLabel: 'Home', icon: <Home className="w-5 h-5" /> },
+    { id: 'homework', label: 'HOMEWORK', mobileLabel: 'Homework', icon: <FileText className="w-5 h-5 text-cyan-400" /> },
     ...(profile.role === 'admin' ? [{ id: 'admin' as AppScreen, label: 'ADMIN', mobileLabel: 'Admin', icon: <ShieldCheck className="w-5 h-5 text-amber-400" /> }] : []),
     ...(profile.role === 'support' ? [{ id: 'support' as AppScreen, label: 'STUDENTS', mobileLabel: 'Students', icon: <Users className="w-5 h-5 text-purple-400" /> }] : []),
-    { id: 'learn', label: 'LEARN', mobileLabel: 'Learn', icon: <BookOpen className="w-5 h-5" /> },
-    { id: 'homework', label: 'HOMEWORK', mobileLabel: 'Homework', icon: <FileText className="w-5 h-5 text-cyan-400" /> },
-    { id: 'play', label: 'PLAY', mobileLabel: 'Play', icon: <Gamepad2 className="w-5 h-5" /> },
-    { id: 'compete', label: 'COMPETE', mobileLabel: 'Compete', icon: <Trophy className="w-5 h-5" /> },
-    { id: 'shop', label: 'SHOP', mobileLabel: 'Shop', icon: <ShoppingBag className="w-5 h-5" /> },
   ];
 
   // Full Desktop Sidebar Navigation

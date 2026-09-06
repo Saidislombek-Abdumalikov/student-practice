@@ -22,12 +22,18 @@ import {
   Upload, 
   RotateCcw,
   Check,
-  ShieldCheck
+  Eye,
+  X
 } from 'lucide-react';
 
 export const HomeworkScreen: React.FC = () => {
-  const { profile, addXP, addCoins, awardDiamondToAccount, setScreen } = useGame();
-  
+  const { profile, addXP, addCoins, awardDiamondToAccount } = useGame();
+
+  // If Admin: Directly open the 2-option Admin Homework Center!
+  if (profile.role === 'admin') {
+    return <AdminHomeworkManager />;
+  }
+
   const [assignments, setAssignments] = useState<HomeworkAssignment[]>(() => HomeworkService.loadAssignments());
   const [submissions, setSubmissions] = useState<HomeworkSubmission[]>(() => HomeworkService.getSubmissionsForStudent(profile.id));
   const [activeAssignmentId, setActiveAssignmentId] = useState<string | null>(null);
@@ -41,9 +47,9 @@ export const HomeworkScreen: React.FC = () => {
   // Reading Homework state
   const [readOutLoudAudioUrl, setReadOutLoudAudioUrl] = useState<string>('');
   const [readTranslateAudioUrl, setReadTranslateAudioUrl] = useState<string>('');
-
-  // Admin view toggle if teacher
-  const [adminViewMode, setAdminViewMode] = useState<boolean>(profile.role === 'admin');
+  
+  // Lightbox for reading picture
+  const [readingImageZoom, setReadingImageZoom] = useState<string | null>(null);
 
   const refreshSubmissions = () => {
     setSubmissions(HomeworkService.getSubmissionsForStudent(profile.id));
@@ -52,7 +58,6 @@ export const HomeworkScreen: React.FC = () => {
   const selectedAssignment = assignments.find(a => a.id === activeAssignmentId);
   const currentSubmission = activeAssignmentId ? submissions.find(s => s.assignmentId === activeAssignmentId) : null;
 
-  // Sync listen count if existing
   useEffect(() => {
     if (currentSubmission) {
       setCurrentListenCount(currentSubmission.listenCount || 0);
@@ -68,7 +73,6 @@ export const HomeworkScreen: React.FC = () => {
     }
   }, [activeAssignmentId]);
 
-  // Handle Photo Selection via camera or file picker
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -81,7 +85,6 @@ export const HomeworkScreen: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
-  // Submit Listening Homework
   const handleListeningSubmit = () => {
     if (!selectedAssignment || !transcriptPhotoUrl) return;
     soundService.playSuccess();
@@ -107,7 +110,6 @@ export const HomeworkScreen: React.FC = () => {
     setShowAiScanner(false);
   };
 
-  // Submit Reading Homework
   const handleReadingSubmit = () => {
     if (!selectedAssignment || !readOutLoudAudioUrl || !readTranslateAudioUrl) return;
 
@@ -132,24 +134,6 @@ export const HomeworkScreen: React.FC = () => {
     refreshSubmissions();
   };
 
-  // Render Admin Dashboard if in Admin mode
-  if (profile.role === 'admin' && adminViewMode) {
-    return (
-      <div className="space-y-5 max-w-6xl mx-auto pb-24 md:pb-12">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => setAdminViewMode(false)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-bold border border-slate-700"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Switch to Student Homework View</span>
-          </button>
-        </div>
-        <AdminHomeworkManager />
-      </div>
-    );
-  }
-
   // If viewing a specific assignment
   if (selectedAssignment) {
     const isListening = selectedAssignment.type === 'listening';
@@ -169,16 +153,6 @@ export const HomeworkScreen: React.FC = () => {
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Homework List</span>
           </button>
-
-          {profile.role === 'admin' && (
-            <button
-              onClick={() => setAdminViewMode(true)}
-              className="py-1.5 px-3 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5"
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Teacher Review View</span>
-            </button>
-          )}
         </div>
 
         {/* Assignment Header Card */}
@@ -209,7 +183,7 @@ export const HomeworkScreen: React.FC = () => {
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">{selectedAssignment.instructions}</p>
         </div>
 
-        {/* Teacher Feedback Banner if evaluated */}
+        {/* Teacher Feedback Banner */}
         {currentSubmission?.feedback && (
           <div className="p-4 rounded-3xl bg-gradient-to-r from-indigo-950/80 to-purple-950/80 border-2 border-indigo-500/40 shadow-lg space-y-1.5">
             <div className="flex items-center justify-between text-xs font-black text-indigo-300">
@@ -223,13 +197,9 @@ export const HomeworkScreen: React.FC = () => {
           </div>
         )}
 
-        {/* ------------------------------------------------------------- */}
         {/* LISTENING HOMEWORK SECTION */}
-        {/* ------------------------------------------------------------- */}
         {isListening && (
           <div className="space-y-5">
-            
-            {/* 1. Restricted Audio Player */}
             <RestrictedListeningPlayer
               audioText={selectedAssignment.audioText}
               audioUrl={selectedAssignment.audioUrl}
@@ -241,7 +211,7 @@ export const HomeworkScreen: React.FC = () => {
               }}
             />
 
-            {/* 2. Upload Notebook Photo */}
+            {/* Upload Notebook Photo */}
             <div className="card-game p-5 bg-slate-900/90 border border-slate-800 rounded-3xl shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -250,13 +220,12 @@ export const HomeworkScreen: React.FC = () => {
                     Handwritten Transcript Upload
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Write everything you heard in your notebook, then take a photo of the page.
+                    Write everything you heard in your physical notebook, then take a photo of the page.
                   </p>
                 </div>
               </div>
 
               {transcriptPhotoUrl ? (
-                /* Photo Preview */
                 <div className="space-y-3">
                   <div className="relative rounded-2xl overflow-hidden border-2 border-indigo-500/40 max-h-72 bg-slate-950">
                     <img 
@@ -292,7 +261,6 @@ export const HomeworkScreen: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                /* Upload Button */
                 <div>
                   <label className="w-full py-8 border-2 border-dashed border-indigo-500/40 hover:border-indigo-400/80 rounded-2xl bg-indigo-950/20 hover:bg-indigo-950/30 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all">
                     <div className="w-12 h-12 rounded-2xl bg-indigo-600/30 flex items-center justify-center text-indigo-400">
@@ -311,7 +279,6 @@ export const HomeworkScreen: React.FC = () => {
                 </div>
               )}
 
-              {/* Notice if minimum listens not met */}
               {currentListenCount < (selectedAssignment.targetMinListens || 3) && (
                 <p className="text-[11px] text-amber-300 flex items-center gap-1.5 font-medium">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
@@ -320,7 +287,6 @@ export const HomeworkScreen: React.FC = () => {
               )}
             </div>
 
-            {/* AI Scanner Animation Modal */}
             {showAiScanner && transcriptPhotoUrl && (
               <SimulatedAiScannerModal
                 photoUrl={transcriptPhotoUrl}
@@ -328,29 +294,53 @@ export const HomeworkScreen: React.FC = () => {
                 onClose={() => setShowAiScanner(false)}
               />
             )}
-
           </div>
         )}
 
-        {/* ------------------------------------------------------------- */}
         {/* READING HOMEWORK SECTION */}
-        {/* ------------------------------------------------------------- */}
         {!isListening && (
           <div className="space-y-5">
             
-            {/* Reading Passage Card */}
+            {/* Reading Passage / Picture Card */}
             <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-black uppercase text-purple-400 tracking-wider flex items-center gap-1.5">
                   <FileText className="w-4 h-4" />
-                  English Reading Passage
+                  English Reading Material
                 </span>
-                <span className="text-[11px] text-slate-400 font-bold">5 Sentences</span>
+                {selectedAssignment.readingImageUrl && (
+                  <span className="text-[11px] text-cyan-400 font-bold bg-cyan-500/10 px-2 py-0.5 rounded-full">
+                    Includes Textbook Photo
+                  </span>
+                )}
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800/80 text-white font-medium text-sm sm:text-base leading-relaxed tracking-wide space-y-2">
-                <p>{selectedAssignment.readingPassage}</p>
-              </div>
+              {/* Display Reading Picture if uploaded by teacher */}
+              {selectedAssignment.readingImageUrl && (
+                <div className="space-y-2">
+                  <div 
+                    onClick={() => setReadingImageZoom(selectedAssignment.readingImageUrl!)}
+                    className="relative rounded-2xl overflow-hidden border-2 border-purple-500/40 max-h-80 bg-slate-950 cursor-pointer group/readImg"
+                  >
+                    <img 
+                      src={selectedAssignment.readingImageUrl} 
+                      alt="Reading textbook page" 
+                      className="w-full h-full object-contain mx-auto transition-transform group-hover/readImg:scale-102"
+                    />
+                    <div className="absolute inset-0 bg-slate-950/30 opacity-0 group-hover/readImg:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-xs font-black">
+                      <Eye className="w-4 h-4" />
+                      <span>Click to Zoom Reading Page</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Display Reading Text if available */}
+              {selectedAssignment.readingPassage && (
+                <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800/80 text-white font-medium text-sm sm:text-base leading-relaxed tracking-wide space-y-2">
+                  <p>{selectedAssignment.readingPassage}</p>
+                </div>
+              )}
 
               {selectedAssignment.translationInstructions && (
                 <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs text-purple-200">
@@ -393,40 +383,51 @@ export const HomeworkScreen: React.FC = () => {
           </div>
         )}
 
+        {/* Lightbox for Reading Picture */}
+        {readingImageZoom && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-in fade-in"
+            onClick={() => setReadingImageZoom(null)}
+          >
+            <div 
+              className="max-w-3xl w-full bg-slate-900 p-4 rounded-3xl border border-slate-800 shadow-2xl relative space-y-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-black text-white">Reading Material Page</h4>
+                <button 
+                  onClick={() => setReadingImageZoom(null)}
+                  className="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="max-h-[80vh] overflow-auto rounded-2xl border border-slate-800 bg-black">
+                <img src={readingImageZoom} alt="Reading material zoomed" className="w-full h-auto object-contain" />
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     );
   }
 
-  // -------------------------------------------------------------
-  // HOMEWORK ASSIGNMENTS LIST VIEW
-  // -------------------------------------------------------------
+  // ASSIGNMENTS LIST VIEW (FOR STUDENTS)
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-24 md:pb-12 animate-in fade-in duration-200">
-      
-      {/* Top Banner */}
       <div className="bg-gradient-to-r from-indigo-950/80 via-slate-900 to-purple-950/80 border border-indigo-500/30 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-xs font-black uppercase tracking-wider">
-                Daily Study Tasks
-              </span>
-              {profile.role === 'admin' && (
-                <button
-                  onClick={() => setAdminViewMode(true)}
-                  className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-black flex items-center gap-1 hover:bg-amber-500/30"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Teacher Review Center</span>
-                </button>
-              )}
-            </div>
-
+            <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-xs font-black uppercase tracking-wider">
+              Daily Study Tasks
+            </span>
             <h1 className="text-2xl sm:text-3xl font-black text-white mt-1.5">
               English Homework & Voice Practice
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
-              Listen to audio dictations without forward skips, write transcripts in your notebook, and record dual reading voices for teacher evaluation.
+              Listen without forward skips, write transcripts in your notebook, and record dual reading voices for your teacher.
             </p>
           </div>
 
@@ -445,7 +446,6 @@ export const HomeworkScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* Assignments Grid */}
       <div className="space-y-3">
         <h2 className="text-base font-black text-white px-1">Your Assigned Tasks</h2>
 
