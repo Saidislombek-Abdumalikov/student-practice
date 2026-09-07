@@ -28,13 +28,15 @@ import {
 } from 'lucide-react';
 
 export const AdminHomeworkManager: React.FC = () => {
-  const { allAccounts, profile } = useGame();
+  const { allAccounts, profile, groups } = useGame();
   
   // Two main options for admin: 1) Add Homework, 2) Review Submissions
   const [activeAdminTab, setActiveAdminTab] = useState<'create' | 'submissions'>('create');
 
   const [assignments, setAssignments] = useState<HomeworkAssignment[]>(() => HomeworkService.loadAssignments());
   const [submissions, setSubmissions] = useState<HomeworkSubmission[]>(() => HomeworkService.loadSubmissions());
+  const [selectedGroupFilter, setSelectedGroupFilter] = useState<string>('all');
+  const [newTargetGroupId, setNewTargetGroupId] = useState<string>('all');
   const [selectedStudentFilter, setSelectedStudentFilter] = useState<string>('all');
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>('all');
   
@@ -117,6 +119,7 @@ export const AdminHomeworkManager: React.FC = () => {
       readingPassage: newType === 'reading' ? newReadingPassage.trim() || undefined : undefined,
       readingImageUrl: newType === 'reading' ? newReadingImageUrl || undefined : undefined,
       translationInstructions: newType === 'reading' ? newTranslationInstructions.trim() || undefined : undefined,
+      targetGroupId: newTargetGroupId === 'all' ? undefined : newTargetGroupId,
     });
 
     soundService.playSuccess();
@@ -133,6 +136,7 @@ export const AdminHomeworkManager: React.FC = () => {
     setNewReadingImageFileName('');
     setNewTranslationInstructions('');
     setNewInstructions('');
+    setNewTargetGroupId('all');
     
     refreshData();
     setActiveAdminTab('submissions');
@@ -163,6 +167,11 @@ export const AdminHomeworkManager: React.FC = () => {
     if (selectedStudentFilter !== 'all' && s.studentId !== selectedStudentFilter) return false;
     const assignment = assignments.find(a => a.id === s.assignmentId);
     if (selectedTypeFilter !== 'all' && assignment?.type !== selectedTypeFilter) return false;
+    if (selectedGroupFilter !== 'all') {
+      const student = allAccounts.find(a => a.id === s.studentId);
+      const inGroup = student?.groupId === selectedGroupFilter || groups.find(g => g.id === selectedGroupFilter)?.studentIds.includes(s.studentId);
+      if (!inGroup) return false;
+    }
     return true;
   });
 
@@ -250,8 +259,8 @@ export const AdminHomeworkManager: React.FC = () => {
 
           <form onSubmit={handleCreateAssignment} className="space-y-5 text-xs">
             
-            {/* 1. Title & Type Selection */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* 1. Title, Target Level & Target Group Selection */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div className="sm:col-span-2">
                 <label className="text-slate-300 font-bold block mb-1.5">
                   Assignment Title <span className="text-rose-400">*</span>
@@ -278,6 +287,22 @@ export const AdminHomeworkManager: React.FC = () => {
                   <option value="beginner">Beginner (A1)</option>
                   <option value="elementary">Elementary (A2)</option>
                   <option value="pre_intermediate">Pre-Intermediate (B1)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-slate-300 font-bold block mb-1.5">
+                  Target Group
+                </label>
+                <select
+                  value={newTargetGroupId}
+                  onChange={(e) => setNewTargetGroupId(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-slate-950 border border-purple-500/50 text-purple-300 font-bold text-sm"
+                >
+                  <option value="all">All Groups (School-wide)</option>
+                  {groups.map(g => (
+                    <option key={g.id} value={g.id}>{g.name}</option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -540,6 +565,20 @@ export const AdminHomeworkManager: React.FC = () => {
           {/* Filters Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-slate-900 rounded-2xl border border-slate-800">
             <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-400">Group:</span>
+                <select
+                  value={selectedGroupFilter}
+                  onChange={(e) => setSelectedGroupFilter(e.target.value)}
+                  className="bg-slate-950 border border-purple-500/40 text-xs font-bold text-purple-300 rounded-xl px-3 py-1.5 focus:outline-none focus:border-purple-500"
+                >
+                  <option value="all">All Groups</option>
+                  {groups.map(g => (
+                    <option key={g.id} value={g.id}>{g.name}</option>
+                  ))}
+                </select>
+              </div>
+
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-400">Student:</span>
                 <select

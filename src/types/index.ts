@@ -454,6 +454,7 @@ export interface UserProfile {
   username?: string;
   password?: string;
   role?: UserRole;
+  groupId?: string; // Reference to assigned StudentGroup (e.g. 'group_alpha')
   isOnboarded: boolean;
   character: CharacterConfig;
   levelId: LevelId;
@@ -548,6 +549,7 @@ export interface HomeworkAssignment {
   readingImageUrl?: string;
   translationInstructions?: string;
   assignedToUserIds?: string[];
+  targetGroupId?: string; // 'all' or specific StudentGroup id (e.g. 'group_alpha')
 }
 
 export interface HomeworkSubmission {
@@ -568,4 +570,18 @@ export interface HomeworkSubmission {
   readOutLoudAudioUrl?: string;
   readTranslateAudioUrl?: string;
 }
+
+// -------------------------------------------------------------
+// Student Groups Management & Class Isolation
+// -------------------------------------------------------------
+export interface StudentGroup {
+  id: string;
+  name: string; // e.g. 'Morning Group Alpha', 'Afternoon Group Beta'
+  levelId: LevelId;
+  description?: string;
+  studentIds: string[]; // User IDs enrolled in this group
+  createdAt: string;
+  updatedAt?: string;
+}
+
 

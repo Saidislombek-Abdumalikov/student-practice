@@ -1,5 +1,5 @@
 import { getSupabaseClient } from './supabaseClient';
-import { CharacterConfig } from '../types';
+import { CharacterConfig, UserProfile } from '../types';
 
 export interface DuelQuestionItem {
   id: string;
@@ -19,7 +19,7 @@ export interface ActiveDuelMatch {
   challengerId: string;
   challengerName: string;
   challengerCharacter: CharacterConfig;
-  opponentId: string;
+  opponentId: string; // user ID or 'open'
   opponentName: string;
   opponentCharacter: CharacterConfig;
   roundSize: 10 | 15;
@@ -31,9 +31,13 @@ export interface ActiveDuelMatch {
   expiresAt: number;
   challengerResult?: { score: number; time: number };
   opponentResult?: { score: number; time: number };
+  groupId?: string; // Group isolation so students do not mix
+  isOpenDuel?: boolean; // When true, any online student in the group can join!
 }
 
 type DuelListener = (match: ActiveDuelMatch, eventType: string) => void;
+
+const OPEN_DUELS_STORAGE_KEY = 'plc_active_open_duels_v1';
 
 class PeerDuelManager {
   private channel: any = null;
@@ -42,7 +46,7 @@ class PeerDuelManager {
 
   constructor() {
     this.initRealtime();
-    // Also listen to local window storage events for same-device/different-tab real-time testing
+    // Listen to local window storage events for same-device / different-tab real-time testing
     if (typeof window !== 'undefined') {
       window.addEventListener('storage', (e) => {
         if (e.key === 'peer_duel_realtime_event' && e.newValue) {
@@ -92,10 +96,16 @@ class PeerDuelManager {
   }
 
   private notifyListeners(match: ActiveDuelMatch, eventType: string) {
-    this.listeners.forEach(fn => fn(match, eventType));
+    this.listeners.forEach(fn => {
+      try {
+        fn(match, eventType);
+      } catch (err) {
+        console.error('Error in duel listener:', err);
+      }
+    });
   }
 
-  public broadcast(match: ActiveDuelMatch, eventType: string) {
+  public broadcast(match: ActiveDuelMatch, eventType: string, notifyLocal = false) {
     // 1. Cross-device broadcast via Supabase Realtime
     if (this.channel) {
       this.channel.send({
@@ -107,19 +117,131 @@ class PeerDuelManager {
 
     // 2. Cross-tab fallback via localStorage
     if (typeof window !== 'undefined') {
-      localStorage.setItem('peer_duel_realtime_event', JSON.stringify({
-        match,
-        eventType,
-        timestamp: Date.now(),
-      }));
+      try {
+        localStorage.setItem('peer_duel_realtime_event', JSON.stringify({
+          match,
+          eventType,
+          timestamp: Date.now() + Math.random(),
+        }));
+      } catch {
+        // Ignored
+      }
+    }
+
+    // 3. Local in-memory notification (if explicitly requested or for local events)
+    if (notifyLocal) {
+      this.notifyListeners(match, eventType);
     }
   }
 
   /**
-   * Send a real duel challenge to a classmate
+   * Send a direct duel challenge to a specific classmate
    */
   public sendChallenge(match: ActiveDuelMatch) {
     this.broadcast(match, 'challenge_sent');
+  }
+
+  /**
+   * Create an Open Duel that ANY student in the same group can join
+   */
+  public createOpenDuel(match: ActiveDuelMatch): ActiveDuelMatch {
+    const openMatch: ActiveDuelMatch = {
+      ...match,
+      isOpenDuel: true,
+      opponentId: 'open',
+      opponentName: 'Waiting for Challenger...',
+      status: 'pending',
+    };
+
+    // Save to open duels list
+    const openDuels = this.getActiveOpenDuels();
+    openDuels.push(openMatch);
+    this.saveOpenDuels(openDuels);
+
+    this.broadcast(openMatch, 'open_duel_created', true);
+    return openMatch;
+  }
+
+  /**
+   * Retrieve active, unexpired open duels (optionally filtered by group)
+   */
+  public getActiveOpenDuels(groupId?: string): ActiveDuelMatch[] {
+    try {
+      const raw = localStorage.getItem(OPEN_DUELS_STORAGE_KEY);
+      if (!raw) return [];
+      const duels = JSON.parse(raw) as ActiveDuelMatch[];
+      const now = Date.now();
+      // Filter unexpired (max 60 seconds) and pending status
+      const valid = duels.filter(d => d.status === 'pending' && d.expiresAt > now);
+
+      if (groupId) {
+        return valid.filter(d => !d.groupId || d.groupId === groupId);
+      }
+      return valid;
+    } catch {
+      return [];
+    }
+  }
+
+  private saveOpenDuels(duels: ActiveDuelMatch[]) {
+    try {
+      localStorage.setItem(OPEN_DUELS_STORAGE_KEY, JSON.stringify(duels));
+    } catch {
+      // Ignored
+    }
+  }
+
+  /**
+   * Join an open duel hosted by another student
+   */
+  public joinOpenDuel(matchId: string, joiner: UserProfile): ActiveDuelMatch | null {
+    const openDuels = this.getActiveOpenDuels();
+    const targetIdx = openDuels.findIndex(d => d.matchId === matchId);
+    if (targetIdx === -1) return null;
+
+    const targetMatch = openDuels[targetIdx];
+    const acceptedMatch: ActiveDuelMatch = {
+      ...targetMatch,
+      opponentId: joiner.id,
+      opponentName: joiner.name || 'Opponent',
+      opponentCharacter: joiner.character,
+      status: 'accepted',
+    };
+
+    // Remove from open duels
+    openDuels.splice(targetIdx, 1);
+    this.saveOpenDuels(openDuels);
+
+    // Broadcast that the open duel is accepted
+    this.broadcast(acceptedMatch, 'challenge_accepted', true);
+    return acceptedMatch;
+  }
+
+  /**
+   * Cancel an open duel hosted by current user
+   */
+  public cancelOpenDuel(matchId: string) {
+    const openDuels = this.getActiveOpenDuels().filter(d => d.matchId !== matchId);
+    this.saveOpenDuels(openDuels);
+
+    const dummyMatch: ActiveDuelMatch = {
+      matchId,
+      challengerId: '',
+      challengerName: '',
+      challengerCharacter: {} as any,
+      opponentId: '',
+      opponentName: '',
+      opponentCharacter: {} as any,
+      roundSize: 10,
+      diamondReward: 1,
+      drillType: 'mixed',
+      questions: [],
+      status: 'declined',
+      createdAt: Date.now(),
+      expiresAt: Date.now(),
+    };
+
+    this.broadcast(dummyMatch, 'open_duel_cancelled', true);
   }
 
   /**
@@ -130,19 +252,23 @@ class PeerDuelManager {
       ...match,
       status: 'accepted',
     };
-    this.broadcast(updated, 'challenge_accepted');
+    this.broadcast(updated, 'challenge_accepted', true);
     return updated;
   }
 
   /**
-   * Decline an incoming challenge
+   * Decline or cancel an incoming/outgoing challenge
    */
   public declineChallenge(match: ActiveDuelMatch) {
     const updated: ActiveDuelMatch = {
       ...match,
       status: 'declined',
     };
-    this.broadcast(updated, 'challenge_declined');
+    // Also remove from open duels if it was open
+    if (match.isOpenDuel) {
+      this.cancelOpenDuel(match.matchId);
+    }
+    this.broadcast(updated, 'challenge_declined', true);
     return updated;
   }
 
@@ -164,9 +290,9 @@ class PeerDuelManager {
 
     if (updated.challengerResult && updated.opponentResult) {
       updated.status = 'completed';
-      this.broadcast(updated, 'match_completed');
+      this.broadcast(updated, 'match_completed', true);
     } else {
-      this.broadcast(updated, 'score_updated');
+      this.broadcast(updated, 'score_updated', true);
     }
 
     return updated;

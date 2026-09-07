@@ -58,10 +58,30 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
   const currentUnit = curriculumUnits.find(u => u.id === activeUnitId) || curriculumUnits[0];
   const unitWords = currentUnit.words;
 
-  // Classmates available for peer match (excluding admin and current user)
+  // Current student group info from context
+  const { currentStudentGroup } = useGame();
+
+  // Classmates available for peer match (strictly isolated by current student's group)
   const classmates = useMemo(() => {
-    return allAccounts.filter(a => a.role !== 'admin' && a.id !== profile.id);
-  }, [allAccounts, profile.id]);
+    const userGroupId = profile.groupId;
+    return allAccounts.filter(a => {
+      if (a.role === 'admin' || a.role === 'support' || a.id === profile.id) return false;
+      if (userGroupId) {
+        return a.groupId === userGroupId;
+      }
+      return true;
+    });
+  }, [allAccounts, profile.id, profile.groupId]);
+
+  // Online group mates
+  const onlineGroupMates = useMemo(() => {
+    return classmates.filter(c => c.isOnline);
+  }, [classmates]);
+
+  // Active open duels in this student's group
+  const [openDuels, setOpenDuels] = useState<ActiveDuelMatch[]>(() => {
+    return peerDuelService.getActiveOpenDuels(profile.groupId);
+  });
 
   // Match State:
   // 'setup' | 'waiting_accept' | 'invite_expired' | 'playing' | 'waiting_opponent_finish' | 'results' | 'solo_sprint'
@@ -143,7 +163,17 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
   // -------------------------------------------------------------
   useEffect(() => {
     const unsubscribe = peerDuelService.subscribe((match, eventType) => {
-      // 1. If my challenge was accepted by the opponent!
+      // Refresh open duels on relevant events
+      if (
+        eventType === 'open_duel_created' || 
+        eventType === 'open_duel_cancelled' || 
+        eventType === 'challenge_accepted' || 
+        eventType === 'challenge_declined'
+      ) {
+        setOpenDuels(peerDuelService.getActiveOpenDuels(profile.groupId));
+      }
+
+      // 1. If my challenge was accepted by the opponent (or someone joined my open duel)!
       if (
         eventType === 'challenge_accepted' && 
         match.challengerId === profile.id && 
@@ -160,13 +190,14 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
         setMatchState('playing');
       }
 
-      // 2. If opponent declined
+      // 2. If opponent declined or cancelled
       if (
-        eventType === 'challenge_declined' && 
+        (eventType === 'challenge_declined' || eventType === 'open_duel_cancelled') && 
         match.challengerId === profile.id && 
         matchState === 'waiting_accept'
       ) {
         soundService.playError();
+        setActiveMatch(null);
         setMatchState('invite_expired');
       }
 
@@ -194,6 +225,14 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
       unsubscribe();
     };
   }, [profile.id, matchState, activeMatch]);
+
+  // Periodically refresh active open duels
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOpenDuels(peerDuelService.getActiveOpenDuels(profile.groupId));
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [profile.groupId]);
 
   // -------------------------------------------------------------
   // 25-Second Invitation Countdown for Challenger
@@ -310,11 +349,60 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
       status: 'pending',
       createdAt: Date.now(),
       expiresAt: Date.now() + 25000,
+      groupId: profile.groupId,
+      isOpenDuel: false,
     };
 
     setActiveMatch(match);
     peerDuelService.sendChallenge(match);
     setMatchState('waiting_accept');
+  };
+
+  // Host an OPEN DUEL that anyone online in this group can join!
+  const sendOpenDuel = () => {
+    soundService.playSuccess();
+    const newQuestions = generateQuestions(roundSize, drillType);
+    setQuestions(newQuestions);
+
+    const match: ActiveDuelMatch = {
+      matchId: `open_duel_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      challengerId: profile.id,
+      challengerName: profile.name || 'Challenger',
+      challengerCharacter: profile.character,
+      opponentId: 'open',
+      opponentName: 'Waiting for Challenger...',
+      opponentCharacter: profile.character,
+      roundSize,
+      diamondReward: drillType === 'mixed' ? (roundSize === 15 ? 4 : 2) : (roundSize === 15 ? 2 : 1),
+      drillType,
+      questions: newQuestions,
+      status: 'pending',
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 60000,
+      groupId: profile.groupId,
+      isOpenDuel: true,
+    };
+
+    setActiveMatch(match);
+    peerDuelService.createOpenDuel(match);
+    setMatchState('waiting_accept');
+    setOpenDuels(peerDuelService.getActiveOpenDuels(profile.groupId));
+  };
+
+  // Join an existing open duel hosted by a classmate
+  const handleJoinOpenDuel = (matchToJoin: ActiveDuelMatch) => {
+    soundService.playSuccess();
+    const accepted = peerDuelService.joinOpenDuel(matchToJoin.matchId, profile);
+    if (accepted) {
+      setActiveMatch(accepted);
+      setQuestions(accepted.questions);
+      setCurrentQuestionIdx(0);
+      setMyScore(0);
+      setMyTime(0);
+      setElapsedTime(0);
+      resetDrillInputs(accepted.questions[0]);
+      setMatchState('playing');
+    }
   };
 
   // Start Solo Warm-up (Coins & XP only, NO diamonds)
@@ -586,6 +674,8 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
   // VIEW: 25-SECOND WAITING FOR ACCEPT SCREEN (REAL PRODUCTION: NO TEST BUTTON!)
   // -------------------------------------------------------------
   if (matchState === 'waiting_accept') {
+    const isHostingOpen = activeMatch?.isOpenDuel;
+
     return (
       <div className="max-w-lg mx-auto card-game p-6 sm:p-8 text-center space-y-6 animate-in zoom-in-95 duration-200">
         <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
@@ -601,15 +691,30 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
 
         <div>
           <span className="text-xs font-black uppercase tracking-widest text-indigo-400">
-            DUEL INVITATION SENT
+            {isHostingOpen ? '🌐 OPEN DUEL HOSTED' : 'DUEL INVITATION SENT'}
           </span>
           <h2 className="text-2xl sm:text-3xl font-black text-white mt-1">
-            Waiting for {opponent.name}
+            {isHostingOpen ? 'Waiting for Anyone to Join...' : `Waiting for ${opponent.name}`}
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Invitation sent to {opponent.name}'s device. Waiting for them to accept ({inviteTimeLeft}s)...
+            {isHostingOpen
+              ? 'This duel is open to anyone online in your group! The first classmate to join will battle you.'
+              : `Invitation sent to ${opponent.name}'s device. Waiting for them to accept (${inviteTimeLeft}s)...`}
           </p>
         </div>
+
+        {/* Option to convert to Open Duel if direct opponent is taking time */}
+        {!isHostingOpen && activeMatch && (
+          <button
+            onClick={() => {
+              if (activeMatch) peerDuelService.declineChallenge(activeMatch);
+              sendOpenDuel();
+            }}
+            className="w-full py-2.5 px-3 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 border border-cyan-500/50 text-cyan-300 text-xs font-black flex items-center justify-center gap-1.5 transition-all shadow-sm"
+          >
+            <span>🌐 Convert to Open Duel (Anyone Online Can Join)</span>
+          </button>
+        )}
 
         {/* Matchup Info Card */}
         <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
@@ -623,9 +728,15 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
             <div className="text-xl font-black text-amber-400 animate-pulse">⚔️ VS ⚔️</div>
             <div className="text-center">
               <div className="w-12 h-12 mx-auto rounded-xl bg-slate-800 border border-rose-500/60 overflow-hidden flex items-center justify-center">
-                <ModularCharacter config={opponent.character} size="sm" animate={false} />
+                {isHostingOpen ? (
+                  <span className="text-xl">🌐</span>
+                ) : (
+                  <ModularCharacter config={opponent.character} size="sm" animate={false} />
+                )}
               </div>
-              <span className="text-xs font-bold text-white block mt-1">{opponent.name}</span>
+              <span className="text-xs font-bold text-white block mt-1">
+                {isHostingOpen ? 'Any Online Student' : opponent.name}
+              </span>
             </div>
           </div>
 
@@ -642,16 +753,25 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
           </div>
         </div>
 
-        {/* Real Production: Only Cancel Button (Opponent accepts on their own device!) */}
+        {/* RELIABLE CANCEL BUTTON - Completely prevents lockup! */}
         <div className="pt-2">
           <button
             onClick={() => {
-              if (activeMatch) peerDuelService.declineChallenge(activeMatch);
+              soundService.playClick();
+              if (activeMatch) {
+                if (activeMatch.isOpenDuel) {
+                  peerDuelService.cancelOpenDuel(activeMatch.matchId);
+                } else {
+                  peerDuelService.declineChallenge(activeMatch);
+                }
+              }
+              setActiveMatch(null);
               setMatchState('setup');
+              setOpenDuels(peerDuelService.getActiveOpenDuels(profile.groupId));
             }}
-            className="btn-game-slate w-full py-3 text-xs font-bold text-slate-400 hover:text-white"
+            className="w-full py-3.5 rounded-xl border border-rose-500/40 bg-rose-950/30 hover:bg-rose-900/50 text-rose-300 hover:text-white text-xs font-black flex items-center justify-center gap-2 transition-all active:scale-95"
           >
-            Cancel Challenge
+            <span>❌ Cancel Challenge & Pick Another</span>
           </button>
         </div>
       </div>
@@ -698,25 +818,35 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
         </div>
 
         <div>
-          <h3 className="text-xl font-black text-white">Challenge Expired!</h3>
+          <h3 className="text-xl font-black text-white">Challenge Ended or Expired</h3>
           <p className="text-xs text-slate-400 mt-1">
-            <strong>{opponent.name}</strong> did not accept the match within 25 seconds.
+            <strong>{opponent.name}</strong> did not accept the match in time.
           </p>
         </div>
 
-        <div className="space-y-2 pt-2">
+        <div className="space-y-2.5 pt-2">
           <button
-            onClick={sendDuelInvitation}
-            className="btn-game-primary w-full py-3 text-xs font-black flex items-center justify-center gap-2"
+            onClick={sendOpenDuel}
+            className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-game-btn active:scale-95"
           >
-            <RotateCcw className="w-4 h-4" />
-            <span>Re-send Challenge (25s)</span>
+            <span>🌐 Make Open Duel for Anyone Online</span>
           </button>
           <button
-            onClick={() => setMatchState('setup')}
+            onClick={sendDuelInvitation}
+            className="btn-game-primary w-full py-2.5 text-xs font-black flex items-center justify-center gap-2"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span>Re-send to {opponent.name} (25s)</span>
+          </button>
+          <button
+            onClick={() => {
+              setActiveMatch(null);
+              setMatchState('setup');
+              setOpenDuels(peerDuelService.getActiveOpenDuels(profile.groupId));
+            }}
             className="btn-game-slate w-full py-2.5 text-xs font-bold"
           >
-            Choose Another Classmate
+            Back to Match Setup
           </button>
         </div>
       </div>
@@ -1112,15 +1242,116 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
         
         {/* Left: Player 1 (You) & Player 2 (Opponent) Matchup (8 cols) */}
         <div className="md:col-span-8 card-game p-6 space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h3 className="text-base font-black text-white flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
+            <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-indigo-400" />
-              <span>Choose Classmate to Duel</span>
-            </h3>
+              <h3 className="text-base font-black text-white">Choose Classmate to Duel</h3>
+              <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                👥 {currentStudentGroup?.name || 'Class Group'}
+              </span>
+            </div>
             <span className="text-xs text-amber-400 font-bold">
               Unit: {currentUnit.title}
             </span>
           </div>
+
+          {/* ACTIVE OPEN DUELS LOBBY (ANYONE ONLINE CAN JOIN!) */}
+          {openDuels.length > 0 && (
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/40 via-purple-950/40 to-slate-900 border-2 border-amber-500/50 space-y-3 animate-in fade-in">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                  <span className="animate-pulse">🔥</span>
+                  <span>Active Open Duels Waiting for Opponents</span>
+                </span>
+                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">
+                  {openDuels.length} Open
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                {openDuels.map(d => {
+                  const isMyOwn = d.challengerId === profile.id;
+                  return (
+                    <div 
+                      key={d.matchId}
+                      className="p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="w-10 h-10 rounded-xl bg-slate-800 border border-amber-500/40 overflow-hidden flex items-center justify-center shrink-0">
+                          <ModularCharacter config={d.challengerCharacter} size="sm" animate={false} />
+                        </div>
+                        <div className="truncate">
+                          <div className="font-extrabold text-sm text-white truncate flex items-center gap-1.5">
+                            <span>{d.challengerName}</span>
+                            {isMyOwn && (
+                              <span className="text-[9px] bg-indigo-500 text-white px-1.5 py-0.2 rounded-full">YOU</span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-slate-400 flex items-center gap-2">
+                            <span>{d.roundSize} Words</span>
+                            <span>•</span>
+                            <span className="text-cyan-300 font-bold">Prize: {d.diamondReward} 💎</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {isMyOwn ? (
+                        <button
+                          onClick={() => {
+                            peerDuelService.cancelOpenDuel(d.matchId);
+                            setOpenDuels(peerDuelService.getActiveOpenDuels(profile.groupId));
+                          }}
+                          className="py-1.5 px-3 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold hover:bg-rose-500/30"
+                        >
+                          Cancel
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleJoinOpenDuel(d)}
+                          className="py-2 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs flex items-center gap-1 shadow-glow-gold active:scale-95 transition-transform"
+                        >
+                          <Swords className="w-3.5 h-3.5" />
+                          <span>JOIN DUEL!</span>
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ONLINE CLASSMATES IN YOUR GROUP */}
+          {onlineGroupMates.length > 0 && (
+            <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2">
+              <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Online Now in Your Group ({onlineGroupMates.length}):</span>
+              </span>
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                {onlineGroupMates.map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => {
+                      soundService.playClick();
+                      setSelectedOpponentId(m.id);
+                    }}
+                    className={`py-1.5 px-3 rounded-xl border flex items-center gap-2 shrink-0 transition-all ${
+                      selectedOpponentId === m.id
+                        ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-sm'
+                        : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="w-5 h-5 rounded-md overflow-hidden shrink-0">
+                      <ModularCharacter config={m.character} size="sm" animate={false} />
+                    </div>
+                    <span className="text-xs font-bold">{m.name}</span>
+                    <span className="text-[10px] font-black text-amber-300">⚔️</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Versus Visual Banner */}
           <div className="grid grid-cols-5 items-center gap-3 p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
@@ -1265,13 +1496,22 @@ export const PlayScreen: React.FC<{ initialMatch?: ActiveDuelMatch | null }> = (
 
           {/* Launch Action */}
           <div className="space-y-2.5 pt-2">
-            <button
-              onClick={sendDuelInvitation}
-              className="btn-game-primary w-full py-4 px-6 text-sm font-black flex items-center justify-center gap-2.5 shadow-glow-primary"
-            >
-              <Swords className="w-5 h-5 text-amber-400" />
-              <span>Send Duel Challenge to {opponent.name} (25s)</span>
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <button
+                onClick={sendDuelInvitation}
+                className="btn-game-primary w-full py-3.5 px-4 text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-glow-primary"
+              >
+                <Swords className="w-4 h-4 text-amber-400" />
+                <span>Challenge {opponent.name}</span>
+              </button>
+
+              <button
+                onClick={sendOpenDuel}
+                className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-glow-primary active:scale-95 transition-all"
+              >
+                <span>🌐 Host Open Duel (Anyone Can Join)</span>
+              </button>
+            </div>
 
             <button
               onClick={startSoloWarmup}

@@ -433,7 +433,9 @@ export const HomeworkScreen: React.FC = () => {
 
           <div className="flex items-center gap-3">
             <div className="text-center p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
-              <div className="text-lg font-black text-indigo-400">{assignments.length}</div>
+              <div className="text-lg font-black text-indigo-400">
+                {assignments.filter(a => !a.targetGroupId || a.targetGroupId === 'all' || a.targetGroupId === profile.groupId).length}
+              </div>
               <div className="text-[10px] text-slate-400 font-bold uppercase">Tasks</div>
             </div>
             <div className="text-center p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
@@ -450,7 +452,10 @@ export const HomeworkScreen: React.FC = () => {
         <h2 className="text-base font-black text-white px-1">Your Assigned Tasks</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {assignments.map(assignment => {
+          {assignments.filter(a => {
+            if (!a.targetGroupId || a.targetGroupId === 'all') return true;
+            return a.targetGroupId === profile.groupId;
+          }).map(assignment => {
             const sub = submissions.find(s => s.assignmentId === assignment.id);
             const isCompleted = sub?.status === 'submitted' || sub?.status === 'approved';
             const isListening = assignment.type === 'listening';

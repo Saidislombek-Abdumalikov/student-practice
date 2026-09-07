@@ -16,11 +16,13 @@ export const IncomingDuelModal: React.FC<IncomingDuelModalProps> = ({ onAcceptDu
 
   useEffect(() => {
     const unsubscribe = peerDuelService.subscribe((match, eventType) => {
-      // If someone challenged ME and status is pending
+      // If someone challenged ME and status is pending (within same group)
+      const isSameGroup = !match.groupId || !profile.groupId || match.groupId === profile.groupId;
       if (
         eventType === 'challenge_sent' && 
         match.opponentId === profile.id && 
-        match.status === 'pending'
+        match.status === 'pending' &&
+        isSameGroup
       ) {
         soundService.playLevelUp();
         setIncomingMatch(match);

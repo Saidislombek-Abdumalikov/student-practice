@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { ModularCharacter } from '../character/ModularCharacter';
-import { CharacterGender, LevelId, UserProfile, MysteryBoxPrize, MysteryBoxTier } from '../../types';
+import { CharacterGender, LevelId, UserProfile, MysteryBoxPrize, MysteryBoxTier, StudentGroup } from '../../types';
 import { formatPresence, formatTimeSpent, formatExactDateTime } from '../../services/presenceService';
 import { MysteryBoxService, MYSTERY_BOX_PRICES } from '../../services/mysteryBoxService';
 import { soundService } from '../../services/soundService';
@@ -57,6 +57,12 @@ export const AdminDashboard: React.FC = () => {
     resetAllStudentsProgress,
     resetAdminProgress,
     deleteStudentAccount, 
+    groups,
+    createGroup,
+    updateGroup,
+    deleteGroup,
+    assignStudentToGroup,
+    removeStudentFromGroup,
     boxPrices,
     updateBoxPrices,
     isCloudConnected,
@@ -91,6 +97,76 @@ export const AdminDashboard: React.FC = () => {
   const [newPrizeChancePercent, setNewPrizeChancePercent] = useState<number>(25);
   const [newPrizeDiamondAmount, setNewPrizeDiamondAmount] = useState<number>(10);
   const [inspectingStudent, setInspectingStudent] = useState<UserProfile | null>(null);
+
+  // Group Management States
+  const [showGroupsModal, setShowGroupsModal] = useState(false);
+  const [selectedGroupFilter, setSelectedGroupFilter] = useState<string>('all');
+  const [groupModalMode, setGroupModalMode] = useState<'list' | 'create' | 'edit'>('list');
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const [groupFormName, setGroupFormName] = useState('');
+  const [groupFormLevel, setGroupFormLevel] = useState<LevelId>('beginner');
+  const [groupFormDesc, setGroupFormDesc] = useState('');
+  const [groupFormMemberIds, setGroupFormMemberIds] = useState<string[]>([]);
+  const [newStudentGroupId, setNewStudentGroupId] = useState<string>('group_alpha');
+
+  const handleOpenCreateGroup = () => {
+    setGroupFormName('');
+    setGroupFormLevel('beginner');
+    setGroupFormDesc('');
+    setGroupFormMemberIds([]);
+    setEditingGroupId(null);
+    setGroupModalMode('create');
+    soundService.playClick();
+  };
+
+  const handleOpenEditGroup = (g: StudentGroup) => {
+    setEditingGroupId(g.id);
+    setGroupFormName(g.name);
+    setGroupFormLevel(g.levelId);
+    setGroupFormDesc(g.description || '');
+    setGroupFormMemberIds([...g.studentIds]);
+    setGroupModalMode('edit');
+    soundService.playClick();
+  };
+
+  const handleSaveGroup = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!groupFormName.trim()) return;
+
+    if (groupModalMode === 'create') {
+      createGroup({
+        name: groupFormName.trim(),
+        levelId: groupFormLevel,
+        description: groupFormDesc.trim() || undefined,
+        studentIds: groupFormMemberIds,
+      });
+    } else if (groupModalMode === 'edit' && editingGroupId) {
+      updateGroup(editingGroupId, {
+        name: groupFormName.trim(),
+        levelId: groupFormLevel,
+        description: groupFormDesc.trim() || undefined,
+        studentIds: groupFormMemberIds,
+      });
+    }
+
+    setGroupModalMode('list');
+    soundService.playSuccess();
+  };
+
+  const handleDeleteGroup = (g: StudentGroup) => {
+    if (window.confirm(`Are you sure you want to delete group "${g.name}"?\n\nStudents assigned to this group will become unassigned.`)) {
+      deleteGroup(g.id);
+      soundService.playClick();
+    }
+  };
+
+  const handleToggleMember = (studentId: string) => {
+    setGroupFormMemberIds(prev => 
+      prev.includes(studentId)
+        ? prev.filter(id => id !== studentId)
+        : [...prev, studentId]
+    );
+  };
 
   // Editable Tier Diamond Prices
   const [editBronzeCost, setEditBronzeCost] = useState(boxPrices.bronze);
@@ -219,6 +295,7 @@ export const AdminDashboard: React.FC = () => {
       username: newStudentUsername,
       password: newStudentPassword,
       levelId: newStudentLevel,
+      groupId: newStudentGroupId || undefined,
     });
 
     if (res.success) {
@@ -345,6 +422,18 @@ export const AdminDashboard: React.FC = () => {
             >
               <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin text-indigo-400' : ''}`} />
               <span>{isSyncing ? 'Syncing...' : 'Sync Cloud'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setGroupModalMode('list');
+                setShowGroupsModal(true);
+              }}
+              className="py-2.5 px-3.5 rounded-2xl text-xs font-bold bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 flex items-center gap-2 shadow-sm transition-all active:scale-95"
+              title="Manage Student Groups (Make, edit, delete groups & isolate classes)"
+            >
+              <Users className="w-4 h-4 text-purple-400" />
+              <span>Groups ({groups.length})</span>
             </button>
 
             <button
@@ -634,8 +723,59 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Group Filter Tabs */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <button
+            onClick={() => setSelectedGroupFilter('all')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              selectedGroupFilter === 'all'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 border border-slate-700/60'
+            }`}
+          >
+            All Students ({students.length})
+          </button>
+          {groups.map((g: StudentGroup) => {
+            const count = students.filter(s => s.groupId === g.id || g.studentIds.includes(s.id)).length;
+            return (
+              <button
+                key={g.id}
+                onClick={() => setSelectedGroupFilter(g.id)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                  selectedGroupFilter === g.id
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'bg-slate-800/80 text-purple-300 hover:bg-slate-800 border border-slate-700/60'
+                }`}
+              >
+                <span>👥 {g.name}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-900/70 font-black">
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+          {students.filter(s => !s.groupId && !groups.some((g: StudentGroup) => g.studentIds.includes(s.id))).length > 0 && (
+            <button
+              onClick={() => setSelectedGroupFilter('unassigned')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                selectedGroupFilter === 'unassigned'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'bg-slate-800/80 text-amber-300 hover:bg-slate-800 border border-slate-700/60'
+              }`}
+            >
+              Unassigned ({students.filter(s => !s.groupId && !groups.some((g: StudentGroup) => g.studentIds.includes(s.id))).length})
+            </button>
+          )}
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {students.map(student => {
+          {students.filter(student => {
+            if (selectedGroupFilter === 'all') return true;
+            if (selectedGroupFilter === 'unassigned') {
+              return !student.groupId && !groups.some((g: StudentGroup) => g.studentIds.includes(student.id));
+            }
+            return student.groupId === selectedGroupFilter || groups.find((g: StudentGroup) => g.id === selectedGroupFilter)?.studentIds.includes(student.id);
+          }).map(student => {
             const levelLabel = student.levelId === 'elementary' ? 'Elementary (A2)' : student.levelId === 'pre_intermediate' ? 'Pre-Intermediate (B1)' : 'Beginner (A1)';
             const grammarPassedCount = Object.values(student.grammarMasteries || {}).filter(score => score >= 80).length;
             const vocabUnitsCount = Object.keys(student.unitMasteries || {}).length;
@@ -711,6 +851,31 @@ export const AdminDashboard: React.FC = () => {
                       <Flame className="w-3 h-3" /> {student.streakDays}d
                     </span>
                   </div>
+                </div>
+
+                {/* Student Group Quick Selector */}
+                <div className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-950/70 border border-slate-800/80">
+                  <span className="text-slate-400 font-medium flex items-center gap-1.5 text-[11px]">
+                    <Users className="w-3.5 h-3.5 text-purple-400" />
+                    <span>Group:</span>
+                  </span>
+                  <select
+                    value={student.groupId || ''}
+                    onChange={(e) => {
+                      const targetGid = e.target.value;
+                      if (targetGid) {
+                        assignStudentToGroup(student.id, targetGid);
+                      } else {
+                        removeStudentFromGroup(student.id);
+                      }
+                    }}
+                    className="text-[11px] font-bold bg-slate-800 border border-slate-700 text-purple-300 rounded-lg px-2 py-1 focus:outline-none focus:border-purple-500"
+                  >
+                    <option value="">No Group</option>
+                    {groups.map((g: StudentGroup) => (
+                      <option key={g.id} value={g.id}>{g.name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Progress Details */}
@@ -834,6 +999,274 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
+            {/* Student Groups Management Modal */}
+      {showGroupsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-7 max-w-2xl w-full shadow-2xl space-y-5 my-8 max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-150">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-lg text-white">
+                    {groupModalMode === 'create' ? 'Create Student Group' : groupModalMode === 'edit' ? 'Edit Student Group' : 'Student Groups Management'}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    {groupModalMode === 'list' ? 'Keep student cohorts organized with complete isolation' : 'Configure group details and assign member students'}
+                  </p>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => {
+                  if (groupModalMode !== 'list') {
+                    setGroupModalMode('list');
+                  } else {
+                    setShowGroupsModal(false);
+                  }
+                }}
+                className="text-slate-400 hover:text-white text-lg font-bold p-1 rounded-lg hover:bg-slate-800"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto pr-1 space-y-4">
+              {groupModalMode === 'list' ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      Active Groups ({groups.length})
+                    </span>
+                    <button
+                      onClick={handleOpenCreateGroup}
+                      className="btn-game-emerald py-1.5 px-3 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Create New Group</span>
+                    </button>
+                  </div>
+
+                  {groups.length === 0 ? (
+                    <div className="p-8 text-center text-slate-400 rounded-2xl bg-slate-950/60 border border-slate-800">
+                      No groups created yet. Click "Create New Group" to get started!
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-3">
+                      {groups.map((g: StudentGroup) => {
+                        const members = students.filter(s => s.groupId === g.id || g.studentIds.includes(s.id));
+                        const levelLabel = g.levelId === 'elementary' ? 'Elementary (A2)' : g.levelId === 'pre_intermediate' ? 'Pre-Intermediate (B1)' : 'Beginner (A1)';
+
+                        return (
+                          <div
+                            key={g.id}
+                            className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-purple-500/40 transition-all space-y-3"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h4 className="text-base font-black text-white">{g.name}</h4>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                    {levelLabel}
+                                  </span>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
+                                    {members.length} students
+                                  </span>
+                                </div>
+                                {g.description && (
+                                  <p className="text-xs text-slate-400">{g.description}</p>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <button
+                                  onClick={() => handleOpenEditGroup(g)}
+                                  className="py-1.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all text-xs font-bold flex items-center gap-1 border border-slate-700 active:scale-95"
+                                  title="Edit Group"
+                                >
+                                  <Edit3 className="w-3.5 h-3.5 text-purple-400" />
+                                  <span className="hidden sm:inline">Edit</span>
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteGroup(g)}
+                                  className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all text-xs active:scale-95"
+                                  title="Delete Group"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Group Members List */}
+                            <div className="pt-2 border-t border-slate-800/70">
+                              <span className="text-[11px] font-semibold text-slate-400 block mb-1.5">
+                                Group Members:
+                              </span>
+                              {members.length === 0 ? (
+                                <span className="text-xs text-slate-500 italic">No students assigned to this group yet</span>
+                              ) : (
+                                <div className="flex flex-wrap gap-1.5">
+                                  {members.map(m => (
+                                    <span
+                                      key={m.id}
+                                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-200"
+                                    >
+                                      <div className="w-4 h-4 rounded-full overflow-hidden shrink-0">
+                                        <ModularCharacter config={m.character} size="sm" animate={false} />
+                                      </div>
+                                      <span>{m.name}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Create or Edit Group Form */
+                <form onSubmit={handleSaveGroup} className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-300">Group Name</label>
+                    <input
+                      type="text"
+                      value={groupFormName}
+                      onChange={e => setGroupFormName(e.target.value)}
+                      placeholder="e.g. Morning Group Alpha or Band 7 Prep"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-300">Target Proficiency Level</label>
+                      <select
+                        value={groupFormLevel}
+                        onChange={e => setGroupFormLevel(e.target.value as LevelId)}
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm"
+                      >
+                        <option value="beginner">Beginner (A1)</option>
+                        <option value="elementary">Elementary (A2)</option>
+                        <option value="pre_intermediate">Pre-Intermediate (B1)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-300">Description (Optional)</label>
+                      <input
+                        type="text"
+                        value={groupFormDesc}
+                        onChange={e => setGroupFormDesc(e.target.value)}
+                        placeholder="e.g. Meets Mon/Wed/Fri at 9:00 AM"
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Student Selection Checkboxes */}
+                  <div className="space-y-2 pt-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-300">
+                        Select Students in this Group ({groupFormMemberIds.length} selected)
+                      </label>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setGroupFormMemberIds(students.map(s => s.id))}
+                          className="text-[11px] text-purple-400 hover:text-purple-300 font-bold"
+                        >
+                          Select All
+                        </button>
+                        <span className="text-slate-600">|</span>
+                        <button
+                          type="button"
+                          onClick={() => setGroupFormMemberIds([])}
+                          className="text-[11px] text-slate-400 hover:text-slate-300 font-bold"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto p-2 rounded-2xl bg-slate-950/70 border border-slate-800">
+                      {students.map(s => {
+                        const isChecked = groupFormMemberIds.includes(s.id);
+                        const currentG = groups.find((g: StudentGroup) => g.id === s.groupId && g.id !== editingGroupId);
+
+                        return (
+                          <label
+                            key={s.id}
+                            className={`flex items-center gap-2.5 p-2 rounded-xl border cursor-pointer transition-all text-xs ${
+                              isChecked
+                                ? 'bg-purple-500/15 border-purple-500/50 text-white font-bold'
+                                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => handleToggleMember(s.id)}
+                              className="rounded border-slate-700 text-purple-600 focus:ring-purple-500 w-4 h-4"
+                            />
+                            <div className="w-5 h-5 rounded-full overflow-hidden shrink-0">
+                              <ModularCharacter config={s.character} size="sm" animate={false} />
+                            </div>
+                            <span className="truncate flex-1">{s.name}</span>
+                            {currentG && !isChecked && (
+                              <span className="text-[9px] text-slate-500 truncate max-w-[80px]">
+                                ({currentG.name})
+                              </span>
+                            )}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => setGroupModalMode('list')}
+                      className="py-2 px-4 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn-game-emerald py-2 px-5 rounded-xl text-xs font-bold shadow-md"
+                    >
+                      {groupModalMode === 'create' ? 'Create Group' : 'Save Changes'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+
+            {/* Modal Footer (List mode) */}
+            {groupModalMode === 'list' && (
+              <div className="flex justify-end pt-3 border-t border-slate-800 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowGroupsModal(false)}
+                  className="py-2 px-5 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 hover:bg-slate-700"
+                >
+                  Close
+                </button>
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
+
       {/* Add Student Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
@@ -935,6 +1368,20 @@ export const AdminDashboard: React.FC = () => {
                   <option value="beginner">Beginner (A1)</option>
                   <option value="elementary">Elementary (A2)</option>
                   <option value="pre_intermediate">Pre-Intermediate (B1)</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-300">Assign to Group</label>
+                <select
+                  value={newStudentGroupId}
+                  onChange={e => setNewStudentGroupId(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm"
+                >
+                  <option value="">No Group (Unassigned)</option>
+                  {groups.map((g: StudentGroup) => (
+                    <option key={g.id} value={g.id}>{g.name}</option>
+                  ))}
                 </select>
               </div>
 

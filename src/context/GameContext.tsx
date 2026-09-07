@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { 
   UserProfile, 
+  StudentGroup,
   CharacterConfig, 
   LevelId, 
   AppScreen, 
@@ -23,6 +24,7 @@ import {
   ClaimedPrizeRecord
 } from '../types';
 import { MysteryBoxService, MYSTERY_BOX_PRICES } from '../services/mysteryBoxService';
+import { GroupService } from '../services/groupService';
 import { StorageService, DEFAULT_CHARACTER, DEFAULT_PROFILE, sanitizeProfile, deduplicateAccounts } from '../services/storageService';
 import { sanitizeAccountListForViewer } from '../services/presenceService';
 import { CURRICULUM_UNITS } from '../data/curriculumData';
@@ -74,7 +76,15 @@ interface GameContextType {
   loginAsUser: (userId: string) => void;
   logout: () => void;
   awardStudent: (studentId: string, xpDelta: number, coinsDelta: number, streakDelta?: number) => void;
-  createNewStudent: (data: { name: string; username: string; password: string; gender: CharacterGender; levelId: LevelId }) => { success: boolean; message?: string };
+  createNewStudent: (data: { name: string; username: string; password: string; gender: CharacterGender; levelId: LevelId; groupId?: string }) => { success: boolean; message?: string };
+  // Student Groups Management & Class Isolation
+  groups: StudentGroup[];
+  currentStudentGroup: StudentGroup | undefined;
+  createGroup: (data: { name: string; levelId: LevelId; description?: string; studentIds?: string[] }) => StudentGroup;
+  updateGroup: (id: string, updates: Partial<StudentGroup>) => StudentGroup | undefined;
+  deleteGroup: (id: string) => void;
+  assignStudentToGroup: (studentId: string, groupId: string) => void;
+  removeStudentFromGroup: (studentId: string) => void;
   resetStudentPassword: (studentId: string, newPass: string) => void;
   resetStudentProgress: (studentId: string) => void;
   resetAdminProgress: () => void;
@@ -129,6 +139,53 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return StorageService.getActiveUserId() !== null;
   });
   const [profile, setProfile] = useState<UserProfile>(() => StorageService.loadProfile());
+  const [groups, setGroups] = useState<StudentGroup[]>(() => GroupService.getGroups());
+
+  const currentStudentGroup = useMemo(() => {
+    return groups.find(g => g.id === profile.groupId || g.studentIds.includes(profile.id));
+  }, [groups, profile.groupId, profile.id]);
+
+  const createGroup = (data: { name: string; levelId: LevelId; description?: string; studentIds?: string[] }) => {
+    const newGroup = GroupService.createGroup(data);
+    setGroups(GroupService.getGroups());
+    refreshAccounts();
+    return newGroup;
+  };
+
+  const updateGroup = (id: string, updates: Partial<StudentGroup>) => {
+    const updated = GroupService.updateGroup(id, updates);
+    setGroups(GroupService.getGroups());
+    refreshAccounts();
+    return updated;
+  };
+
+  const deleteGroup = (id: string) => {
+    GroupService.deleteGroup(id);
+    setGroups(GroupService.getGroups());
+    refreshAccounts();
+  };
+
+  const assignStudentToGroup = (studentId: string, groupId: string) => {
+    GroupService.assignStudentToGroup(studentId, groupId);
+    setGroups(GroupService.getGroups());
+    refreshAccounts();
+    if (profile.id === studentId) {
+      setProfile(prev => ({ ...prev, groupId }));
+    }
+  };
+
+  const removeStudentFromGroup = (studentId: string) => {
+    GroupService.removeStudentFromGroup(studentId);
+    setGroups(GroupService.getGroups());
+    refreshAccounts();
+    if (profile.id === studentId) {
+      setProfile(prev => {
+        const copy = { ...prev };
+        delete copy.groupId;
+        return copy;
+      });
+    }
+  };
   const [allAccounts, setAllAccounts] = useState<UserProfile[]>(() => StorageService.loadAllAccounts());
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(() => {
     const activeUid = StorageService.getActiveUserId();
@@ -1310,6 +1367,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string;
     gender: CharacterGender;
     levelId: LevelId;
+    groupId?: string;
   }): { success: boolean; message?: string } => {
     const accounts = StorageService.loadAllAccounts();
     const existing = accounts.find(
@@ -1328,6 +1386,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       role: 'student',
       isOnboarded: true,
       levelId: data.levelId,
+      groupId: data.groupId,
       currentUnitId: data.levelId === 'elementary' ? 'el_u1' : data.levelId === 'pre_intermediate' ? 'pre_u0' : 'u1',
       xp: 150,
       coins: 50,
@@ -1343,6 +1402,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     StorageService.addAccount(newStudent);
+    if (data.groupId) {
+      GroupService.assignStudentToGroup(newStudent.id, data.groupId);
+      setGroups(GroupService.getGroups());
+    }
     refreshAccounts();
     if (isSupabaseConfigured()) {
       SupabaseService.saveAccountToRemote(newStudent);
@@ -1508,6 +1571,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         resetAdminProgress,
         resetAllStudentsProgress,
         deleteStudentAccount,
+        groups,
+        currentStudentGroup,
+        createGroup,
+        updateGroup,
+        deleteGroup,
+        assignStudentToGroup,
+        removeStudentFromGroup,
         boxPrices,
         updateBoxPrices,
         isCloudConnected,

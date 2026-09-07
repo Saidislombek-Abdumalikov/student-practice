@@ -1,5 +1,6 @@
 import { UserProfile, CharacterConfig } from '../types';
 import { INITIAL_ACCOUNTS } from '../data/accountsData';
+import { GroupService } from './groupService';
 
 const ACCOUNTS_STORAGE_KEY = 'play_learn_compete_accounts_v2';
 const ACTIVE_USER_ID_KEY = 'play_learn_compete_active_uid_v3';
@@ -68,6 +69,7 @@ export function sanitizeProfile(raw: any): UserProfile {
     username: (raw.username || '').toLowerCase().trim(),
     password: raw.password || '',
     role,
+    groupId: raw.groupId || undefined,
     isOnboarded: raw.isOnboarded !== undefined ? raw.isOnboarded : true,
     character: {
       ...defaultChar,
@@ -230,6 +232,7 @@ export class StorageService {
       if (data) {
         const parsed = JSON.parse(data) as UserProfile[];
         const deduped = deduplicateAccounts(parsed);
+        const synced = GroupService.syncAccountsWithGroups(GroupService.getGroups(), deduped);
 
         try {
           const activeId = localStorage.getItem(ACTIVE_USER_ID_KEY);
@@ -241,11 +244,11 @@ export class StorageService {
         }
 
         try {
-          localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(deduped));
+          localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(synced));
         } catch {
           // Ignored
         }
-        return deduped;
+        return synced;
       }
     } catch {
       // Fallback
@@ -254,12 +257,13 @@ export class StorageService {
     // Initialize with default accounts
     try {
       const sanitizedInitial = deduplicateAccounts(INITIAL_ACCOUNTS);
-      localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(sanitizedInitial));
-      return sanitizedInitial;
+      const syncedInitial = GroupService.syncAccountsWithGroups(GroupService.getGroups(), sanitizedInitial);
+      localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(syncedInitial));
+      return syncedInitial;
     } catch {
       // Storage error
     }
-    return deduplicateAccounts(INITIAL_ACCOUNTS);
+    return GroupService.syncAccountsWithGroups(GroupService.getGroups(), deduplicateAccounts(INITIAL_ACCOUNTS));
   }
 
   /**

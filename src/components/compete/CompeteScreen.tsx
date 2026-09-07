@@ -20,16 +20,16 @@ import {
 } from 'lucide-react';
 
 export const CompeteScreen: React.FC = () => {
-  const { profile, allAccounts, achievements, levelNumber, updateOwnStats, setScreen } = useGame();
+  const { profile, allAccounts, achievements, levelNumber, updateOwnStats, setScreen, groups, currentStudentGroup } = useGame();
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'achievements'>('leaderboard');
   const [leaderboardCategory, setLeaderboardCategory] = useState<'xp' | 'streak' | 'coins' | 'accuracy'>('xp');
+  const [selectedGroupFilter, setSelectedGroupFilter] = useState<string>(() => profile.groupId || 'all');
   const [showTeacherEditModal, setShowTeacherEditModal] = useState(false);
   const [editXpVal, setEditXpVal] = useState(profile.xp || 0);
   const [editStreakVal, setEditStreakVal] = useState(profile.streakDays || 1);
   const [editCoinsVal, setEditCoinsVal] = useState(profile.coins || 100);
 
-  // Build leaderboard with ALL accounts (teacher competes directly on the leaderboard!)
-  // Deduplicate by canonical ID and normalized username to guarantee unique entries
+  // Build leaderboard with accounts (group isolated so students do not mix!)
   const rawList = [...allAccounts];
   if (!rawList.some(s => s.id === profile.id)) {
     rawList.push(profile);
@@ -55,7 +55,14 @@ export const CompeteScreen: React.FC = () => {
     uniqueList.push(acc);
   }
 
-  const fullList = uniqueList.map(student => {
+  // Filter by selected group so students in different groups do not mix
+  const filteredList = uniqueList.filter(student => {
+    if (selectedGroupFilter === 'all') return true;
+    if (student.role === 'admin') return true; // Teacher remains visible to motivate students
+    return student.groupId === selectedGroupFilter;
+  });
+
+  const fullList = filteredList.map(student => {
     const isCurrent = student.id === profile.id;
     const currentCharacter = isCurrent ? profile.character : student.character;
     const currentXp = isCurrent ? profile.xp : student.xp;
@@ -200,6 +207,72 @@ export const CompeteScreen: React.FC = () => {
       {/* 1. LEADERBOARD VIEW */}
       {activeTab === 'leaderboard' && (
         <div className="space-y-5 animate-in fade-in duration-200">
+
+          {/* Group Filter Switcher (Group Isolation) */}
+          <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black uppercase text-cyan-400 tracking-wider">
+                👥 Group Arena:
+              </span>
+              <span className="text-xs text-slate-300 font-bold">
+                {selectedGroupFilter === 'all' 
+                  ? 'All School Champions' 
+                  : (groups.find(g => g.id === selectedGroupFilter)?.name || 'Class Group')}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+              {currentStudentGroup && (
+                <button
+                  onClick={() => {
+                    soundService.playClick();
+                    setSelectedGroupFilter(currentStudentGroup.id);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl font-black text-xs transition-all whitespace-nowrap ${
+                    selectedGroupFilter === currentStudentGroup.id
+                      ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                      : 'bg-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  My Group ({currentStudentGroup.name})
+                </button>
+              )}
+
+              {groups.map(g => {
+                if (currentStudentGroup && g.id === currentStudentGroup.id) return null;
+                return (
+                  <button
+                    key={g.id}
+                    onClick={() => {
+                      soundService.playClick();
+                      setSelectedGroupFilter(g.id);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all whitespace-nowrap ${
+                      selectedGroupFilter === g.id
+                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                        : 'bg-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {g.name}
+                  </button>
+                );
+              })}
+
+              <button
+                onClick={() => {
+                  soundService.playClick();
+                  setSelectedGroupFilter('all');
+                }}
+                className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all whitespace-nowrap ${
+                  selectedGroupFilter === 'all'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                All Students
+              </button>
+            </div>
+          </div>
           
           {/* Category Filter Pills (XP, Streak, Coins, Accuracy) */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">

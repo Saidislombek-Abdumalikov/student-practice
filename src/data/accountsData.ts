@@ -118,6 +118,7 @@ export const INITIAL_ACCOUNTS: UserProfile[] = [
     username: 'dilnura',
     password: 'dn24',
     role: 'student',
+    groupId: 'group_alpha',
     isOnboarded: true,
     character: {
       gender: 'woman',
@@ -175,6 +176,7 @@ export const INITIAL_ACCOUNTS: UserProfile[] = [
     username: 'ruxshona',
     password: 'rx81',
     role: 'student',
+    groupId: 'group_alpha',
     isOnboarded: true,
     character: {
       gender: 'woman',
@@ -221,6 +223,7 @@ export const INITIAL_ACCOUNTS: UserProfile[] = [
     username: 'gulasal',
     password: 'gl53',
     role: 'student',
+    groupId: 'group_alpha',
     isOnboarded: true,
     character: {
       gender: 'woman',
@@ -288,6 +291,7 @@ export const INITIAL_ACCOUNTS: UserProfile[] = [
     username: 'omina',
     password: 'omina',
     role: 'student',
+    groupId: 'group_beta',
     isOnboarded: true,
     character: {
       gender: 'woman',
@@ -345,6 +349,7 @@ export const INITIAL_ACCOUNTS: UserProfile[] = [
     username: 'bahodir',
     password: 'bh76',
     role: 'student',
+    groupId: 'group_beta',
     isOnboarded: true,
     character: {
       gender: 'man',
