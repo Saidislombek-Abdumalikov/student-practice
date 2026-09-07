@@ -486,6 +486,12 @@ export interface UserProfile {
   claimedPrizes?: ClaimedPrizeRecord[]; // Mystery Box won rewards
 
   // -------------------------------------------------------------
+  // Beginner Vocabulary Progression & Official Full Exam
+  // -------------------------------------------------------------
+  vocabProgression?: Record<string, UnitExamRecord>; // unitId -> UnitExamRecord
+  activeExamAttempt?: VocabularyExamAttempt | null; // currently active in-progress exam attempt
+
+  // -------------------------------------------------------------
   // Presence & Activity Tracking (Master Prompt)
   // -------------------------------------------------------------
   // 1. Online Status & Last Seen (Visible to Everyone)
@@ -514,6 +520,7 @@ export type AppScreen =
   | 'learn' 
   | 'flashcards' 
   | 'practice' 
+  | 'vocabulary_exam'
   | 'mistakes' 
   | 'play' 
   | 'game_active' 
@@ -595,6 +602,82 @@ export interface ResetBackupRecord {
   targetName: string; // e.g. "Morning Group Alpha", "All Students", "Dilnuraxon"
   affectedStudentCount: number;
   previousProfiles: UserProfile[]; // Snapshot of student profiles before reset
+}
+
+// -------------------------------------------------------------
+// Vocabulary Progression & Official Full Examination System
+// -------------------------------------------------------------
+export type UnitProgressionStatus = 
+  | 'LOCKED' 
+  | 'LEARNING' 
+  | 'READY_FOR_EXAM' 
+  | 'EXAM_IN_PROGRESS' 
+  | 'PASSED' 
+  | 'FAILED';
+
+export type ExamQuestionType = 
+  | 'word_to_meaning' 
+  | 'meaning_to_word' 
+  | 'context_sentence' 
+  | 'spelling_completion' 
+  | 'definition_matching';
+
+export interface ExamQuestionAnswer {
+  questionId: string;
+  questionType: ExamQuestionType;
+  targetWordId: string;
+  targetWord: string;
+  prompt: string;
+  subPrompt?: string; // Phonetic or hint if applicable
+  options?: string[]; // Randomized choices for multiple-choice/matching
+  correctAnswer: string; // Validated server-side
+  studentAnswer: string | null;
+  isCorrect: boolean | null;
+  answeredAt?: string;
+  timeSpentSeconds?: number;
+}
+
+export interface VocabularyExamAttempt {
+  id: string; // e.g. "att_usr123_u1_1720000000"
+  studentId: string;
+  studentName: string;
+  unitId: string;
+  unitNumber: number;
+  levelId: LevelId;
+  attemptNumber: number;
+  status: 'active' | 'finalized';
+  startedAt: string;
+  completedAt?: string;
+  durationSeconds: number;
+  currentQuestionIndex: number;
+  totalQuestions: number;
+  questions: ExamQuestionAnswer[];
+  correctCount: number;
+  scorePercentage: number; // Server evaluated (0 - 100)
+  passed: boolean; // Score >= 95 strictly
+  tabSwitchCount: number; // Anti-cheat focus loss count
+  lastHeartbeatAt: string; // Real-time teacher monitor sync
+}
+
+export interface UnitExamRecord {
+  unitId: string;
+  status: UnitProgressionStatus;
+  isAuthorizedByTeacher: boolean;
+  authorizedAt?: string;
+  authorizedBy?: string; // Teacher or admin identifier
+  activeAttemptId?: string;
+  highestScore?: number;
+  lastAttemptScore?: number;
+  passedAt?: string;
+  failedAt?: string;
+  totalAttempts: number;
+  attemptsHistory: VocabularyExamAttempt[];
+}
+
+export interface StudentVocabularyProgression {
+  studentId: string;
+  units: Record<string, UnitExamRecord>; // unitId -> UnitExamRecord
+  updatedAt: string;
 }
 
 

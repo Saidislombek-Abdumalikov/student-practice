@@ -9,6 +9,7 @@ import { HomeScreen } from './components/home/HomeScreen';
 import { LearnScreen } from './components/learn/LearnScreen';
 import { FlashcardViewer } from './components/learn/FlashcardViewer';
 import { VocabularyPractice } from './components/learn/VocabularyPractice';
+import { VocabularyExamScreen } from './components/learn/VocabularyExamScreen';
 import { MistakesReview } from './components/learn/MistakesReview';
 import { PlayScreen } from './components/play/PlayScreen';
 import { CompeteScreen } from './components/compete/CompeteScreen';
@@ -53,6 +54,8 @@ const MainApp: React.FC = () => {
         return <FlashcardViewer onBack={() => setScreen('learn')} />;
       case 'practice':
         return <VocabularyPractice onBack={() => setScreen('learn')} />;
+      case 'vocabulary_exam':
+        return <VocabularyExamScreen unitId={profile.activeExamAttempt?.unitId || 'unit-1'} onExit={() => setScreen('learn')} />;
       case 'mistakes':
         return <MistakesReview onBack={() => setScreen('learn')} />;
       case 'play':

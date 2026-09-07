@@ -1,3 +1,4 @@
+import { VocabularyExamAdminHub } from './VocabularyExamAdminHub';
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { ModularCharacter } from '../character/ModularCharacter';
@@ -75,6 +76,7 @@ export const AdminDashboard: React.FC = () => {
     setScreen 
   } = useGame();
 
+  const [adminSection, setAdminSection] = useState<'roster' | 'exams'>('roster');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState<UserProfile | null>(null);
@@ -267,6 +269,9 @@ export const AdminDashboard: React.FC = () => {
   // Filter students (strictly role === 'student')
   const students = allAccounts.filter(a => a.role === 'student');
 
+  // Active vocabulary exam count for live indicator
+  const activeExamCount = students.filter(s => s.activeExamAttempt && s.activeExamAttempt.status === 'active').length;
+
   // Aggregated analytics
   const totalClassXp = students.reduce((sum, s) => sum + s.xp, 0);
   const totalClassCoins = students.reduce((sum, s) => sum + s.coins, 0);
@@ -451,6 +456,27 @@ export const AdminDashboard: React.FC = () => {
             >
               <Gift className="w-4 h-4 text-amber-400" />
               <span>Mystery Prizes</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setAdminSection('exams');
+                soundService.playClick();
+              }}
+              className={`py-2.5 px-3.5 rounded-2xl text-xs font-bold border flex items-center gap-2 shadow-sm transition-all active:scale-95 relative ${
+                adminSection === 'exams'
+                  ? 'bg-purple-600 text-white border-purple-400'
+                  : 'bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40'
+              }`}
+              title="Beginner Vocabulary Progression & Exam Monitoring Matrix"
+            >
+              <Award className="w-4 h-4 text-purple-400" />
+              <span>Vocab Exams</span>
+              {activeExamCount > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px] font-black animate-pulse">
+                  {activeExamCount} Live
+                </span>
+              )}
             </button>
 
             <button
@@ -700,8 +726,52 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Student Roster Table / Grid */}
-      <div className="space-y-4">
+      {/* Primary Section Switcher: Roster vs Vocabulary Exam Hub */}
+      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl max-w-xl">
+        <button
+          onClick={() => {
+            soundService.playClick();
+            setAdminSection('roster');
+          }}
+          className={`flex-1 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 ${
+            adminSection === 'roster'
+              ? 'bg-indigo-600 text-white shadow-game-btn'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Users className="w-4 h-4" />
+          <span>Student Accounts & Roster</span>
+        </button>
+
+        <button
+          onClick={() => {
+            soundService.playClick();
+            setAdminSection('exams');
+          }}
+          className={`flex-1 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 relative ${
+            adminSection === 'exams'
+              ? 'bg-purple-600 text-white shadow-game-btn'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Award className="w-4 h-4" />
+          <span>Vocabulary Exam Hub</span>
+          {activeExamCount > 0 && (
+            <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping absolute top-2 right-2" />
+          )}
+          {activeExamCount > 0 && (
+            <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px] font-black">
+              {activeExamCount} Live
+            </span>
+          )}
+        </button>
+      </div>
+
+      {adminSection === 'exams' ? (
+        <VocabularyExamAdminHub />
+      ) : (
+        /* Student Roster Table / Grid */
+        <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-black text-white">Student Roster & Accounts</h2>
@@ -1056,6 +1126,7 @@ export const AdminDashboard: React.FC = () => {
           })}
         </div>
       </div>
+      )}
 
             {/* Student Groups Management Modal */}
       {showGroupsModal && (

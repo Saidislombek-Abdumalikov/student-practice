@@ -225,6 +225,11 @@ class SoundService {
       // Ignored
     }
   }
+
+  // Major Victory Chime for Exam Passed
+  public playVictory() {
+    this.playLevelUp();
+  }
 }
 
 export const soundService = new SoundService();

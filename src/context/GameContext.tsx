@@ -3,6 +3,8 @@ import {
   UserProfile, 
   StudentGroup,
   ResetBackupRecord,
+  UnitProgressionStatus,
+  VocabularyExamAttempt,
   CharacterConfig, 
   LevelId, 
   AppScreen, 
@@ -40,6 +42,7 @@ import {
   getRecommendedNextTopic 
 } from '../data/grammar';
 import { OutfitPreset, OUTFIT_PRESETS } from '../data/outfitPresets';
+import { VocabularyExamService } from '../services/vocabularyExamService';
 import { SupabaseService } from '../services/supabaseService';
 import { isSupabaseConfigured } from '../services/supabaseClient';
 
@@ -135,6 +138,16 @@ interface GameContextType {
   toggleSound: () => void;
   resetProgress: () => void;
   openMysteryBox: (tier: MysteryBoxTier) => { success: boolean; prize?: MysteryBoxPrize; message?: string };
+
+  // Beginner Vocabulary Progression & Official Full Exam
+  authorizeExam: (studentId: string, unitId: string) => Promise<{ success: boolean; message: string }>;
+  revokeExamAuthorization: (studentId: string, unitId: string) => Promise<{ success: boolean; message: string }>;
+  authorizeExamRetake: (studentId: string, unitId: string) => Promise<{ success: boolean; message: string }>;
+  startVocabularyExam: (unitId: string) => Promise<{ success: boolean; attempt?: VocabularyExamAttempt; error?: string }>;
+  submitExamAnswer: (attemptId: string, questionIndex: number, answer: string) => Promise<{ attempt: VocabularyExamAttempt; isLastQuestion: boolean } | null>;
+  recordExamTabSwitch: (attemptId: string) => void;
+  finalizeVocabularyExam: (attemptId: string) => Promise<{ attempt: VocabularyExamAttempt; passed: boolean; scorePercentage: number }>;
+  getStudentUnitStatus: (student: UserProfile, unitId: string) => UnitProgressionStatus;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -1703,6 +1716,180 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     soundService.playClick();
   };
 
+
+  // -------------------------------------------------------------
+  // Beginner Vocabulary Progression & Official Exam System
+  // -------------------------------------------------------------
+  const authorizeExam = async (studentId: string, unitId: string) => {
+    const accounts = StorageService.loadAllAccounts();
+    const student = accounts.find(a => a.id === studentId);
+    if (!student) return { success: false, message: 'Student not found.' };
+
+    const { updatedStudent, success, message } = VocabularyExamService.authorizeExam(student, unitId, profile.name || 'Teacher');
+    if (!success) return { success, message };
+
+    const updatedAccounts = accounts.map(a => a.id === studentId ? updatedStudent : a);
+    StorageService.saveAllAccounts(updatedAccounts);
+    setAllAccounts([...updatedAccounts]);
+
+    if (profile.id === studentId) {
+      setProfile(sanitizeProfile(updatedStudent));
+      StorageService.saveProfile(updatedStudent);
+    }
+
+    if (isSupabaseConfigured()) {
+      await SupabaseService.saveAccountToRemote(updatedStudent);
+    }
+    soundService.playSuccess();
+    return { success: true, message };
+  };
+
+  const revokeExamAuthorization = async (studentId: string, unitId: string) => {
+    const accounts = StorageService.loadAllAccounts();
+    const student = accounts.find(a => a.id === studentId);
+    if (!student) return { success: false, message: 'Student not found.' };
+
+    const { updatedStudent, success, message } = VocabularyExamService.revokeAuthorization(student, unitId);
+    if (!success) return { success, message };
+
+    const updatedAccounts = accounts.map(a => a.id === studentId ? updatedStudent : a);
+    StorageService.saveAllAccounts(updatedAccounts);
+    setAllAccounts([...updatedAccounts]);
+
+    if (profile.id === studentId) {
+      setProfile(sanitizeProfile(updatedStudent));
+      StorageService.saveProfile(updatedStudent);
+    }
+
+    if (isSupabaseConfigured()) {
+      await SupabaseService.saveAccountToRemote(updatedStudent);
+    }
+    soundService.playClick();
+    return { success: true, message };
+  };
+
+  const authorizeExamRetake = async (studentId: string, unitId: string) => {
+    const accounts = StorageService.loadAllAccounts();
+    const student = accounts.find(a => a.id === studentId);
+    if (!student) return { success: false, message: 'Student not found.' };
+
+    const { updatedStudent, success, message } = VocabularyExamService.authorizeRetake(student, unitId, profile.name || 'Teacher');
+    if (!success) return { success, message };
+
+    const updatedAccounts = accounts.map(a => a.id === studentId ? updatedStudent : a);
+    StorageService.saveAllAccounts(updatedAccounts);
+    setAllAccounts([...updatedAccounts]);
+
+    if (profile.id === studentId) {
+      setProfile(sanitizeProfile(updatedStudent));
+      StorageService.saveProfile(updatedStudent);
+    }
+
+    if (isSupabaseConfigured()) {
+      await SupabaseService.saveAccountToRemote(updatedStudent);
+    }
+    soundService.playSuccess();
+    return { success: true, message };
+  };
+
+  const startVocabularyExam = async (unitId: string) => {
+    const unit = CURRICULUM_UNITS.find(u => u.id === unitId);
+    if (!unit) return { success: false, error: 'Curriculum unit not found.' };
+
+    const { updatedStudent, attempt, success, error } = VocabularyExamService.startExam(profile, unit);
+    if (!success || !attempt) {
+      soundService.playError();
+      return { success: false, error: error || 'Failed to start exam.' };
+    }
+
+    setProfile(sanitizeProfile(updatedStudent));
+    StorageService.saveProfile(updatedStudent);
+
+    const accounts = StorageService.loadAllAccounts();
+    const updatedAccounts = accounts.map(a => a.id === profile.id ? updatedStudent : a);
+    StorageService.saveAllAccounts(updatedAccounts);
+    setAllAccounts([...updatedAccounts]);
+
+    if (isSupabaseConfigured()) {
+      SupabaseService.saveAccountToRemote(updatedStudent);
+    }
+
+    soundService.playLevelUp();
+    return { success: true, attempt };
+  };
+
+  const submitExamAnswer = async (attemptId: string, questionIndex: number, answer: string) => {
+    const { updatedStudent, attempt, success, isLastQuestion } = VocabularyExamService.submitAnswer(
+      profile,
+      attemptId,
+      questionIndex,
+      answer
+    );
+
+    if (!success || !attempt) return null;
+
+    setProfile(sanitizeProfile(updatedStudent));
+    StorageService.saveProfile(updatedStudent);
+
+    const accounts = StorageService.loadAllAccounts();
+    const updatedAccounts = accounts.map(a => a.id === profile.id ? updatedStudent : a);
+    StorageService.saveAllAccounts(updatedAccounts);
+    setAllAccounts([...updatedAccounts]);
+
+    if (isSupabaseConfigured()) {
+      SupabaseService.saveAccountToRemote(updatedStudent);
+    }
+
+    return { attempt, isLastQuestion };
+  };
+
+  const recordExamTabSwitch = (attemptId: string) => {
+    const { updatedStudent, attempt } = VocabularyExamService.recordTabSwitch(profile, attemptId);
+    if (attempt) {
+      setProfile(sanitizeProfile(updatedStudent));
+      StorageService.saveProfile(updatedStudent);
+      const accounts = StorageService.loadAllAccounts();
+      const updatedAccounts = accounts.map(a => a.id === profile.id ? updatedStudent : a);
+      StorageService.saveAllAccounts(updatedAccounts);
+      setAllAccounts([...updatedAccounts]);
+      if (isSupabaseConfigured()) {
+        SupabaseService.saveAccountToRemote(updatedStudent);
+      }
+    }
+  };
+
+  const finalizeVocabularyExam = async (attemptId: string) => {
+    const { updatedStudent, attempt, passed, scorePercentage } = VocabularyExamService.finalizeExam(
+      profile,
+      attemptId,
+      CURRICULUM_UNITS
+    );
+
+    setProfile(sanitizeProfile(updatedStudent));
+    StorageService.saveProfile(updatedStudent);
+
+    const accounts = StorageService.loadAllAccounts();
+    const updatedAccounts = accounts.map(a => a.id === profile.id ? updatedStudent : a);
+    StorageService.saveAllAccounts(updatedAccounts);
+    setAllAccounts([...updatedAccounts]);
+
+    if (isSupabaseConfigured()) {
+      await SupabaseService.saveAccountToRemote(updatedStudent);
+    }
+
+    if (passed) {
+      soundService.playVictory();
+    } else {
+      soundService.playError();
+    }
+
+    return { attempt, passed, scorePercentage };
+  };
+
+  const getStudentUnitStatus = (student: UserProfile, unitId: string): UnitProgressionStatus => {
+    return VocabularyExamService.getUnitStatus(student, unitId, CURRICULUM_UNITS);
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -1785,6 +1972,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toggleSound,
         resetProgress,
         openMysteryBox,
+        authorizeExam,
+        revokeExamAuthorization,
+        authorizeExamRetake,
+        startVocabularyExam,
+        submitExamAnswer,
+        recordExamTabSwitch,
+        finalizeVocabularyExam,
+        getStudentUnitStatus,
       }}
     >
       {children}

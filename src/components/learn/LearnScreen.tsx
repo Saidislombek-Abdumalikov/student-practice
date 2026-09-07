@@ -3,6 +3,7 @@ import { useGame } from '../../context/GameContext';
 import { LevelId, CurriculumUnit, PracticeMode } from '../../types';
 import { LEVELS } from '../../data/curriculumData';
 import { FlashcardViewer } from './FlashcardViewer';
+import { VocabularyExamScreen } from './VocabularyExamScreen';
 import { VocabularyPractice, WordCountMode } from './VocabularyPractice';
 import { MistakesReview } from './MistakesReview';
 import { GrammarDashboard } from '../grammar/GrammarDashboard';
@@ -10,12 +11,15 @@ import { soundService } from '../../services/soundService';
 import { 
   BookOpen, 
   Zap, 
-  CheckCircle2, 
+  CheckCircle2,
+  Lock,
+  AlertCircle, 
   RotateCcw, 
   ChevronRight,
   MousePointerClick,
   Trophy,
-  Sparkles
+  Sparkles,
+  XCircle
 } from 'lucide-react';
 
 export const LearnScreen: React.FC = () => {
@@ -26,7 +30,8 @@ export const LearnScreen: React.FC = () => {
     setActiveUnitId, 
     updateLevel, 
     currentScreen,
-    getUnitProgress
+    getUnitProgress,
+    getStudentUnitStatus
   } = useGame();
 
   const [learnCategory, setLearnCategory] = useState<'vocabulary' | 'grammar'>('vocabulary');
@@ -37,7 +42,22 @@ export const LearnScreen: React.FC = () => {
   const [practiceStartIndex, setPracticeStartIndex] = useState<number | undefined>(undefined);
   const [flashcardStartIndex, setFlashcardStartIndex] = useState<number>(0);
 
-  const [activeTab, setActiveTab] = useState<'units' | 'flashcards' | 'practice' | 'mistakes'>(() => {
+  const [examUnitId, setExamUnitId] = useState<string | null>(() => {
+    if (profile.activeExamAttempt && profile.activeExamAttempt.status === 'active') {
+      return profile.activeExamAttempt.unitId;
+    }
+    return null;
+  });
+
+  const [activeTab, setActiveTab] = useState<'units' | 'flashcards' | 'practice' | 'mistakes' | 'exam'>(() => {
+    if (profile.activeExamAttempt && profile.activeExamAttempt.status === 'active') {
+      return 'exam';
+    }
+    if (currentScreen === 'flashcards') return 'flashcards';
+    if (currentScreen === 'practice') return 'practice';
+    if (currentScreen === 'mistakes') return 'mistakes';
+    return 'units';
+  });(() => {
     if (currentScreen === 'flashcards') return 'flashcards';
     if (currentScreen === 'practice') return 'practice';
     if (currentScreen === 'mistakes') return 'mistakes';
@@ -73,6 +93,19 @@ export const LearnScreen: React.FC = () => {
 
   if (activeTab === 'mistakes') {
     return <MistakesReview onBack={() => setActiveTab('units')} />;
+  }
+
+  if (activeTab === 'exam' || (profile.activeExamAttempt && profile.activeExamAttempt.status === 'active')) {
+    const targetId = examUnitId || profile.activeExamAttempt?.unitId || activeUnitId;
+    return (
+      <VocabularyExamScreen 
+        unitId={targetId} 
+        onExit={() => {
+          setActiveTab('units');
+          setExamUnitId(null);
+        }} 
+      />
+    );
   }
 
   return (
@@ -187,7 +220,13 @@ export const LearnScreen: React.FC = () => {
           {levelUnits.map((u) => {
             const isSelected = selectedUnitId === u.id;
             const prog = getUnitProgress(u.id);
-            const isCompleted = prog.percent >= 100;
+            const unitStatus = getStudentUnitStatus(profile, u.id);
+            const isLocked = unitStatus === 'LOCKED';
+            const isPassed = unitStatus === 'PASSED';
+            const isReady = unitStatus === 'READY_FOR_EXAM';
+            const isInProgress = unitStatus === 'EXAM_IN_PROGRESS';
+            const isFailed = unitStatus === 'FAILED';
+            const unitRecord = profile.vocabProgression?.[u.id];
 
             return (
               <div
@@ -198,8 +237,18 @@ export const LearnScreen: React.FC = () => {
                   setActiveUnitId(u.id);
                 }}
                 className={`card-game p-5 cursor-pointer transition-all duration-150 border-2 ${
-                  isSelected
+                  isReady
+                    ? 'border-amber-500/80 bg-gradient-to-r from-amber-950/30 to-slate-900 shadow-glow-amber ring-1 ring-amber-500/40'
+                    : isInProgress
+                    ? 'border-emerald-500/90 bg-emerald-950/30 shadow-glow-emerald animate-pulse'
+                    : isSelected
                     ? 'border-indigo-500 bg-indigo-950/40 shadow-glow-primary scale-[1.01]'
+                    : isLocked
+                    ? 'border-slate-800 bg-slate-900/60 opacity-75 hover:opacity-90 hover:border-slate-700'
+                    : isPassed
+                    ? 'border-emerald-500/40 bg-slate-900/90 hover:border-emerald-500/60'
+                    : isFailed
+                    ? 'border-rose-500/40 bg-rose-950/20 hover:border-rose-500/60'
                     : 'border-slate-700/80 hover:border-slate-600 hover:bg-slate-800'
                 }`}
               >
@@ -207,23 +256,74 @@ export const LearnScreen: React.FC = () => {
                   <div className="flex items-center gap-4">
                     {/* Unit Number Badge */}
                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg shrink-0 border-2 ${
-                      isCompleted
+                      isPassed
                         ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300'
+                        : isReady
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-300 shadow-sm'
+                        : isInProgress
+                        ? 'bg-emerald-500 border-emerald-400 text-slate-950 font-black'
+                        : isFailed
+                        ? 'bg-rose-500/20 border-rose-500 text-rose-300'
+                        : isLocked
+                        ? 'bg-slate-800/80 border-slate-700 text-slate-500'
                         : isSelected
                         ? 'bg-indigo-600 border-indigo-400 text-white shadow-sm'
                         : 'bg-slate-800 border-slate-700 text-slate-400'
                     }`}>
-                      {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : u.unitNumber}
+                      {isPassed ? (
+                        <CheckCircle2 className="w-6 h-6" />
+                      ) : isLocked ? (
+                        <Lock className="w-5 h-5 text-slate-500" />
+                      ) : isFailed ? (
+                        <XCircle className="w-6 h-6 text-rose-400" />
+                      ) : (
+                        u.unitNumber
+                      )}
                     </div>
 
                     <div>
-                      <h3 className="font-extrabold text-base text-white">
-                        {u.title}
-                      </h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-extrabold text-base text-white">
+                          {u.title}
+                        </h3>
+                        {/* Status Badges */}
+                        {isReady && (
+                          <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-black uppercase tracking-wider animate-bounce">
+                            ⭐ Ready for Exam!
+                          </span>
+                        )}
+                        {isInProgress && (
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-wider">
+                            Active Exam
+                          </span>
+                        )}
+                        {isPassed && (
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-black uppercase tracking-wider">
+                            ✓ Passed {unitRecord?.lastAttemptScore ? `(${unitRecord.lastAttemptScore}%)` : ''}
+                          </span>
+                        )}
+                        {isFailed && (
+                          <span className="px-2 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[10px] font-black uppercase tracking-wider">
+                            ✕ Failed {unitRecord?.lastAttemptScore ? `(${unitRecord.lastAttemptScore}%)` : ''}
+                          </span>
+                        )}
+                        {isLocked && (
+                          <span className="px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-400 text-[10px] font-bold">
+                            Locked
+                          </span>
+                        )}
+                      </div>
+
                       <div className="flex items-center gap-2 text-xs text-slate-400 mt-1">
-                        <span className="text-emerald-400 font-extrabold">{prog.percent}% Finished</span>
-                        <span>•</span>
-                        <span>{prog.completedCount} / {u.words.length} words</span>
+                        {isLocked ? (
+                          <span className="text-slate-500">Pass Unit {u.unitNumber - 1} with ≥ 95% on official exam to unlock</span>
+                        ) : (
+                          <>
+                            <span className="text-emerald-400 font-extrabold">{prog.percent}% Studied</span>
+                            <span>•</span>
+                            <span>{prog.completedCount} / {u.words.length} words</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -235,7 +335,7 @@ export const LearnScreen: React.FC = () => {
                 <div className="mt-3 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
                   <div 
                     className={`h-full rounded-full transition-all duration-300 ${
-                      isCompleted ? 'bg-emerald-400' : 'bg-gradient-to-r from-indigo-500 to-emerald-400'
+                      (isPassed || prog.percent >= 100) ? 'bg-emerald-400' : 'bg-gradient-to-r from-indigo-500 to-emerald-400'
                     }`}
                     style={{ width: `${prog.percent}%` }}
                   />
@@ -376,20 +476,84 @@ export const LearnScreen: React.FC = () => {
                     </button>
                   )}
 
-                  {/* 1. Full Unit Exam (Prominent Golden Button) */}
-                  <button
-                    onClick={() => {
-                      soundService.playSuccess();
-                      setPracticeStartIndex(undefined);
-                      setPracticeCountMode('whole');
-                      setPracticeMode('mixed');
-                      setActiveTab('practice');
-                    }}
-                    className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black flex items-center justify-center gap-2 text-sm shadow-game-btn hover:brightness-110 active:scale-98 transition-all"
-                  >
-                    <Trophy className="w-5 h-5 text-slate-950" />
-                    <span>Full Unit Exam ({activeUnit.words.length} Words)</span>
-                  </button>
+                  {/* Official Final Exam Launcher */}
+                  {(() => {
+                    const status = getStudentUnitStatus(profile, activeUnit.id);
+                    const isReady = status === 'READY_FOR_EXAM';
+                    const isInProgress = status === 'EXAM_IN_PROGRESS';
+                    const isPassed = status === 'PASSED';
+                    const isFailed = status === 'FAILED';
+                    const isLocked = status === 'LOCKED';
+                    const record = profile.vocabProgression?.[activeUnit.id];
+
+                    if (isReady || isInProgress) {
+                      return (
+                        <button
+                          onClick={() => {
+                            soundService.playSuccess();
+                            setExamUnitId(activeUnit.id);
+                            setActiveTab('exam');
+                          }}
+                          className={`w-full py-3.5 px-5 rounded-2xl font-black flex items-center justify-center gap-2 text-sm shadow-game-btn hover:brightness-110 active:scale-98 transition-all ${
+                            isInProgress
+                              ? 'btn-game-emerald shadow-glow-emerald animate-pulse'
+                              : 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 shadow-glow-amber'
+                          }`}
+                        >
+                          <Trophy className="w-5 h-5" />
+                          <span>{isInProgress ? 'Resume Official Exam' : 'START OFFICIAL FINAL EXAM (Authorized)'}</span>
+                        </button>
+                      );
+                    }
+
+                    if (isPassed) {
+                      return (
+                        <div className="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 flex items-center justify-between text-xs font-black">
+                          <span className="flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                            <span>Unit Passed ({record?.lastAttemptScore || 100}%)</span>
+                          </span>
+                          <span className="text-[11px] opacity-80">Official Completed</span>
+                        </div>
+                      );
+                    }
+
+                    if (isFailed) {
+                      return (
+                        <div className="p-3.5 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs font-bold space-y-1">
+                          <div className="flex items-center gap-2 font-black">
+                            <XCircle className="w-4 h-4 text-rose-400" />
+                            <span>Exam Not Passed ({record?.lastAttemptScore}%)</span>
+                          </div>
+                          <p className="text-[11px] text-slate-300 leading-snug">
+                            95% required to pass. Please review your vocabulary and ask your teacher to authorize a retake.
+                          </p>
+                        </div>
+                      );
+                    }
+
+                    if (isLocked) {
+                      return (
+                        <div className="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 text-slate-400 text-xs font-bold flex items-center gap-2">
+                          <Lock className="w-4 h-4 text-slate-500" />
+                          <span>Unit Locked — Pass earlier units to unlock</span>
+                        </div>
+                      );
+                    }
+
+                    // Status === 'LEARNING'
+                    return (
+                      <div className="p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-indigo-300 text-xs font-bold space-y-1">
+                        <div className="flex items-center gap-1.5 font-black text-white">
+                          <Lock className="w-4 h-4 text-amber-400" />
+                          <span>Final Exam Locked (Teacher Authorization Required)</span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 leading-snug">
+                          Study flashcards and practice first. When you are ready, ask your teacher to grant exam access.
+                        </p>
+                      </div>
+                    );
+                  })()}
 
                   <div className="grid grid-cols-2 gap-2">
                     <button
