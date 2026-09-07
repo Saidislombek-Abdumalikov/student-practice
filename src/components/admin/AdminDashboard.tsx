@@ -42,7 +42,8 @@ import {
   BarChart3,
   CheckCircle2,
   Ticket,
-  FileText
+  FileText,
+  History
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -63,6 +64,10 @@ export const AdminDashboard: React.FC = () => {
     deleteGroup,
     assignStudentToGroup,
     removeStudentFromGroup,
+    resetGroupProgress,
+    restoreLastReset,
+    lastResetBackup,
+    canRestoreReset,
     boxPrices,
     updateBoxPrices,
     isCloudConnected,
@@ -705,21 +710,74 @@ export const AdminDashboard: React.FC = () => {
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={async () => {
-                const choice = confirm('⚠️ Clean Slate Reset for ALL Students?\n\nThis will reset all students\' XP to 0, Coins to 20, Diamonds to 0, Streak to 1, and clear completed units and grammar records.\n\nClick OK to reset students (Teacher is preserved).');
-                if (choice) {
-                  await resetAllStudentsProgress(false);
-                  alert('✅ All student progress successfully cleared and reset!');
-                }
-              }}
-              className="py-1.5 px-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500 hover:text-slate-950 font-black text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
-              title="Reset all students to clean starting data"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset All Students</span>
-            </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* RESTORE LAST RESET BUTTON */}
+            {canRestoreReset && lastResetBackup && (
+              <button
+                onClick={async () => {
+                  const timeStr = new Date(lastResetBackup.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  const choice = confirm(
+                    `⏪ Restore Last Reset?\n\nTarget: ${lastResetBackup.targetName} (${lastResetBackup.affectedStudentCount} students)\nReset Time: ${timeStr}\n\nThis will restore their XP, Coins, Diamonds, Streak, and completed units/grammar records back to how they were right before the reset!\n\nClick OK to restore.`
+                  );
+                  if (choice) {
+                    const res = await restoreLastReset();
+                    if (res.success) {
+                      alert(`✅ ${res.message}`);
+                    } else {
+                      alert(`❌ ${res.message}`);
+                    }
+                  }
+                }}
+                className="py-1.5 px-3 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/60 text-emerald-300 hover:bg-emerald-500 hover:text-slate-950 font-black text-xs flex items-center gap-1.5 transition-all shadow-glow-primary active:scale-95 animate-pulse"
+                title={`Restore previous state for ${lastResetBackup.targetName} (${lastResetBackup.affectedStudentCount} students)`}
+              >
+                <History className="w-3.5 h-3.5" />
+                <span>Restore Last Reset ({lastResetBackup.targetName})</span>
+              </button>
+            )}
+
+            {/* GROUP-AWARE RESET BUTTON */}
+            {(() => {
+              const activeFilterGroup = groups.find((g: StudentGroup) => g.id === selectedGroupFilter);
+              if (activeFilterGroup) {
+                const groupCount = students.filter(s => s.groupId === activeFilterGroup.id || activeFilterGroup.studentIds.includes(s.id)).length;
+                return (
+                  <button
+                    onClick={async () => {
+                      const choice = confirm(
+                        `⚠️ Reset learning progress for ${groupCount} students in "${activeFilterGroup.name}"?\n\nThis will reset their XP to 0, Coins to 20, Diamonds to 0, Streak to 1, and clear completed units and grammar records.\n\n(A safety backup will be created automatically so you can restore their progress anytime!)`
+                      );
+                      if (choice) {
+                        const res = await resetGroupProgress(activeFilterGroup.id);
+                        alert(`✅ ${res.message}\n\nYou can click "Restore Last Reset" if you need to recover this group's progress!`);
+                      }
+                    }}
+                    className="py-1.5 px-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500 hover:text-slate-950 font-black text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                    title={`Reset progress for all students in ${activeFilterGroup.name}`}
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset {activeFilterGroup.name}</span>
+                  </button>
+                );
+              }
+
+              return (
+                <button
+                  onClick={async () => {
+                    const choice = confirm('⚠️ Clean Slate Reset for ALL Students?\n\nThis will reset all students\' XP to 0, Coins to 20, Diamonds to 0, Streak to 1, and clear completed units and grammar records.\n\n(A safety backup will be created automatically so you can restore their progress anytime!)');
+                    if (choice) {
+                      await resetAllStudentsProgress(false);
+                      alert('✅ All student progress successfully cleared and reset!\n\nYou can click "Restore Last Reset" if you need to recover them.');
+                    }
+                  }}
+                  className="py-1.5 px-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500 hover:text-slate-950 font-black text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                  title="Reset all students to clean starting data"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset All Students</span>
+                </button>
+              );
+            })()}
           </div>
         </div>
 
@@ -1084,6 +1142,23 @@ export const AdminDashboard: React.FC = () => {
 
                               <div className="flex items-center gap-1.5 shrink-0">
                                 <button
+                                  onClick={async () => {
+                                    const choice = confirm(
+                                      `⚠️ Reset learning progress for ${members.length} students in "${g.name}"?\n\nThis will reset their XP to 0, Coins to 20, Diamonds to 0, Streak to 1, and clear completed units and grammar records.\n\n(A safety backup will be saved automatically, and you can click "Restore Last Reset" anytime!)`
+                                    );
+                                    if (choice) {
+                                      const res = await resetGroupProgress(g.id);
+                                      alert(`✅ ${res.message}\n\nYou can click "Restore Last Reset" if needed.`);
+                                    }
+                                  }}
+                                  className="py-1.5 px-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition-all text-xs font-bold flex items-center gap-1 active:scale-95"
+                                  title={`Reset progress for all students in ${g.name}`}
+                                >
+                                  <RotateCcw className="w-3.5 h-3.5" />
+                                  <span className="hidden sm:inline">Reset</span>
+                                </button>
+
+                                <button
                                   onClick={() => handleOpenEditGroup(g)}
                                   className="py-1.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all text-xs font-bold flex items-center gap-1 border border-slate-700 active:scale-95"
                                   title="Edit Group"
@@ -1091,6 +1166,7 @@ export const AdminDashboard: React.FC = () => {
                                   <Edit3 className="w-3.5 h-3.5 text-purple-400" />
                                   <span className="hidden sm:inline">Edit</span>
                                 </button>
+
                                 <button
                                   onClick={() => handleDeleteGroup(g)}
                                   className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all text-xs active:scale-95"

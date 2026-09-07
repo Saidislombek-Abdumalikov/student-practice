@@ -584,4 +584,18 @@ export interface StudentGroup {
   updatedAt?: string;
 }
 
+// -------------------------------------------------------------
+// Progress Reset & Backup Recovery System
+// -------------------------------------------------------------
+export interface ResetBackupRecord {
+  id: string;
+  timestamp: string; // ISO string
+  scope: 'single' | 'group' | 'all';
+  targetId?: string;
+  targetName: string; // e.g. "Morning Group Alpha", "All Students", "Dilnuraxon"
+  affectedStudentCount: number;
+  previousProfiles: UserProfile[]; // Snapshot of student profiles before reset
+}
+
+
 

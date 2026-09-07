@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo } from '
 import { 
   UserProfile, 
   StudentGroup,
+  ResetBackupRecord,
   CharacterConfig, 
   LevelId, 
   AppScreen, 
@@ -86,9 +87,13 @@ interface GameContextType {
   assignStudentToGroup: (studentId: string, groupId: string) => void;
   removeStudentFromGroup: (studentId: string) => void;
   resetStudentPassword: (studentId: string, newPass: string) => void;
-  resetStudentProgress: (studentId: string) => void;
+  resetStudentProgress: (studentId: string) => Promise<void>;
+  resetGroupProgress: (groupId: string) => Promise<{ success: boolean; message: string; affectedCount: number }>;
   resetAdminProgress: () => void;
   resetAllStudentsProgress: (includeAdmin?: boolean) => Promise<void>;
+  restoreLastReset: () => Promise<{ success: boolean; message: string; restoredCount?: number }>;
+  lastResetBackup: ResetBackupRecord | null;
+  canRestoreReset: boolean;
   deleteStudentAccount: (studentId: string) => void;
   boxPrices: Record<MysteryBoxTier, number>;
   updateBoxPrices: (prices: Record<MysteryBoxTier, number>) => void;
@@ -140,6 +145,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   const [profile, setProfile] = useState<UserProfile>(() => StorageService.loadProfile());
   const [groups, setGroups] = useState<StudentGroup[]>(() => GroupService.getGroups());
+  const [lastResetBackup, setLastResetBackup] = useState<ResetBackupRecord | null>(() => StorageService.loadResetBackup());
+  const canRestoreReset = useMemo(() => !!lastResetBackup && !!lastResetBackup.previousProfiles && lastResetBackup.previousProfiles.length > 0, [lastResetBackup]);
 
   const currentStudentGroup = useMemo(() => {
     return groups.find(g => g.id === profile.groupId || g.studentIds.includes(profile.id));
@@ -1475,6 +1482,19 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const accounts = StorageService.loadAllAccounts();
     const idx = accounts.findIndex(a => a.id === studentId);
     if (idx >= 0) {
+      // 1. Create safety backup snapshot before resetting
+      const backup: ResetBackupRecord = {
+        id: `bkp_${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        scope: 'single',
+        targetId: studentId,
+        targetName: accounts[idx].name,
+        affectedStudentCount: 1,
+        previousProfiles: [JSON.parse(JSON.stringify(accounts[idx]))],
+      };
+      StorageService.saveResetBackup(backup);
+      setLastResetBackup(backup);
+
       const now = new Date().toISOString();
       const target = {
         ...accounts[idx],
@@ -1509,8 +1529,90 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const resetGroupProgress = async (groupId: string): Promise<{ success: boolean; message: string; affectedCount: number }> => {
+    const targetGroup = groups.find(g => g.id === groupId);
+    const accounts = StorageService.loadAllAccounts();
+    const groupStudents = accounts.filter(
+      a => a.role === 'student' && (a.groupId === groupId || targetGroup?.studentIds.includes(a.id))
+    );
+
+    if (groupStudents.length === 0) {
+      return { success: false, message: 'No students found in this group to reset.', affectedCount: 0 };
+    }
+
+    // 1. Create safety backup snapshot before resetting
+    const backup: ResetBackupRecord = {
+      id: `bkp_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      scope: 'group',
+      targetId: groupId,
+      targetName: targetGroup ? targetGroup.name : 'Group',
+      affectedStudentCount: groupStudents.length,
+      previousProfiles: JSON.parse(JSON.stringify(groupStudents)),
+    };
+    StorageService.saveResetBackup(backup);
+    setLastResetBackup(backup);
+
+    const now = new Date().toISOString();
+    const updated = accounts.map(acc => {
+      const isTarget = groupStudents.some(gs => gs.id === acc.id);
+      if (!isTarget) return acc;
+      return {
+        ...acc,
+        xp: 0,
+        coins: 20,
+        diamonds: 0,
+        streakDays: 1,
+        unitMasteries: {},
+        completedUnits: [],
+        grammarMasteries: {},
+        completedGrammarTopics: [],
+        completedGrammarExams: {},
+        grammarMistakes: [],
+        mistakes: [],
+        claimedPrizes: [],
+        grammarHearts: 5,
+        currentUnitId: acc.levelId === 'elementary' ? 'el_u1' : acc.levelId === 'pre_intermediate' ? 'pre_u0' : 'u1',
+        lastActiveDate: now,
+      };
+    });
+
+    StorageService.saveAllAccounts(updated);
+    setAllAccounts([...updated]);
+
+    const activeInGroup = updated.find(a => a.id === profile.id && groupStudents.some(gs => gs.id === a.id));
+    if (activeInGroup) {
+      setProfile(sanitizeProfile(activeInGroup));
+      StorageService.saveProfile(activeInGroup);
+    }
+
+    if (isSupabaseConfigured()) {
+      await SupabaseService.saveAllAccountsToRemote(updated);
+    }
+    soundService.playSuccess();
+    return {
+      success: true,
+      message: `Successfully reset progress for ${groupStudents.length} students in ${targetGroup?.name || 'group'}.`,
+      affectedCount: groupStudents.length,
+    };
+  };
+
   const resetAllStudentsProgress = async (includeAdmin: boolean = false) => {
     const accounts = StorageService.loadAllAccounts();
+    const studentsToReset = accounts.filter(a => a.role === 'student');
+
+    // 1. Create safety backup snapshot before resetting
+    const backup: ResetBackupRecord = {
+      id: `bkp_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      scope: 'all',
+      targetName: 'All Students',
+      affectedStudentCount: studentsToReset.length,
+      previousProfiles: JSON.parse(JSON.stringify(studentsToReset)),
+    };
+    StorageService.saveResetBackup(backup);
+    setLastResetBackup(backup);
+
     const now = new Date().toISOString();
     const updated = accounts.map(acc => {
       if ((acc.role === 'admin' || acc.role === 'support') && !includeAdmin) return acc;
@@ -1546,6 +1648,52 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     soundService.playSuccess();
   };
 
+  const restoreLastReset = async (): Promise<{ success: boolean; message: string; restoredCount?: number }> => {
+    const backup = lastResetBackup || StorageService.loadResetBackup();
+    if (!backup || !backup.previousProfiles || backup.previousProfiles.length === 0) {
+      soundService.playError();
+      return { success: false, message: 'No reset backup found to restore.' };
+    }
+
+    const currentAccounts = StorageService.loadAllAccounts();
+    const updatedAccounts = currentAccounts.map(curr => {
+      const savedProfile = backup.previousProfiles.find(p => p.id === curr.id);
+      if (savedProfile) {
+        return {
+          ...curr,
+          ...savedProfile,
+          lastActiveDate: new Date().toISOString(),
+        };
+      }
+      return curr;
+    });
+
+    StorageService.saveAllAccounts(updatedAccounts);
+    setAllAccounts([...updatedAccounts]);
+
+    const activeRestored = backup.previousProfiles.find(p => p.id === profile.id);
+    if (activeRestored) {
+      const refreshed = { ...activeRestored, lastActiveDate: new Date().toISOString() };
+      setProfile(sanitizeProfile(refreshed));
+      StorageService.saveProfile(refreshed);
+    }
+
+    if (isSupabaseConfigured()) {
+      await SupabaseService.saveAllAccountsToRemote(updatedAccounts);
+    }
+
+    // Clear the backup after successful restore
+    StorageService.clearResetBackup();
+    setLastResetBackup(null);
+
+    soundService.playLevelUp();
+    return {
+      success: true,
+      message: `Successfully restored ${backup.previousProfiles.length} students from the last reset (${backup.targetName})!`,
+      restoredCount: backup.previousProfiles.length,
+    };
+  };
+
   const deleteStudentAccount = (studentId: string) => {
     StorageService.deleteAccount(studentId);
     refreshAccounts();
@@ -1568,8 +1716,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         createNewStudent,
         resetStudentPassword,
         resetStudentProgress,
+        resetGroupProgress,
         resetAdminProgress,
         resetAllStudentsProgress,
+        restoreLastReset,
+        lastResetBackup,
+        canRestoreReset,
         deleteStudentAccount,
         groups,
         currentStudentGroup,

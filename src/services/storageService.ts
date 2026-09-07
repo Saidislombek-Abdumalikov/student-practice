@@ -1,10 +1,11 @@
-import { UserProfile, CharacterConfig } from '../types';
+import { UserProfile, CharacterConfig, ResetBackupRecord } from '../types';
 import { INITIAL_ACCOUNTS } from '../data/accountsData';
 import { GroupService } from './groupService';
 
 const ACCOUNTS_STORAGE_KEY = 'play_learn_compete_accounts_v2';
 const ACTIVE_USER_ID_KEY = 'play_learn_compete_active_uid_v3';
 const LEGACY_STORAGE_KEY = 'play_learn_compete_user_v1';
+const LAST_RESET_BACKUP_KEY = 'play_learn_compete_last_reset_backup_v1';
 
 export const DEFAULT_CHARACTER: CharacterConfig = {
   gender: 'man',
@@ -380,6 +381,46 @@ export class StorageService {
     try {
       localStorage.removeItem(ACTIVE_USER_ID_KEY);
       localStorage.removeItem(LEGACY_STORAGE_KEY);
+    } catch {
+      // Ignored
+    }
+  }
+
+  /**
+   * Save snapshot of student profiles before reset operation.
+   */
+  public static saveResetBackup(backup: ResetBackupRecord): void {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      localStorage.setItem(LAST_RESET_BACKUP_KEY, JSON.stringify(backup));
+    } catch (e) {
+      console.warn('Failed to save reset backup:', e);
+    }
+  }
+
+  /**
+   * Load the most recent reset backup snapshot.
+   */
+  public static loadResetBackup(): ResetBackupRecord | null {
+    if (typeof localStorage === 'undefined') return null;
+    try {
+      const raw = localStorage.getItem(LAST_RESET_BACKUP_KEY);
+      if (raw) {
+        return JSON.parse(raw) as ResetBackupRecord;
+      }
+    } catch {
+      // Ignored
+    }
+    return null;
+  }
+
+  /**
+   * Clear the last reset backup.
+   */
+  public static clearResetBackup(): void {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      localStorage.removeItem(LAST_RESET_BACKUP_KEY);
     } catch {
       // Ignored
     }
