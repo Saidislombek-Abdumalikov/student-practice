@@ -101,6 +101,8 @@ export function sanitizeProfile(raw: any): UserProfile {
     grammarMistakes: Array.isArray(raw.grammarMistakes) ? raw.grammarMistakes : [],
     mistakes: Array.isArray(raw.mistakes) ? raw.mistakes : [],
     claimedPrizes: Array.isArray(raw.claimedPrizes) ? raw.claimedPrizes : [],
+    diamondHistory: Array.isArray(raw.diamondHistory) ? raw.diamondHistory : [],
+    giftRequests: Array.isArray(raw.giftRequests) ? raw.giftRequests : [],
     soundEnabled: raw.soundEnabled !== undefined ? raw.soundEnabled : true,
     speechSpeed: raw.speechSpeed || 'normal',
     grammarLevel: raw.grammarLevel || 'level_1',

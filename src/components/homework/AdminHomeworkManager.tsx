@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 
 export const AdminHomeworkManager: React.FC = () => {
-  const { allAccounts, profile, groups } = useGame();
+  const { allAccounts, profile, groups, adminAwardDiamonds } = useGame();
   
   // Two main options for admin: 1) Add Homework, 2) Review Submissions
   const [activeAdminTab, setActiveAdminTab] = useState<'create' | 'submissions'>('create');
@@ -142,14 +142,30 @@ export const AdminHomeworkManager: React.FC = () => {
     setActiveAdminTab('submissions');
   };
 
-  const handleSaveGrade = (submission: HomeworkSubmission, status: 'approved' | 'revision') => {
+  const handleSaveGrade = async (submission: HomeworkSubmission, status: 'approved' | 'revision', awardDiamond: boolean = false) => {
     soundService.playSuccess();
     HomeworkService.gradeSubmission(
       submission.id,
       gradeInput,
-      feedbackInput || (status === 'approved' ? 'Excellent work!' : 'Please check your spelling and re-submit.'),
+      feedbackInput || (status === 'approved' ? 'A’lo ish!' : 'Iltimos, qayta ko‘rib chiqib topshiring.'),
       status
     );
+
+    if (status === 'approved' && awardDiamond) {
+      const assignment = assignments.find(a => a.id === submission.assignmentId);
+      const res = await adminAwardDiamonds({
+        studentId: submission.studentId,
+        amount: 1,
+        category: 'HOMEWORK_COMPLETED',
+        reason: `Uy vazifasi to‘liq bajarildi: ${assignment?.title || 'Vazifa'}`,
+        relatedEntityId: submission.id,
+      });
+      if (res.success) {
+        alert(`✅ Vazifa tasdiqlandi va o‘quvchiga 1 ta olmos berildi!`);
+      } else {
+        alert(`Vazifa tasdiqlandi. (${res.message})`);
+      }
+    }
 
     setGradingSubId(null);
     setFeedbackInput('');
@@ -761,18 +777,24 @@ export const AdminHomeworkManager: React.FC = () => {
                           className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
                         />
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row items-center gap-2">
                           <button
-                            onClick={() => handleSaveGrade(sub, 'approved')}
-                            className="flex-1 btn-game-emerald py-2 text-xs font-black"
+                            onClick={() => handleSaveGrade(sub, 'approved', true)}
+                            className="flex-1 btn-game-emerald py-2 px-3 text-xs font-black shadow-sm"
                           >
-                            Approve & Save
+                            💎 Tasdiqlash va 1 olmos berish
+                          </button>
+                          <button
+                            onClick={() => handleSaveGrade(sub, 'approved', false)}
+                            className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs"
+                          >
+                            Faqat tasdiqlash
                           </button>
                           <button
                             onClick={() => handleSaveGrade(sub, 'revision')}
                             className="py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs"
                           >
-                            Needs Revision
+                            Qayta topshirish
                           </button>
                         </div>
                       </div>

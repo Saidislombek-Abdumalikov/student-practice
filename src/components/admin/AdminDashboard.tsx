@@ -2,7 +2,7 @@ import { VocabularyExamAdminHub } from './VocabularyExamAdminHub';
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { ModularCharacter } from '../character/ModularCharacter';
-import { CharacterGender, LevelId, UserProfile, MysteryBoxPrize, MysteryBoxTier, StudentGroup } from '../../types';
+import { CharacterGender, LevelId, UserProfile, MysteryBoxPrize, MysteryBoxTier, StudentGroup, DiamondAwardCategory } from '../../types';
 import { formatPresence, formatTimeSpent, formatExactDateTime } from '../../services/presenceService';
 import { MysteryBoxService, MYSTERY_BOX_PRICES } from '../../services/mysteryBoxService';
 import { soundService } from '../../services/soundService';
@@ -15,10 +15,7 @@ import { SUPABASE_SQL_SETUP, SupabaseService } from '../../services/supabaseServ
 import { 
   ShieldCheck, 
   Users, 
-  User,
-  Zap, 
-  Coins, 
-  Flame, 
+  User, 
   Award, 
   Plus, 
   KeyRound, 
@@ -44,7 +41,9 @@ import {
   CheckCircle2,
   Ticket,
   FileText,
-  History
+  History,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -73,14 +72,40 @@ export const AdminDashboard: React.FC = () => {
     updateBoxPrices,
     isCloudConnected,
     syncWithCloud,
-    setScreen 
+    setScreen,
+    gifts,
+    giftRequests,
+    diamondAwardLogs,
+    adminAddGift,
+    adminUpdateGift,
+    adminDeleteGift,
+    adminDeliverGift,
+    adminAwardDiamonds
   } = useGame();
 
-  const [adminSection, setAdminSection] = useState<'roster' | 'exams'>('roster');
+  const [adminSection, setAdminSection] = useState<'roster' | 'exams' | 'diamonds' | 'gifts'>('roster');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState<UserProfile | null>(null);
   const [newPasswordInput, setNewPasswordInput] = useState('');
+
+  // Diamond manual award state
+  const [awardStudentId, setAwardStudentId] = useState<string>('');
+  const [awardCategory, setAwardCategory] = useState<DiamondAwardCategory>('HOMEWORK_COMPLETED');
+  const [awardCustomAmount, setAwardCustomAmount] = useState<number>(3);
+  const [awardReason, setAwardReason] = useState<string>('');
+  const [awardRelatedId, setAwardRelatedId] = useState<string>('');
+  const [awardFeedback, setAwardFeedback] = useState<{ ok: boolean; text: string } | null>(null);
+  const [isAwarding, setIsAwarding] = useState<boolean>(false);
+
+  // Gifts administration state
+  const [giftAdminTab, setGiftAdminTab] = useState<'requests' | 'catalog'>('requests');
+  const [newGiftTitle, setNewGiftTitle] = useState('');
+  const [newGiftDesc, setNewGiftDesc] = useState('');
+  const [newGiftPrice, setNewGiftPrice] = useState<number>(5);
+  const [newGiftIcon, setNewGiftIcon] = useState('🎁');
+  const [newGiftActive, setNewGiftActive] = useState(true);
+  const [giftFeedback, setGiftFeedback] = useState<string | null>(null);
   
   // Cloud modal state
   const [showCloudModal, setShowCloudModal] = useState(false);
@@ -326,6 +351,56 @@ export const AdminDashboard: React.FC = () => {
     setNewPasswordInput('');
   };
 
+  const handleAwardDiamonds = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!awardStudentId) {
+      setAwardFeedback({ ok: false, text: "Iltimos, o‘quvchini tanlang!" });
+      return;
+    }
+    const amount = awardCategory === 'HOMEWORK_COMPLETED' ? 1 : awardCategory === 'EXAM_HIGH_SCORE' ? 5 : awardCustomAmount;
+    if (!amount || amount <= 0) {
+      setAwardFeedback({ ok: false, text: "Olmos miqdori 0 dan katta bo‘lishi kerak!" });
+      return;
+    }
+    setIsAwarding(true);
+    setAwardFeedback(null);
+    const res = await adminAwardDiamonds({
+      studentId: awardStudentId,
+      amount,
+      category: awardCategory,
+      reason: awardReason.trim() || (awardCategory === 'HOMEWORK_COMPLETED' ? 'Vazifalarni to‘liq bajarganligi uchun' : awardCategory === 'EXAM_HIGH_SCORE' ? 'Imtihonda yuqori natija ko‘rsatganligi uchun' : 'Alohida yaxshi ishi uchun'),
+      relatedEntityId: awardRelatedId.trim() || undefined,
+    });
+    setIsAwarding(false);
+    if (res.success) {
+      soundService.playSuccess();
+      setAwardFeedback({ ok: true, text: `✅ ${res.message}` });
+      setAwardReason('');
+      setAwardRelatedId('');
+    } else {
+      soundService.playCardFlip();
+      setAwardFeedback({ ok: false, text: `❌ ${res.message}` });
+    }
+  };
+
+  const handleCreateGift = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newGiftTitle.trim()) return;
+    adminAddGift({
+      title: newGiftTitle.trim(),
+      description: newGiftDesc.trim(),
+      diamondPrice: Math.max(1, newGiftPrice),
+      iconUrl: newGiftIcon || '🎁',
+      isActive: newGiftActive,
+    });
+    soundService.playSuccess();
+    setGiftFeedback('✅ Yangi sovg‘a muvaffaqiyatli qo‘shildi!');
+    setNewGiftTitle('');
+    setNewGiftDesc('');
+    setNewGiftPrice(5);
+    setTimeout(() => setGiftFeedback(null), 3000);
+  };
+
   // Generate suggested credentials when typing name
   const handleNameChange = (name: string) => {
     setNewStudentName(name);
@@ -523,41 +598,37 @@ export const AdminDashboard: React.FC = () => {
           </div>
           <div>
             <div className="text-2xl font-black text-white">{students.length}</div>
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Students Enrolled</div>
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">O‘quvchilar</div>
+          </div>
+        </div>
+
+        <div className="card-game p-4 bg-slate-900/80 border-slate-800 flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
+            <Sparkles className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="text-2xl font-black text-white">💎 {students.reduce((sum, s) => sum + (s.diamonds || 0), 0)}</div>
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Berilgan olmoslar</div>
           </div>
         </div>
 
         <div className="card-game p-4 bg-slate-900/80 border-slate-800 flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-            <Zap className="w-6 h-6" />
+            <Gift className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-black text-white">{totalClassXp.toLocaleString()}</div>
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Class XP</div>
+            <div className="text-2xl font-black text-white">{giftRequests.filter(r => r.status === 'PENDING').length}</div>
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Kutilayotgan sovg‘alar</div>
           </div>
         </div>
 
         <div className="card-game p-4 bg-slate-900/80 border-slate-800 flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-            <Coins className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
+            <Award className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-black text-white">{totalClassCoins.toLocaleString()}</div>
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Coins Earned</div>
-          </div>
-        </div>
-
-        <div className="card-game p-4 bg-slate-900/80 border-slate-800 flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
-            <Flame className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-lg font-black text-white truncate max-w-[120px]">
-              {topStreakStudent ? `${topStreakStudent.name}` : 'N/A'}
-            </div>
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Top Streak ({topStreakStudent?.streakDays || 0}d)
-            </div>
+            <div className="text-2xl font-black text-white">{activeExamCount}</div>
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Faol imtihonlar</div>
           </div>
         </div>
       </div>
@@ -580,14 +651,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
               
               <div className="flex items-center gap-3 mt-1 text-xs font-bold text-slate-300">
-                <span className="text-amber-300 flex items-center gap-1">
-                  <Zap className="w-3.5 h-3.5 text-amber-400" /> {profile.xp} XP
-                </span>
-                <span className="text-yellow-400">🪙 {profile.coins === 999999 ? '∞' : profile.coins}</span>
-                <span className="text-cyan-400">💎 {profile.diamonds === 999999 ? '∞' : (profile.diamonds || 0)}</span>
-                <span className="text-orange-400 flex items-center gap-1">
-                  <Flame className="w-3.5 h-3.5 text-orange-400" /> {profile.streakDays}d Streak
-                </span>
+                <span className="text-cyan-400">💎 {profile.diamonds === 999999 ? '∞' : (profile.diamonds || 0)} olmos</span>
               </div>
             </div>
           </div>
@@ -726,21 +790,56 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Primary Section Switcher: Roster vs Vocabulary Exam Hub */}
-      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl max-w-xl">
+      {/* Primary Section Switcher: Roster, Diamonds, Gifts, Exams */}
+      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl max-w-3xl overflow-x-auto scrollbar-none">
         <button
           onClick={() => {
             soundService.playClick();
             setAdminSection('roster');
           }}
-          className={`flex-1 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 ${
+          className={`flex-1 min-w-[130px] py-2.5 px-3.5 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 ${
             adminSection === 'roster'
               ? 'bg-indigo-600 text-white shadow-game-btn'
               : 'text-slate-400 hover:text-white'
           }`}
         >
           <Users className="w-4 h-4" />
-          <span>Student Accounts & Roster</span>
+          <span>O‘quvchilar ro‘yxati</span>
+        </button>
+
+        <button
+          onClick={() => {
+            soundService.playClick();
+            setAdminSection('diamonds');
+          }}
+          className={`flex-1 min-w-[130px] py-2.5 px-3.5 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 ${
+            adminSection === 'diamonds'
+              ? 'bg-cyan-600 text-white shadow-game-btn'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-cyan-300" />
+          <span>Olmos berish</span>
+        </button>
+
+        <button
+          onClick={() => {
+            soundService.playClick();
+            setAdminSection('gifts');
+          }}
+          className={`flex-1 min-w-[140px] py-2.5 px-3.5 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 relative ${
+            adminSection === 'gifts'
+              ? 'bg-amber-600 text-white shadow-game-btn'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Gift className="w-4 h-4 text-amber-300" />
+          <span>Sovg‘alar & So‘rovlar</span>
+          {giftRequests.filter(r => r.status === 'PENDING').length > 0 && (
+            <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px] font-black">
+              {giftRequests.filter(r => r.status === 'PENDING').length}
+            </span>
+          )}
         </button>
 
         <button
@@ -748,14 +847,14 @@ export const AdminDashboard: React.FC = () => {
             soundService.playClick();
             setAdminSection('exams');
           }}
-          className={`flex-1 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 relative ${
+          className={`flex-1 min-w-[130px] py-2.5 px-3.5 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 relative ${
             adminSection === 'exams'
               ? 'bg-purple-600 text-white shadow-game-btn'
               : 'text-slate-400 hover:text-white'
           }`}
         >
           <Award className="w-4 h-4" />
-          <span>Vocabulary Exam Hub</span>
+          <span>Imtihonlar nazorati</span>
           {activeExamCount > 0 && (
             <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping absolute top-2 right-2" />
           )}
@@ -769,6 +868,445 @@ export const AdminDashboard: React.FC = () => {
 
       {adminSection === 'exams' ? (
         <VocabularyExamAdminHub />
+      ) : adminSection === 'diamonds' ? (
+        /* Diamond Awarding Section */
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-2">
+            <span className="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4" />
+              Qo‘lda olmos berish tizimi
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-white">
+              O‘quvchilarga olmos berish
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300">
+              Hech bir holatda olmos avtomatik berilmaydi. Admin vazifalar to‘liq bajarilganini tasdiqlasa yoki imtihonda yuqori natija olinsa, ushbu bo‘lim orqali olmos beradi.
+            </p>
+          </div>
+
+          {/* Form Card */}
+          <div className="card-game p-6 bg-slate-900/90 border border-slate-800 rounded-3xl space-y-5">
+            <h3 className="text-base font-black text-white flex items-center gap-2">
+              <span>Mukofot shakli</span>
+            </h3>
+
+            {awardFeedback && (
+              <div className={`p-3.5 rounded-2xl text-xs font-bold border ${
+                awardFeedback.ok
+                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                  : 'bg-rose-500/15 border-rose-500/40 text-rose-300'
+              }`}>
+                {awardFeedback.text}
+              </div>
+            )}
+
+            <form onSubmit={handleAwardDiamonds} className="space-y-4">
+              {/* Select Student */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-300">
+                  O‘quvchini tanlang:
+                </label>
+                <select
+                  value={awardStudentId}
+                  onChange={(e) => setAwardStudentId(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm font-bold focus:outline-none focus:border-cyan-500"
+                  required
+                >
+                  <option value="">-- O‘quvchini tanlang --</option>
+                  {students.map(s => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} ({s.username}) — Hozirgi balansi: 💎 {s.diamonds || 0}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Award Categories */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-300">
+                  Mukofot turi va miqdori:
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAwardCategory('HOMEWORK_COMPLETED');
+                      if (!awardReason) setAwardReason("Belgilangan barcha vazifalarini to‘liq bajarganligi uchun");
+                    }}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                      awardCategory === 'HOMEWORK_COMPLETED'
+                        ? 'bg-cyan-600/20 border-cyan-400 text-white shadow-sm ring-1 ring-cyan-400'
+                        : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:border-slate-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-black">Vazifa to‘liq bajarildi</span>
+                      <span className="px-2 py-0.5 rounded-full bg-cyan-500 text-slate-950 font-black text-xs">+1 💎</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">Admin tekshirib tasdiqlagan vazifalar uchun</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAwardCategory('EXAM_HIGH_SCORE');
+                      if (!awardReason) setAwardReason("Imtihonda yuqori natija ko‘rsatganligi uchun");
+                    }}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                      awardCategory === 'EXAM_HIGH_SCORE'
+                        ? 'bg-cyan-600/20 border-cyan-400 text-white shadow-sm ring-1 ring-cyan-400'
+                        : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:border-slate-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-black">Imtihonda yuqori natija</span>
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-xs">+5 💎</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">Admin belgilagan mezondan yuqori ball olganda</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAwardCategory('SPECIAL_ACHIEVEMENT')}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                      awardCategory === 'SPECIAL_ACHIEVEMENT'
+                        ? 'bg-cyan-600/20 border-cyan-400 text-white shadow-sm ring-1 ring-cyan-400'
+                        : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:border-slate-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-black">Alohida yaxshi ish</span>
+                      <span className="px-2 py-0.5 rounded-full bg-purple-500 text-white font-black text-xs">Maxsus 💎</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">Admin tanlagan ixtiyoriy miqdor</p>
+                  </button>
+                </div>
+              </div>
+
+              {/* Custom amount input if SPECIAL_ACHIEVEMENT */}
+              {awardCategory === 'SPECIAL_ACHIEVEMENT' && (
+                <div className="space-y-1.5 p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
+                  <label className="text-xs font-bold text-cyan-300">
+                    Olmos miqdorini kiriting:
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={awardCustomAmount}
+                    onChange={(e) => setAwardCustomAmount(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="w-32 p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-mono font-bold text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+              )}
+
+              {/* Reason input */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-300">
+                  Mukofot sababi va izohi:
+                </label>
+                <input
+                  type="text"
+                  value={awardReason}
+                  onChange={(e) => setAwardReason(e.target.value)}
+                  placeholder="Masalan: Unit 3 listening topshirig'i to'liq bajarildi yoki 98% ball olindi"
+                  className="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:border-cyan-500"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isAwarding || !awardStudentId}
+                className="btn-game-primary py-3.5 px-6 rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-game-btn active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="w-4 h-4 text-cyan-300" />
+                <span>{isAwarding ? 'Olmos berilmoqda...' : 'Olmosni tasdiqlash va berish'}</span>
+              </button>
+            </form>
+          </div>
+
+          {/* Diamond History Log Table */}
+          <div className="card-game p-6 bg-slate-900/90 border border-slate-800 rounded-3xl space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-black text-white flex items-center gap-2">
+                <History className="w-4 h-4 text-cyan-400" />
+                <span>Berilgan olmoslar tarixi ({diamondAwardLogs.length})</span>
+              </h3>
+            </div>
+
+            {diamondAwardLogs.length === 0 ? (
+              <p className="text-xs text-slate-400 py-6 text-center italic">
+                Hali hech qanday olmos berilmagan.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-slate-950 text-slate-400 font-bold uppercase text-[10px] border-b border-slate-800">
+                    <tr>
+                      <th className="p-3">O‘quvchi</th>
+                      <th className="p-3">Miqdor</th>
+                      <th className="p-3">Sabab</th>
+                      <th className="p-3">Admin</th>
+                      <th className="p-3">Sana va vaqt</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {diamondAwardLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-slate-850/50">
+                        <td className="p-3 font-bold text-white">{log.studentName}</td>
+                        <td className="p-3">
+                          <span className="px-2 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-black">
+                            +{log.amount} 💎
+                          </span>
+                        </td>
+                        <td className="p-3 text-slate-300">{log.reason}</td>
+                        <td className="p-3 text-slate-400">{log.awardedByName}</td>
+                        <td className="p-3 text-slate-400 font-mono text-[11px]">{formatExactDateTime(log.awardedAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : adminSection === 'gifts' ? (
+        /* Gifts & Requests Section */
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-2">
+            <span className="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+              <Gift className="w-4 h-4" />
+              Sovg‘alar markazi
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-white">
+              Sovg‘alar katalogi va so‘rovlar nazorati
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300">
+              O‘quvchilar olmos evaziga oladigan sovg‘alarni qo‘shing, narxini belgilang va kelib tushgan sovg‘a so‘rovlarini topshiring.
+            </p>
+          </div>
+
+          {/* Subtabs: So'rovlar vs Katalog */}
+          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 max-w-md">
+            <button
+              onClick={() => setGiftAdminTab('requests')}
+              className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all ${
+                giftAdminTab === 'requests'
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              So‘rovlar ({giftRequests.filter(r => r.status === 'PENDING').length} kutilmoqda)
+            </button>
+            <button
+              onClick={() => setGiftAdminTab('catalog')}
+              className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all ${
+                giftAdminTab === 'catalog'
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Sovg‘alar katalogi ({gifts.length})
+            </button>
+          </div>
+
+          {giftAdminTab === 'requests' ? (
+            <div className="card-game p-6 bg-slate-900/90 border border-slate-800 rounded-3xl space-y-4">
+              <h3 className="text-base font-black text-white">Kelib tushgan sovg‘a so‘rovlari</h3>
+
+              {giftRequests.length === 0 ? (
+                <p className="text-xs text-slate-400 py-6 text-center italic">
+                  Hozircha hech qanday sovg‘a so‘rovi yo‘q.
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-slate-950 text-slate-400 font-bold uppercase text-[10px] border-b border-slate-800">
+                      <tr>
+                        <th className="p-3">O‘quvchi</th>
+                        <th className="p-3">Sovg‘a nomi</th>
+                        <th className="p-3">Narxi</th>
+                        <th className="p-3">So‘rov vaqti</th>
+                        <th className="p-3">Holati</th>
+                        <th className="p-3 text-right">Amal</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                      {giftRequests.map((req) => (
+                        <tr key={req.id} className="hover:bg-slate-850/50">
+                          <td className="p-3 font-bold text-white">{req.studentName}</td>
+                          <td className="p-3 font-medium text-slate-200">{req.giftTitle}</td>
+                          <td className="p-3 text-cyan-400 font-black">💎 {req.diamondPrice}</td>
+                          <td className="p-3 text-slate-400 font-mono text-[11px]">{formatExactDateTime(req.requestedAt)}</td>
+                          <td className="p-3">
+                            {req.status === 'DELIVERED' ? (
+                              <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black">
+                                ✓ Topshirildi
+                              </span>
+                            ) : (
+                              <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black animate-pulse">
+                                Kutilmoqda
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-3 text-right">
+                            {req.status === 'PENDING' ? (
+                              <button
+                                onClick={() => {
+                                  soundService.playSuccess();
+                                  adminDeliverGift(req.id);
+                                }}
+                                className="btn-game-emerald py-1 px-3 text-xs font-black rounded-lg shadow-sm active:scale-95"
+                              >
+                                Topshirildi deb belgilash
+                              </button>
+                            ) : (
+                              <span className="text-[11px] text-slate-500 italic">
+                                {formatExactDateTime(req.deliveredAt)} topshirilgan
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Add New Gift Form */}
+              <div className="card-game p-6 bg-slate-900/90 border border-slate-800 rounded-3xl space-y-4">
+                <h3 className="text-base font-black text-white flex items-center gap-2">
+                  <Plus className="w-4 h-4 text-emerald-400" />
+                  <span>Yangi sovg‘a qo‘shish</span>
+                </h3>
+
+                {giftFeedback && (
+                  <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-bold">
+                    {giftFeedback}
+                  </div>
+                )}
+
+                <form onSubmit={handleCreateGift} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-300">Sovg‘a nomi:</label>
+                    <input
+                      type="text"
+                      value={newGiftTitle}
+                      onChange={(e) => setNewGiftTitle(e.target.value)}
+                      placeholder="Masalan: Oxford lug'at kitobi"
+                      className="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-bold focus:outline-none focus:border-amber-500"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-300">Olmosdagi narxi (💎):</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={1000}
+                      value={newGiftPrice}
+                      onChange={(e) => setNewGiftPrice(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-mono font-bold focus:outline-none focus:border-amber-500"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-1 sm:col-span-2">
+                    <label className="text-xs font-bold text-slate-300">Tavsifi:</label>
+                    <input
+                      type="text"
+                      value={newGiftDesc}
+                      onChange={(e) => setNewGiftDesc(e.target.value)}
+                      placeholder="Sovg'a haqida qisqacha ma'lumot"
+                      className="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-300">Ikonka (Emoji):</label>
+                    <div className="flex gap-2">
+                      {['🎁', '📚', '🎧', '🎒', '🍫', '🎟️', '✏️', '⚽', '👕', '🧸'].map(emoji => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => setNewGiftIcon(emoji)}
+                          className={`w-9 h-9 rounded-xl text-lg flex items-center justify-center border transition-all ${
+                            newGiftIcon === emoji
+                              ? 'bg-amber-500/20 border-amber-400 scale-110 shadow-sm'
+                              : 'bg-slate-800 border-slate-700 hover:bg-slate-750'
+                          }`}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 flex items-end">
+                    <button
+                      type="submit"
+                      className="btn-game-emerald w-full py-2.5 px-4 rounded-xl text-xs font-black shadow-sm"
+                    >
+                      Sovg‘ani saqlash va chiqarish
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Existing Gifts Catalog */}
+              <div className="space-y-3">
+                <h3 className="text-base font-black text-white px-1">Mavjud sovg‘alar ro‘yxati ({gifts.length})</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {gifts.map(g => (
+                    <div
+                      key={g.id}
+                      className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-3"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="text-3xl p-2 rounded-xl bg-slate-800/80 border border-slate-700">{g.iconUrl || '🎁'}</span>
+                        <div className="space-y-0.5">
+                          <h4 className="font-bold text-sm text-white">{g.title}</h4>
+                          <p className="text-xs text-slate-400 line-clamp-2">{g.description}</p>
+                          <span className="text-xs font-black text-cyan-400 block pt-1">
+                            💎 {g.diamondPrice} olmos
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        <button
+                          onClick={() => adminUpdateGift(g.id, { isActive: !g.isActive })}
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-black border transition-all ${
+                            g.isActive
+                              ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                              : 'bg-slate-800 border-slate-700 text-slate-500'
+                          }`}
+                        >
+                          {g.isActive ? 'Faol' : 'Yashirilgan'}
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            if (confirm(`Sovg‘a "${g.title}" o‘chirilsinmi?`)) {
+                              adminDeleteGift(g.id);
+                            }
+                          }}
+                          className="p-1 rounded-lg text-slate-500 hover:text-rose-400 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
         /* Student Roster Table / Grid */
         <div className="space-y-4">
@@ -964,20 +1502,25 @@ export const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Progress chips (Read-only student achievements) */}
-                  <div className="flex items-center gap-2 mt-2 text-[11px] font-bold">
-                    <span className="text-amber-300 flex items-center gap-1">
-                      <Zap className="w-3 h-3" /> {student.xp} XP
-                    </span>
-                    <span className="text-yellow-400 flex items-center gap-0.5">
-                      🪙 {student.coins}
-                    </span>
-                    <span className="text-cyan-400 flex items-center gap-0.5">
-                      💎 {student.diamonds || 0}
-                    </span>
-                    <span className="text-rose-400 flex items-center gap-1">
-                      <Flame className="w-3 h-3" /> {student.streakDays}d
-                    </span>
+                  {/* Student Diamonds & Quick Diamond Award Button */}
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] text-slate-400 font-semibold">Balans:</span>
+                      <span className="text-cyan-400 font-black text-xs">💎 {student.diamonds || 0} olmos</span>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        soundService.playClick();
+                        setAwardStudentId(student.id);
+                        setAdminSection('diamonds');
+                      }}
+                      className="py-1 px-2.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-[11px] font-bold transition-all active:scale-95 flex items-center gap-1"
+                      title="Ushbu o‘quvchiga olmos berish"
+                    >
+                      <Sparkles className="w-3 h-3 text-cyan-300" />
+                      <span>Olmos berish</span>
+                    </button>
                   </div>
                 </div>
 

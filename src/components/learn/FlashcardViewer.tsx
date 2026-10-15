@@ -11,10 +11,8 @@ import {
   Shuffle, 
   Play, 
   Pause, 
-  Sparkles,
-  Check,
-  HelpCircle,
-  Repeat
+  Check, 
+  Repeat 
 } from 'lucide-react';
 
 interface FlashcardViewerProps {
@@ -91,7 +89,6 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
     soundService.playCardFlip();
     const nextFlipped = !isFlipped;
     setIsFlipped(nextFlipped);
-    // If we flipped to English back in uz_en mode, pronounce the English word!
     if (nextFlipped && direction === 'uz_en' && currentWord) {
       speechService.speak(currentWord.word, 'normal');
     }
@@ -130,7 +127,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
     if (rating === 'again') {
       soundService.playError();
       recordMistake(currentWord);
-    } else if (rating === 'good' || rating === 'easy') {
+    } else {
       soundService.playSuccess();
       if (currentWord && !reviewedWordIds.includes(currentWord.id)) {
         setReviewedWordIds(prev => [...prev, currentWord.id]);
@@ -152,25 +149,24 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
   const isEnglishFront = direction === 'en_uz';
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 pb-24 md:pb-12 animate-in fade-in duration-300">
+    <div className="max-w-2xl mx-auto space-y-6 pb-24 md:pb-12 animate-in fade-in duration-200">
       
       {/* Top Header Controls */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <button
             onClick={handleFinish}
             className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors text-xs font-bold"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
+            <span>Ortga</span>
           </button>
           <button
             onClick={handleFinish}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-game-btn transition-all active:scale-95"
-            title="Finish reviewing flashcards and return to unit overview"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all active:scale-95"
           >
             <Check className="w-4 h-4" />
-            <span>Finish</span>
+            <span>Tugallash</span>
           </button>
         </div>
 
@@ -178,7 +174,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
         <button
           onClick={toggleDirection}
           className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 hover:bg-indigo-600/30 transition-colors text-xs font-extrabold"
-          title="Switch learning direction"
+          title="Yo‘nalishni almashtirish"
         >
           <Repeat className="w-3.5 h-3.5" />
           <span>{direction === 'en_uz' ? 'EN ➔ UZ' : 'UZ ➔ EN'}</span>
@@ -189,7 +185,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
           <button
             onClick={handleShuffle}
             className="p-2 rounded-2xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white transition-colors"
-            title="Shuffle Deck"
+            title="So‘zlarni aralashtirish"
           >
             <Shuffle className="w-4 h-4" />
           </button>
@@ -197,12 +193,12 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
             onClick={() => setIsAutoPlay(!isAutoPlay)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs font-bold transition-all ${
               isAutoPlay 
-                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-glow-emerald' 
+                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' 
                 : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white'
             }`}
           >
             {isAutoPlay ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline">Auto</span>
+            <span className="hidden sm:inline">Avto</span>
           </button>
         </div>
       </div>
@@ -212,7 +208,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
         <div className="flex items-center justify-between text-xs font-bold text-slate-400">
           <span>{currentUnit.title}</span>
           <span className="text-indigo-400 font-extrabold">
-            {currentIndex + 1} of {words.length}
+            {currentIndex + 1} / {words.length} ta so‘z
           </span>
         </div>
         <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700/60">
@@ -231,12 +227,12 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
         <div className={`relative w-full h-full duration-500 preserve-3d transition-transform ${isFlipped ? 'rotate-y-180' : ''}`}>
           
           {/* FRONT OF CARD */}
-          <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl p-6 sm:p-8 flex flex-col justify-between items-center text-center bg-gradient-to-b from-slate-800 via-slate-850 to-slate-900 border-2 border-slate-700 shadow-game-card group-hover:border-indigo-500/60 transition-colors">
+          <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl p-6 sm:p-8 flex flex-col justify-between items-center text-center bg-gradient-to-b from-slate-850 via-slate-900 to-slate-900 border-2 border-slate-700 shadow-xl group-hover:border-indigo-500/60 transition-colors">
             
             {/* Top info badge */}
             <div className="w-full flex items-center justify-between">
               <span className="text-[11px] font-extrabold uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">
-                {isEnglishFront ? (currentWord.partOfSpeech || 'ENGLISH') : "O'ZBEKCHA"}
+                {isEnglishFront ? (currentWord.partOfSpeech || 'ENGLISH') : "O‘ZBEKCHA"}
               </span>
 
               {/* Pronunciation buttons on front (when showing English) */}
@@ -245,21 +241,21 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
                   <button
                     onClick={(e) => handleSpeak(e, 'normal')}
                     className="p-2 rounded-xl bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 hover:bg-indigo-600/50 hover:text-white transition-all"
-                    title="Normal Pronunciation (1.0x)"
+                    title="Talaffuz (1.0x)"
                   >
                     <Volume2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={(e) => handleSpeak(e, 'slow')}
                     className="px-2.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500/40 text-xs font-bold transition-all flex items-center gap-1"
-                    title="Slow Pronunciation (0.65x)"
+                    title="Sekin talaffuz (0.65x)"
                   >
                     <span className="text-sm">🐢</span>
-                    <span className="text-[10px]">Slow</span>
+                    <span className="text-[10px]">Sekin</span>
                   </button>
                 </div>
               ) : (
-                <span className="text-xs font-bold text-slate-500 italic">Inglizchasini toping</span>
+                <span className="text-xs font-bold text-slate-500 italic">Inglizcha so‘zni toping</span>
               )}
             </div>
 
@@ -275,7 +271,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
               )}
               {!isEnglishFront && (
                 <p className="text-xs sm:text-sm text-slate-400 font-medium">
-                  Tarjimani ko'rish uchun kartani bosing
+                  Tarjimani ko‘rish uchun kartani bosing
                 </p>
               )}
             </div>
@@ -283,18 +279,18 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
             {/* Bottom hint to tap */}
             <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
               <RotateCw className="w-3.5 h-3.5" />
-              <span>Tap card to reveal {isEnglishFront ? 'Uzbek translation' : 'English word'} & example</span>
+              <span>Aylantirish uchun kartochkani bosing</span>
             </div>
 
           </div>
 
           {/* BACK OF CARD */}
-          <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl p-6 sm:p-8 flex flex-col justify-between items-center text-center bg-gradient-to-b from-indigo-950/90 via-slate-900 to-slate-900 border-2 border-indigo-500/70 shadow-glow-primary">
+          <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl p-6 sm:p-8 flex flex-col justify-between items-center text-center bg-gradient-to-b from-indigo-950/90 via-slate-900 to-slate-900 border-2 border-indigo-500/70 shadow-xl">
             
             {/* Top Bar on back */}
             <div className="w-full flex items-center justify-between">
               <span className="text-[11px] font-extrabold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                {isEnglishFront ? "O'zbekcha Ma'nosi" : `English Translation (${currentWord.partOfSpeech || 'Word'})`}
+                {isEnglishFront ? "O‘zbekcha Ma'nosi" : `English Translation (${currentWord.partOfSpeech || 'Word'})`}
               </span>
 
               {/* Pronunciation always available for the English word */}
@@ -302,14 +298,14 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
                 <button
                   onClick={(e) => handleSpeak(e, 'normal')}
                   className="p-2 rounded-xl bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 hover:bg-indigo-600/50 hover:text-white transition-all"
-                  title="Normal Pronunciation"
+                  title="Talaffuz"
                 >
                   <Volume2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={(e) => handleSpeak(e, 'slow')}
                   className="px-2.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500/40 text-xs font-bold transition-all flex items-center gap-1"
-                  title="Slow Pronunciation"
+                  title="Sekin talaffuz"
                 >
                   <span className="text-sm">🐢</span>
                 </button>
@@ -338,7 +334,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
             </div>
 
             <div className="text-[11px] font-bold text-indigo-300">
-              Rate your familiarity below 👇
+              Quyidagi baholardan birini tanlang 👇
             </div>
 
           </div>
@@ -346,70 +342,66 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ onBack, initia
         </div>
       </div>
 
-      {/* FAMILIARITY RESPONSE BUTTONS (Again, Got it, Easy) */}
+      {/* Response Rating Buttons (Again, Got it, Easy) */}
       <div className="space-y-2">
-        <div className="text-center text-xs font-bold uppercase tracking-wider text-slate-400">
-          How well do you know this word?
-        </div>
-        
         <div className="grid grid-cols-3 gap-3">
           {/* AGAIN */}
           <button
             onClick={() => handleRate('again')}
-            className="btn-game-coral py-3 px-2 flex flex-col sm:flex-row items-center justify-center gap-1.5 rounded-2xl"
+            className="py-3 px-2 flex flex-col sm:flex-row items-center justify-center gap-1.5 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/25 active:scale-95 transition-all"
           >
             <span className="text-lg">😕</span>
             <div className="text-center sm:text-left">
-              <span className="block text-xs sm:text-sm font-extrabold leading-none">Again</span>
-              <span className="text-[10px] opacity-80 leading-none">Review soon</span>
+              <span className="block text-xs sm:text-sm font-extrabold leading-none">Takrorlash</span>
+              <span className="text-[10px] opacity-80 leading-none">Qiyin bo‘ldi</span>
             </div>
           </button>
 
           {/* GOT IT */}
           <button
             onClick={() => handleRate('good')}
-            className="btn-game-primary py-3 px-2 flex flex-col sm:flex-row items-center justify-center gap-1.5 rounded-2xl"
+            className="py-3 px-2 flex flex-col sm:flex-row items-center justify-center gap-1.5 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/25 active:scale-95 transition-all"
           >
             <span className="text-lg">🙂</span>
             <div className="text-center sm:text-left">
-              <span className="block text-xs sm:text-sm font-extrabold leading-none">Got it</span>
-              <span className="text-[10px] opacity-80 leading-none">Learning</span>
+              <span className="block text-xs sm:text-sm font-extrabold leading-none">Bilar edim</span>
+              <span className="text-[10px] opacity-80 leading-none">Yaxshi</span>
             </div>
           </button>
 
           {/* EASY */}
           <button
             onClick={() => handleRate('easy')}
-            className="btn-game-emerald py-3 px-2 flex flex-col sm:flex-row items-center justify-center gap-1.5 rounded-2xl"
+            className="py-3 px-2 flex flex-col sm:flex-row items-center justify-center gap-1.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 active:scale-95 transition-all"
           >
             <span className="text-lg">😎</span>
             <div className="text-center sm:text-left">
-              <span className="block text-xs sm:text-sm font-extrabold leading-none">Easy</span>
-              <span className="text-[10px] opacity-80 leading-none">Mastered</span>
+              <span className="block text-xs sm:text-sm font-extrabold leading-none">Juda oson</span>
+              <span className="text-[10px] opacity-80 leading-none">O‘zlashtirildi</span>
             </div>
           </button>
         </div>
       </div>
 
-      {/* Card Navigation Arrows */}
+      {/* Navigation Previous / Next */}
       <div className="flex items-center justify-between pt-2">
         <button
           onClick={handlePrev}
-          className="btn-game-slate py-2.5 px-5 flex items-center gap-1.5 text-xs font-bold"
+          className="py-2.5 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 text-xs font-bold transition-all active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Previous</span>
+          <span>Oldingi</span>
         </button>
 
-        <span className="text-xs text-slate-500 font-medium">
-          Shortcut: Space = Flip, 1/2/3 = Rate
+        <span className="text-xs text-slate-500 font-medium hidden sm:inline">
+          Bo‘sh joy = Aylantirish, 1/2/3 = Baholash
         </span>
 
         <button
           onClick={handleNext}
-          className="btn-game-slate py-2.5 px-5 flex items-center gap-1.5 text-xs font-bold"
+          className="py-2.5 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 text-xs font-bold transition-all active:scale-95"
         >
-          <span>Next</span>
+          <span>Keyingi</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>

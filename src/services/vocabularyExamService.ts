@@ -761,14 +761,9 @@ export class VocabularyExamService {
       }
     }
 
-    // Award XP and Coins if passed
-    const xpBonus = passed ? 50 : 5;
-    const coinsBonus = passed ? 25 : 2;
-
+    // No automatic XP, coins or diamonds: only unit progression is updated
     const updatedStudent: UserProfile = {
       ...student,
-      xp: (student.xp || 0) + xpBonus,
-      coins: (student.coins || 0) + coinsBonus,
       activeExamAttempt: null,
       completedUnits: Array.from(updatedCompletedUnits),
       vocabProgression: newVocabProg,

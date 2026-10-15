@@ -314,12 +314,7 @@ export interface CurriculumUnit {
 // Practice & Game Types
 export type PracticeMode = 
   | 'mixed'
-  | 'flashcards' 
-  | 'multiple_choice' 
-  | 'true_false' 
-  | 'typing' 
-  | 'unscramble' 
-  | 'matching';
+  | 'flashcards';
 
 export type GameId = 
   | 'word_rush' 
@@ -350,7 +345,64 @@ export interface MistakeRecord {
   isMastered: boolean;
 }
 
-// Economy & Inventory
+// -------------------------------------------------------------
+// Sovg'alar (Gifts) System - Admin Controlled Only
+// -------------------------------------------------------------
+export interface GiftItem {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl?: string;
+  icon?: string;
+  diamondPrice: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export type GiftRequestStatus = 'PENDING' | 'DELIVERED' | 'CANCELLED';
+
+export interface GiftRequest {
+  id: string;
+  studentId: string;
+  studentName: string;
+  giftId: string;
+  giftName: string;
+  giftDescription?: string;
+  giftIcon?: string;
+  giftImageUrl?: string;
+  diamondPrice: number;
+  status: GiftRequestStatus;
+  requestedAt: string;
+  deliveredAt?: string;
+  deliveredByAdminId?: string;
+  deliveredByAdminName?: string;
+}
+
+// -------------------------------------------------------------
+// Manual Diamond Award Log System - Admin Controlled Only
+// -------------------------------------------------------------
+export type DiamondAwardCategory = 
+  | 'HOMEWORK_COMPLETED' 
+  | 'EXAM_HIGH_SCORE' 
+  | 'SPECIAL_ACHIEVEMENT' 
+  | 'CUSTOM';
+
+export interface DiamondAwardLog {
+  id: string;
+  studentId: string;
+  studentName: string;
+  amount: number;
+  category: DiamondAwardCategory;
+  reason: string;
+  relatedEntityId?: string;
+  relatedEntityType?: 'homework' | 'exam' | 'manual';
+  adminId: string;
+  adminName: string;
+  awardedAt: string;
+}
+
+// Economy & Inventory (Kept for backwards compatibility with character items)
 export type ShopCategory = 
   | 'characters' 
   | 'clothes' 
@@ -374,7 +426,7 @@ export interface MysteryBoxPrize {
   coinAmount?: number;
   diamondAmount?: number;
   icon?: string;
-  chancePercent?: number; // Drop rate probability (e.g. 1%, 15%, 50%, 99%)
+  chancePercent?: number;
   createdAt?: string;
 }
 
@@ -459,10 +511,10 @@ export interface UserProfile {
   character: CharacterConfig;
   levelId: LevelId;
   currentUnitId: string;
-  xp: number;
-  coins: number;
-  diamonds: number; // 💎 Earned in 2-player matches, tradable 1 💎 -> 5 🪙
-  streakDays: number;
+  diamonds: number; // 💎 Olmos balansi (faqat admin tomonidan beriladi yoki sovg'alarga sarflanadi)
+  xp?: number;
+  coins?: number;
+  streakDays?: number;
   lastActiveDate: string;
   inventory: string[]; // List of owned item IDs
   unlockedStickers: string[];
@@ -476,14 +528,16 @@ export interface UserProfile {
   mistakes: MistakeRecord[];
   soundEnabled: boolean;
   speechSpeed: 'normal' | 'slow';
-  // Grammar System Enhancements
+  // Grammar System
   grammarLevel: GrammarLevelId;
   grammarMasteries: Record<string, number>; // topicId -> 0-100%
   completedGrammarTopics: string[];
   completedGrammarExams: Record<string, GrammarExamResult>;
   grammarMistakes: GrammarMistakeRecord[];
-  grammarHearts: number; // For challenge mode (default 3)
-  claimedPrizes?: ClaimedPrizeRecord[]; // Mystery Box won rewards
+  grammarHearts?: number;
+  claimedPrizes?: ClaimedPrizeRecord[];
+  diamondHistory?: DiamondAwardLog[];
+  giftRequests?: GiftRequest[];
 
   // -------------------------------------------------------------
   // Beginner Vocabulary Progression & Official Full Exam
@@ -492,18 +546,13 @@ export interface UserProfile {
   activeExamAttempt?: VocabularyExamAttempt | null; // currently active in-progress exam attempt
 
   // -------------------------------------------------------------
-  // Presence & Activity Tracking (Master Prompt)
+  // Presence & Activity Tracking
   // -------------------------------------------------------------
-  // 1. Online Status & Last Seen (Visible to Everyone)
   lastSeenAt?: string;
   isOnline?: boolean;
-
-  // 2. Time Spent in App (Support + Admin + Self ONLY)
   totalTimeSpentMinutes?: number;
   todayTimeSpentMinutes?: number;
-  dailyTimeSpent?: Record<string, number>; // date "YYYY-MM-DD" -> minutes
-
-  // 3. Last Login & Auth Logs (Admin ONLY)
+  dailyTimeSpent?: Record<string, number>;
   lastLoginAt?: string;
   loginHistory?: Array<{
     timestamp: string;
@@ -514,23 +563,24 @@ export interface UserProfile {
 // Active Screen Navigation
 export type AppScreen = 
   | 'home' 
-  | 'homework'
-  | 'grammar' 
-  | 'grammar_topic' 
   | 'learn' 
   | 'flashcards' 
+  | 'grammar' 
+  | 'grammar_topic' 
+  | 'homework' 
+  | 'vocabulary_exam' 
+  | 'gifts' 
+  | 'shop' 
+  | 'profile' 
+  | 'admin' 
+  | 'support' 
+  | 'login'
   | 'practice' 
-  | 'vocabulary_exam'
   | 'mistakes' 
   | 'play' 
   | 'game_active' 
   | 'compete' 
-  | 'shop' 
-  | 'mystery' 
-  | 'profile'
-  | 'admin'
-  | 'support'
-  | 'login';
+  | 'mystery';
 
 // -------------------------------------------------------------
 // Homework Management & Audio Submissions

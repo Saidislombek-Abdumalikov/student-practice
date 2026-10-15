@@ -3,16 +3,11 @@ import { useGame } from '../../context/GameContext';
 import { AppScreen } from '../../types';
 import { 
   BookOpen, 
-  Gamepad2, 
-  Trophy, 
-  ShoppingBag, 
+  FileText, 
   Gift, 
   User, 
-  Home, 
-  Sparkles, 
   ShieldCheck, 
-  Users,
-  FileText
+  Users 
 } from 'lucide-react';
 import { soundService } from '../../services/soundService';
 
@@ -26,26 +21,44 @@ interface NavItem {
 export const Navbar: React.FC = () => {
   const { profile, currentScreen, setScreen } = useGame();
 
-  // Phone mode: Only Home and Homework (Compete, Play, Learn, Shop, Profile accessed via Home screen)
-  const mobileNavItems: NavItem[] = [
-    { id: 'home', label: 'HOME', mobileLabel: 'Home', icon: <Home className="w-5 h-5" /> },
-    { id: 'homework', label: 'HOMEWORK', mobileLabel: 'Homework', icon: <FileText className="w-5 h-5 text-cyan-400" /> },
-    ...(profile.role === 'admin' ? [{ id: 'admin' as AppScreen, label: 'ADMIN', mobileLabel: 'Admin', icon: <ShieldCheck className="w-5 h-5 text-amber-400" /> }] : []),
-    ...(profile.role === 'support' ? [{ id: 'support' as AppScreen, label: 'STUDENTS', mobileLabel: 'Students', icon: <Users className="w-5 h-5 text-purple-400" /> }] : []),
-  ];
-
-  // Full Desktop Sidebar Navigation
-  const desktopNavItems: NavItem[] = [
-    { id: 'home', label: 'HOME', mobileLabel: 'Home', icon: <Home className="w-5 h-5" /> },
-    ...(profile.role === 'admin' ? [{ id: 'admin' as AppScreen, label: 'ADMIN CENTER', mobileLabel: 'Admin', icon: <ShieldCheck className="w-5 h-5 text-amber-400" /> }] : []),
-    ...(profile.role === 'support' ? [{ id: 'support' as AppScreen, label: 'STUDENT SUPPORT', mobileLabel: 'Students', icon: <Users className="w-5 h-5 text-purple-400" /> }] : []),
-    { id: 'learn', label: 'LEARN (VOCAB & GRAMMAR)', mobileLabel: 'Learn', icon: <BookOpen className="w-5 h-5" /> },
-    { id: 'homework', label: 'HOMEWORK & VOICE', mobileLabel: 'Homework', icon: <FileText className="w-5 h-5 text-cyan-400" /> },
-    { id: 'play', label: 'PLAY ARENA', mobileLabel: 'Play', icon: <Gamepad2 className="w-5 h-5" /> },
-    { id: 'compete', label: 'COMPETE & DUELS', mobileLabel: 'Compete', icon: <Trophy className="w-5 h-5" /> },
-    { id: 'mystery', label: 'MYSTERY BOX', mobileLabel: 'Box 🎁', icon: <Gift className="w-5 h-5 text-amber-400 animate-pulse" /> },
-    { id: 'shop', label: 'SHOP & DRESSING', mobileLabel: 'Shop', icon: <ShoppingBag className="w-5 h-5" /> },
-    { id: 'profile', label: 'PROFILE STUDIO', mobileLabel: 'Profile', icon: <User className="w-5 h-5" /> },
+  // 4 Primary Menu Items for Student + Admin/Support role tabs
+  const navItems: NavItem[] = [
+    { 
+      id: 'learn', 
+      label: "O‘RGANISH", 
+      mobileLabel: "O‘rganish", 
+      icon: <BookOpen className="w-5 h-5 text-indigo-400" /> 
+    },
+    { 
+      id: 'homework', 
+      label: "VAZIFALAR", 
+      mobileLabel: "Vazifalar", 
+      icon: <FileText className="w-5 h-5 text-cyan-400" /> 
+    },
+    { 
+      id: 'gifts', 
+      label: "SOVG‘ALAR", 
+      mobileLabel: "Sovg‘alar", 
+      icon: <Gift className="w-5 h-5 text-amber-400" /> 
+    },
+    { 
+      id: 'profile', 
+      label: "PROFIL", 
+      mobileLabel: "Profil", 
+      icon: <User className="w-5 h-5 text-emerald-400" /> 
+    },
+    ...(profile.role === 'admin' ? [{ 
+      id: 'admin' as AppScreen, 
+      label: "ADMIN PANEL", 
+      mobileLabel: "Admin", 
+      icon: <ShieldCheck className="w-5 h-5 text-purple-400" /> 
+    }] : []),
+    ...(profile.role === 'support' ? [{ 
+      id: 'support' as AppScreen, 
+      label: "YORDAMCHI", 
+      mobileLabel: "Yordamchi", 
+      icon: <Users className="w-5 h-5 text-purple-400" /> 
+    }] : []),
   ];
 
   const handleNav = (screen: AppScreen) => {
@@ -57,21 +70,19 @@ export const Navbar: React.FC = () => {
     if (currentScreen === itemId) return true;
     if (itemId === 'learn' && (
       currentScreen === 'flashcards' || 
-      currentScreen === 'practice' || 
-      currentScreen === 'mistakes' ||
-      currentScreen === 'grammar' ||
+      currentScreen === 'grammar' || 
       currentScreen === 'grammar_topic'
     )) return true;
-    if (itemId === 'play' && currentScreen === 'game_active') return true;
+    if (itemId === 'gifts' && currentScreen === 'shop') return true;
     return false;
   };
 
   return (
     <>
-      {/* Mobile Bottom Dock (Evenly spaced, fits all phones perfectly without overflow) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/98 border-t border-slate-800/90 backdrop-blur-xl px-1.5 py-1.5 safe-area-pb shadow-2xl">
+      {/* Mobile Bottom Navigation Dock */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/98 border-t border-slate-800/90 backdrop-blur-xl px-2 py-1.5 shadow-2xl">
         <div className="flex items-center justify-around w-full max-w-md mx-auto">
-          {mobileNavItems.map(item => {
+          {navItems.map(item => {
             const isActive = isTabActive(item.id);
 
             return (
@@ -89,7 +100,9 @@ export const Navbar: React.FC = () => {
                 }`}>
                   {item.icon}
                 </div>
-                <span className={`text-[9px] tracking-tight mt-0.5 whitespace-nowrap leading-none text-center ${isActive ? 'font-black text-indigo-300' : 'font-semibold'}`}>
+                <span className={`text-[10px] tracking-tight mt-0.5 whitespace-nowrap leading-none text-center ${
+                  isActive ? 'font-black text-indigo-300' : 'font-semibold'
+                }`}>
                   {item.mobileLabel}
                 </span>
               </button>
@@ -98,12 +111,12 @@ export const Navbar: React.FC = () => {
         </div>
       </nav>
 
-      {/* Desktop Floating Sidebar Nav (On md+ screens) */}
-      <aside className="hidden md:flex flex-col fixed left-0 top-16 bottom-0 w-64 bg-slate-900/90 border-r border-slate-800/80 p-4 space-y-2 backdrop-blur-md z-30 overflow-y-auto scrollbar-thin">
+      {/* Desktop Floating Sidebar Navigation */}
+      <aside className="hidden md:flex flex-col fixed left-0 top-16 bottom-0 w-64 bg-slate-900/95 border-r border-slate-800/80 p-4 space-y-2 backdrop-blur-md z-30 overflow-y-auto scrollbar-thin">
         <div className="text-[11px] font-black uppercase tracking-wider text-slate-500 px-3 py-2">
-          Navigation
+          Asosiy Bo‘limlar
         </div>
-        {desktopNavItems.map(item => {
+        {navItems.map(item => {
           const isActive = isTabActive(item.id);
 
           return (

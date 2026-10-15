@@ -42,9 +42,9 @@ import {
   getRecommendedNextTopic 
 } from '../data/grammar';
 import { OutfitPreset, OUTFIT_PRESETS } from '../data/outfitPresets';
-import { VocabularyExamService } from '../services/vocabularyExamService';
-import { SupabaseService } from '../services/supabaseService';
-import { isSupabaseConfigured } from '../services/supabaseClient';
+import { GiftItem, GiftRequest, DiamondAwardLog, DiamondAwardCategory } from '../types';
+import { GiftService } from '../services/giftService';
+import { DiamondAwardService } from '../services/diamondAwardService';
 
 interface GameContextType {
   profile: UserProfile;
@@ -58,7 +58,28 @@ interface GameContextType {
   currentLevelXp: number;
   nextLevelThresholdXp: number;
 
-  // Grammar System Enhancements
+  // Sovg'alar (Gifts) System
+  gifts: GiftItem[];
+  giftRequests: GiftRequest[];
+  diamondAwardLogs: DiamondAwardLog[];
+  purchaseGift: (giftId: string) => { success: boolean; message?: string };
+  adminAddGift: (data: { name: string; description: string; diamondPrice: number; icon?: string; imageUrl?: string; isActive: boolean }) => void;
+  adminUpdateGift: (id: string, updates: Partial<GiftItem>) => void;
+  adminDeleteGift: (id: string) => void;
+  adminDeliverGift: (requestId: string) => { success: boolean; message?: string };
+  adminAwardDiamonds: (params: {
+    studentId: string;
+    amount: number;
+    category: DiamondAwardCategory;
+    reason: string;
+    relatedEntityId?: string;
+    relatedEntityType?: 'homework' | 'exam' | 'manual';
+  }) => { success: boolean; message: string };
+
+  // Free Character Customization
+  equipFreeItem: (category: ShopCategory, itemValue: string) => void;
+
+  // Grammar System
   activeGrammarLevel: GrammarLevelId;
   activeGrammarTopicId: string;
   activeGrammarTopic: GrammarTopic | undefined;
@@ -242,13 +263,131 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Cloud sync status
   const [isCloudConnected, setIsCloudConnected] = useState<boolean>(() => isSupabaseConfigured());
 
-  // Editable Mystery Box Diamond Prices
+  // Editable Mystery Box Diamond Prices (Kept for compatibility)
   const [boxPrices, setBoxPrices] = useState<Record<MysteryBoxTier, number>>(() => MysteryBoxService.getBoxPrices());
 
   const updateBoxPrices = (prices: Record<MysteryBoxTier, number>) => {
     MysteryBoxService.saveBoxPrices(prices);
     setBoxPrices({ ...prices });
     soundService.playSuccess();
+  };
+
+  // Sovg'alar (Gifts) & Diamond Award System
+  const [gifts, setGifts] = useState<GiftItem[]>(() => GiftService.getGifts());
+  const [giftRequests, setGiftRequests] = useState<GiftRequest[]>(() => GiftService.getGiftRequests());
+  const [diamondAwardLogs, setDiamondAwardLogs] = useState<DiamondAwardLog[]>(() => DiamondAwardService.getLogs());
+
+  const purchaseGift = (giftId: string) => {
+    const result = GiftService.requestGift(profile, giftId);
+    if (result.success && result.updatedStudent) {
+      setProfile(result.updatedStudent);
+      StorageService.saveProfile(result.updatedStudent);
+      setAllAccounts(prev => prev.map(a => a.id === result.updatedStudent!.id ? result.updatedStudent! : a));
+      setGiftRequests(GiftService.getGiftRequests());
+      soundService.playSuccess();
+      if (isSupabaseConfigured()) {
+        SupabaseService.saveAccountToRemote(result.updatedStudent);
+      }
+    } else {
+      soundService.playError();
+    }
+    return { success: result.success, message: result.message };
+  };
+
+  const adminAddGift = (data: { name: string; description: string; diamondPrice: number; icon?: string; imageUrl?: string; isActive: boolean }) => {
+    GiftService.addGift(data);
+    setGifts(GiftService.getGifts());
+    soundService.playSuccess();
+  };
+
+  const adminUpdateGift = (id: string, updates: Partial<GiftItem>) => {
+    GiftService.updateGift(id, updates);
+    setGifts(GiftService.getGifts());
+    soundService.playSuccess();
+  };
+
+  const adminDeleteGift = (id: string) => {
+    GiftService.deleteGift(id);
+    setGifts(GiftService.getGifts());
+    soundService.playClick();
+  };
+
+  const adminDeliverGift = (requestId: string) => {
+    const result = GiftService.deliverGift(requestId, profile);
+    if (result.success && result.updatedRequest) {
+      setGiftRequests(GiftService.getGiftRequests());
+      // Also update target student's giftRequests if present
+      const req = result.updatedRequest;
+      setAllAccounts(prev => prev.map(a => {
+        if (a.id === req.studentId) {
+          const updated = {
+            ...a,
+            giftRequests: (a.giftRequests || []).map(r => r.id === req.id ? req : r),
+          };
+          StorageService.saveProfile(updated);
+          if (isSupabaseConfigured()) SupabaseService.saveAccountToRemote(updated);
+          return updated;
+        }
+        return a;
+      }));
+      if (profile.id === req.studentId) {
+        setProfile(prev => ({
+          ...prev,
+          giftRequests: (prev.giftRequests || []).map(r => r.id === req.id ? req : r),
+        }));
+      }
+      soundService.playSuccess();
+    } else {
+      soundService.playError();
+    }
+    return { success: result.success, message: result.message };
+  };
+
+  const adminAwardDiamonds = (params: {
+    studentId: string;
+    amount: number;
+    category: DiamondAwardCategory;
+    reason: string;
+    relatedEntityId?: string;
+    relatedEntityType?: 'homework' | 'exam' | 'manual';
+  }) => {
+    const targetStudent = allAccounts.find(a => a.id === params.studentId) || (profile.id === params.studentId ? profile : null);
+    if (!targetStudent) {
+      soundService.playError();
+      return { success: false, message: "O'quvchi topilmadi!" };
+    }
+
+    const res = DiamondAwardService.awardDiamonds({
+      admin: profile,
+      targetStudent,
+      amount: params.amount,
+      category: params.category,
+      reason: params.reason,
+      relatedEntityId: params.relatedEntityId,
+      relatedEntityType: params.relatedEntityType,
+    });
+
+    if (res.success && res.updatedStudent) {
+      const updated = res.updatedStudent;
+      setAllAccounts(prev => {
+        const copy = prev.map(a => a.id === updated.id ? updated : a);
+        StorageService.saveAllAccounts(copy);
+        return copy;
+      });
+      if (profile.id === updated.id) {
+        setProfile(updated);
+        StorageService.saveProfile(updated);
+      }
+      if (isSupabaseConfigured()) {
+        SupabaseService.saveAccountToRemote(updated);
+      }
+      setDiamondAwardLogs(DiamondAwardService.getLogs());
+      soundService.playLevelUp();
+    } else {
+      soundService.playError();
+    }
+
+    return { success: res.success, message: res.message };
   };
 
   // Cloud sync handler with intelligent merge (preserves local avatar and progress)
@@ -567,40 +706,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const buyOutfitPreset = (preset: OutfitPreset): boolean => {
-    const isAdmin = profile.role === 'admin';
-    if (!isAdmin && profile.coins < preset.bundlePrice) {
-      soundService.playError();
-      return false;
-    }
     soundService.playSuccess();
-    setProfile(prev => {
-      const updatedCoins = isAdmin ? 999999 : prev.coins - preset.bundlePrice;
-      const newInventory = [...prev.inventory];
-      for (const itemId of preset.includedItemIds) {
-        if (!newInventory.includes(itemId)) {
-          newInventory.push(itemId);
-        }
-      }
-      const updatedProfile = {
-        ...prev,
-        coins: updatedCoins,
-        character: {
-          ...prev.character,
-          ...preset.character,
-        },
-        inventory: newInventory,
-      };
-      setAllAccounts(accounts => {
-        const idx = accounts.findIndex(a => a.id === updatedProfile.id);
-        if (idx >= 0) {
-          const copy = [...accounts];
-          copy[idx] = updatedProfile;
-          return copy;
-        }
-        return accounts;
-      });
-      return updatedProfile;
-    });
+    applyOutfitPreset(preset);
     return true;
   };
 
@@ -620,16 +727,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const completeOnboarding = (name: string, character: CharacterConfig, levelId: LevelId) => {
     setProfile(prev => ({
       ...prev,
-      name: name.trim() || 'Hero Learner',
+      name: name.trim() || 'O‘quvchi',
       character,
       levelId,
       isOnboarded: true,
-      xp: 50,
-      coins: 100, // Starter bonus
-      streakDays: 1,
+      diamonds: prev.diamonds || 0,
       lastActiveDate: new Date().toISOString(),
     }));
-    soundService.playLevelUp();
+    soundService.playSuccess();
     setCurrentScreen('home');
   };
 
@@ -880,47 +985,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { success: true, prize };
   };
 
+  const equipFreeItem = (category: ShopCategory, itemValue: string) => {
+    soundService.playClick();
+    equipShopItem(category, itemValue);
+  };
+
   const buyShopItem = (item: ShopItem): boolean => {
-    const isAdmin = profile.role === 'admin';
-    if (!isAdmin && profile.coins < item.price) {
-      soundService.playError();
-      return false;
-    }
-    soundService.playCoin();
-    setProfile(prev => {
-      const newInventory = prev.inventory.includes(item.id) 
-        ? prev.inventory 
-        : [...prev.inventory, item.id];
-
-      const updatedChar = { ...prev.character };
-      switch (item.category) {
-        case 'clothes':
-          updatedChar.outfit = item.itemValue as any;
-          break;
-        case 'hats':
-          updatedChar.hat = item.itemValue as any;
-          break;
-        case 'glasses':
-          updatedChar.glasses = item.itemValue as any;
-          break;
-        case 'accessories':
-          updatedChar.accessory = item.itemValue as any;
-          break;
-        case 'pets':
-          updatedChar.pet = item.itemValue as any;
-          break;
-        case 'backgrounds':
-          updatedChar.background = item.itemValue as any;
-          break;
-      }
-
-      return {
-        ...prev,
-        coins: isAdmin ? 999999 : prev.coins - item.price,
-        inventory: newInventory,
-        character: updatedChar,
-      };
-    });
+    soundService.playSuccess();
+    equipShopItem(item.category, item.itemValue);
     return true;
   };
 
@@ -1155,8 +1227,6 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (passed) {
       soundService.playLevelUp();
-      addXP(500);
-      addCoins(150);
     }
 
     setProfile(prev => ({
@@ -1926,6 +1996,17 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         curriculumUnits: CURRICULUM_UNITS,
         achievements,
         stickers,
+        // Sovg'alar & Diamond Awards exports
+        gifts,
+        giftRequests,
+        diamondAwardLogs,
+        purchaseGift,
+        adminAddGift,
+        adminUpdateGift,
+        adminDeleteGift,
+        adminDeliverGift,
+        adminAwardDiamonds,
+        equipFreeItem,
         levelNumber,
         xpProgressPercent,
         currentLevelXp,

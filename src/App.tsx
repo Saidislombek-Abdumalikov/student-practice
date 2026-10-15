@@ -1,20 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { GameProvider, useGame } from './context/GameContext';
 import { Header } from './components/layout/Header';
 import { Navbar } from './components/layout/Navbar';
 import { OnboardingModal } from './components/onboarding/OnboardingModal';
-import { IncomingDuelModal } from './components/play/IncomingDuelModal';
-import { ActiveDuelMatch } from './services/peerDuelService';
 import { HomeScreen } from './components/home/HomeScreen';
 import { LearnScreen } from './components/learn/LearnScreen';
 import { FlashcardViewer } from './components/learn/FlashcardViewer';
-import { VocabularyPractice } from './components/learn/VocabularyPractice';
 import { VocabularyExamScreen } from './components/learn/VocabularyExamScreen';
-import { MistakesReview } from './components/learn/MistakesReview';
-import { PlayScreen } from './components/play/PlayScreen';
-import { CompeteScreen } from './components/compete/CompeteScreen';
 import { ShopScreen } from './components/shop/ShopScreen';
-import { MysteryBoxView } from './components/shop/MysteryBoxView';
 import { ProfileScreen } from './components/profile/ProfileScreen';
 import { GrammarDashboard } from './components/grammar/GrammarDashboard';
 import { LoginScreen } from './components/auth/LoginScreen';
@@ -24,7 +17,6 @@ import { HomeworkScreen } from './components/homework/HomeworkScreen';
 
 const MainApp: React.FC = () => {
   const { profile, currentScreen, setScreen, isAuthenticated } = useGame();
-  const [acceptedPeerMatch, setAcceptedPeerMatch] = useState<ActiveDuelMatch | null>(null);
 
   // Strict Authentication Barrier: Never enter an account until login data is submitted
   if (!isAuthenticated || currentScreen === 'login') {
@@ -52,26 +44,19 @@ const MainApp: React.FC = () => {
         return <LearnScreen />;
       case 'flashcards':
         return <FlashcardViewer onBack={() => setScreen('learn')} />;
-      case 'practice':
-        return <VocabularyPractice onBack={() => setScreen('learn')} />;
       case 'vocabulary_exam':
         return <VocabularyExamScreen unitId={profile.activeExamAttempt?.unitId || 'unit-1'} onExit={() => setScreen('learn')} />;
-      case 'mistakes':
-        return <MistakesReview onBack={() => setScreen('learn')} />;
-      case 'play':
-        return <PlayScreen initialMatch={acceptedPeerMatch} key={acceptedPeerMatch?.matchId || 'play_default'} />;
-      case 'compete':
-        return <CompeteScreen />;
+      case 'gifts':
       case 'shop':
         return <ShopScreen />;
-      case 'mystery':
-        return (
-          <div className="max-w-5xl mx-auto space-y-6 pb-24 md:pb-12 animate-in fade-in duration-200">
-            <MysteryBoxView />
-          </div>
-        );
       case 'profile':
         return <ProfileScreen />;
+      // Removed legacy game screens redirect to clean screens
+      case 'play':
+      case 'compete':
+      case 'mystery':
+      case 'practice':
+      case 'mistakes':
       default:
         return <HomeScreen />;
     }
@@ -81,14 +66,6 @@ const MainApp: React.FC = () => {
     <div className="min-h-screen bg-[#0F172A] text-slate-100 flex flex-col">
       {/* Onboarding Modal Overlay */}
       {!profile.isOnboarded && <OnboardingModal />}
-
-      {/* Real-time Incoming Duel Alert Overlay */}
-      <IncomingDuelModal 
-        onAcceptDuel={(match) => {
-          setAcceptedPeerMatch(match);
-          setScreen('play');
-        }} 
-      />
 
       {/* Global Status Header (Permanently Locked to Top) */}
       <Header />

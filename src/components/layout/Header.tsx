@@ -1,252 +1,106 @@
-import React, { useState } from 'react';
-import confetti from 'canvas-confetti';
+import React from 'react';
 import { useGame } from '../../context/GameContext';
 import { ModularCharacter } from '../character/ModularCharacter';
 import { soundService } from '../../services/soundService';
-import { Volume2, VolumeX, Flame, Coins, Zap, ShieldCheck, Users } from 'lucide-react';
+import { Volume2, VolumeX, ShieldCheck, LogOut } from 'lucide-react';
 
-const moodEmojis: Record<string, string> = {
-  happy: '😄',
-  victory: '😎',
-  thinking: '🤔',
-  idle: '🙂',
-  oops: '😮',
+const LEVEL_LABELS: Record<string, string> = {
+  beginner: 'Beginner (A1)',
+  elementary: 'Elementary (A2)',
+  pre_intermediate: 'Pre-Intermediate (B1)',
+  intermediate: 'Intermediate (B2)',
+  pre_ielts: 'Pre-IELTS',
+  ielts: 'IELTS Mastery',
 };
 
 export const Header: React.FC = () => {
   const { 
     profile, 
-    levelNumber, 
-    xpProgressPercent, 
-    currentLevelXp, 
-    nextLevelThresholdXp,
     toggleSound,
     setScreen,
     cycleCharacterMood,
-    tradeDiamondsForCoins,
     logout,
   } = useGame();
 
-  const [showTradeModal, setShowTradeModal] = useState(false);
-  const currentMoodEmoji = moodEmojis[profile?.character?.expression || 'idle'] || '🙂';
+  const levelName = LEVEL_LABELS[profile?.levelId || 'beginner'] || 'Beginner';
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 h-16 w-full bg-slate-900/95 border-b border-slate-800/90 backdrop-blur-xl px-4 py-2.5 sm:px-6 shadow-md flex items-center">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-3">
         
-        {/* Left: Brand & Player Level */}
-        <div className="flex items-center gap-3">
-          {/* Modular Mini Avatar + Player Level (Tap anywhere to open Profile!) */}
-          <div 
-            onClick={() => { soundService.playClick(); setScreen('profile'); }}
-            className="flex items-center gap-2 cursor-pointer group select-none"
-            title="View Profile & Character Studio"
-          >
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-slate-800 border-2 border-indigo-500/60 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105 active:scale-95 shadow-sm shrink-0">
-              <ModularCharacter config={profile?.character} size="sm" animate={false} />
-              <div 
-                onClick={(e) => { e.stopPropagation(); cycleCharacterMood(); }}
-                className="absolute -bottom-0.5 -right-0.5 bg-slate-900/90 text-[10px] leading-none px-1 py-0.5 rounded-full border border-indigo-500/40 shadow hover:scale-125 transition-transform"
-                title="Cycle expression"
-              >
-                {currentMoodEmoji}
-              </div>
-            </div>
-
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1">
-                <span className="text-[10px] sm:text-xs font-black text-indigo-400 bg-indigo-500/15 px-1.5 py-0.5 rounded-md border border-indigo-500/30">
-                  L{levelNumber}
-                </span>
-                <span className="text-xs sm:text-sm font-black text-white max-w-[85px] sm:max-w-[130px] truncate">
-                  {(profile && profile.name) ? profile.name : 'Hero'}
-                </span>
-              </div>
-
-              {/* XP Mini Bar (Visible on mobile too!) */}
-              <div className="w-16 sm:w-24 bg-slate-800 rounded-full h-1 sm:h-1.5 overflow-hidden mt-0.5 border border-slate-700/60">
-                <div 
-                  className="bg-indigo-500 h-full rounded-full transition-all duration-300"
-                  style={{ width: `${xpProgressPercent}%` }}
-                />
-              </div>
-            </div>
+        {/* Left: Avatar, Name & Educational Level */}
+        <div 
+          onClick={() => { soundService.playClick(); setScreen('profile'); }}
+          className="flex items-center gap-2.5 cursor-pointer group select-none"
+          title="Profilni ko‘rish"
+        >
+          <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-slate-800 border-2 border-indigo-500/60 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105 active:scale-95 shadow-sm shrink-0">
+            <ModularCharacter config={profile?.character} size="sm" animate={false} />
           </div>
-      </div>
 
-        {/* Center: XP Bar (Visible on medium+ screens) */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-800/80 border border-slate-700/80">
-          <Zap className="w-4 h-4 text-indigo-400 fill-indigo-400" />
-          <div className="text-xs font-bold text-slate-300">
-            <span>{profile.xp}</span>
-            <span className="text-slate-500"> XP</span>
-          </div>
-          <div className="w-32 bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-700/60 ml-1">
-            <div 
-              className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-300"
-              style={{ width: `${xpProgressPercent}%` }}
-            />
+          <div className="flex flex-col">
+            <span className="text-xs sm:text-sm font-black text-white max-w-[120px] sm:max-w-[180px] truncate">
+              {profile?.name || 'O‘quvchi'}
+            </span>
+            <span className="text-[10px] sm:text-[11px] font-bold text-indigo-400">
+              {levelName}
+            </span>
           </div>
         </div>
 
-        {/* Right: Streak, Coins & Sound Toggle */}
-        <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
-          {/* Streak Badge */}
-          <div 
-            className="shrink-0 flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-2xl bg-orange-500/15 border border-orange-500/30 text-orange-400 font-extrabold text-xs shadow-sm"
-            title="Daily Practice Streak"
-          >
-            <Flame className="w-4 h-4 text-orange-400 fill-orange-400 animate-flame-wobble" />
-            <span>{profile.streakDays}</span>
-          </div>
-
-          {/* Coins Badge */}
-          <div 
-            onClick={() => setScreen('shop')}
-            className="shrink-0 flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-extrabold text-xs shadow-sm cursor-pointer hover:bg-amber-500/25 transition-colors"
-            title={profile.role === 'admin' ? 'Admin: Infinite Coins 🪙' : 'Coins Balance (Click to open Shop)'}
-          >
-            <Coins className="w-4 h-4 text-amber-400" />
-            <span className={profile.role === 'admin' ? 'text-lg leading-none font-black' : ''}>
-              {profile.role === 'admin' ? '∞' : profile.coins}
-            </span>
-          </div>
-
-          {/* Diamonds Badge */}
-          <div 
+        {/* Right: Diamonds Balance, Sound & Actions */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          
+          {/* Diamonds Balance Pill (Clicking goes to Sovg'alar) */}
+          <button 
             onClick={() => {
               soundService.playClick();
-              setScreen('mystery');
+              setScreen('gifts');
             }}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-2xl bg-cyan-500/15 border border-cyan-500/35 text-cyan-300 font-extrabold text-xs sm:text-sm shadow-sm cursor-pointer hover:bg-cyan-500/25 transition-colors"
-            title="Diamonds (Click to open Mystery Box 🎁)"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 font-black text-xs sm:text-sm shadow-sm hover:bg-cyan-500/25 active:scale-95 transition-all"
+            title="Olmos balansi — Sovg'alar bo'limiga o'tish"
           >
-            <span className="text-sm">💎</span>
-            <span className={profile.role === 'admin' ? 'text-lg leading-none font-black' : ''}>
-              {profile.role === 'admin' ? '∞' : (profile.diamonds || 0)}
-            </span>
-          </div>
+            <span className="text-base leading-none">💎</span>
+            <span>{profile?.role === 'admin' ? 'Admin' : (profile?.diamonds || 0)}</span>
+            <span className="hidden sm:inline text-[11px] font-semibold text-cyan-400">olmos</span>
+          </button>
+
+          {/* Admin panel shortcut (only for admin) */}
+          {profile?.role === 'admin' && (
+            <button
+              onClick={() => { soundService.playClick(); setScreen('admin'); }}
+              className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-2xl bg-purple-500/15 border border-purple-500/40 text-purple-300 text-xs font-bold hover:bg-purple-500/25 transition-all"
+              title="Admin Panel"
+            >
+              <ShieldCheck className="w-4 h-4 text-purple-400" />
+              <span>Admin</span>
+            </button>
+          )}
 
           {/* Sound Toggle */}
           <button
             onClick={toggleSound}
             className="p-2 rounded-2xl bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
-            title={profile.soundEnabled ? 'Mute Sound' : 'Enable Sound'}
+            title={profile?.soundEnabled ? 'Ovozni o‘chirish' : 'Ovozni yoqish'}
           >
-            {profile.soundEnabled ? (
+            {profile?.soundEnabled ? (
               <Volume2 className="w-4 h-4 text-indigo-400" />
             ) : (
               <VolumeX className="w-4 h-4 text-slate-500" />
             )}
           </button>
 
-          {/* Admin Dashboard Quick Nav (if admin) */}
-          {profile.role === 'admin' && (
-            <button
-              onClick={() => setScreen('admin')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gradient-to-r from-amber-500/20 to-indigo-500/20 border border-amber-500/40 text-amber-300 font-extrabold text-xs shadow-sm hover:border-amber-400 transition-all active:scale-95"
-              title="Open Teacher & Admin Dashboard"
-            >
-              <ShieldCheck className="w-4 h-4 text-amber-400" />
-              <span className="hidden sm:inline">Admin</span>
-            </button>
-          )}
-
-          {/* Switch User / Log In */}
+          {/* Logout Button */}
           <button
             onClick={logout}
-            className="shrink-0 flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 rounded-2xl bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white hover:bg-slate-700 transition-all text-xs font-bold"
-            title="Switch Student or Admin Account"
+            className="p-2 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/25 transition-colors"
+            title="Chiqish"
           >
-            <Users className="w-4 h-4 text-indigo-400" />
-            <span className="hidden md:inline">Switch</span>
+            <LogOut className="w-4 h-4" />
           </button>
         </div>
 
       </div>
-
-      {/* Diamond Trade Modal (Students Only) */}
-      {showTradeModal && profile.role !== 'admin' && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="card-game p-6 max-w-sm w-full border-2 border-cyan-500/40 bg-slate-900 text-center space-y-4 shadow-2xl animate-in zoom-in-95">
-            <div className="w-14 h-14 mx-auto rounded-3xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-3xl shadow-glow-primary">
-              💎
-            </div>
-
-            <div>
-              <h3 className="text-xl font-black text-white">Diamond Exchange</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Trade your peer match victory diamonds into coins!
-              </p>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-around text-center">
-              <div>
-                <span className="text-[11px] font-bold text-slate-400 block">Your Diamonds</span>
-                <span className="text-xl font-black text-cyan-400">💎 {profile.diamonds || 0}</span>
-              </div>
-              <div className="text-slate-500 text-lg font-bold">➡️</div>
-              <div>
-                <span className="text-[11px] font-bold text-slate-400 block">Rate</span>
-                <span className="text-base font-black text-amber-300">1 💎 = 5 🪙</span>
-              </div>
-            </div>
-
-            <div className="space-y-2 pt-1">
-              <button
-                onClick={() => {
-                  const success = tradeDiamondsForCoins(1);
-                  if (success) {
-                    confetti({ particleCount: 40, spread: 50, origin: { y: 0.6 } });
-                  }
-                }}
-                disabled={(profile.diamonds || 0) < 1}
-                className="btn-game-gold w-full py-3 px-4 text-xs font-black flex items-center justify-center gap-2 disabled:opacity-40"
-              >
-                <span>Trade 1 💎 for +5 🪙 Coins</span>
-              </button>
-
-              {(profile.diamonds || 0) > 1 && (
-                <button
-                  onClick={() => {
-                    const count = profile.diamonds || 0;
-                    const success = tradeDiamondsForCoins(count);
-                    if (success) {
-                      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
-                    }
-                  }}
-                  className="btn-game-primary w-full py-2.5 px-4 text-xs font-bold flex items-center justify-center gap-2"
-                >
-                  <span>Trade ALL {profile.diamonds} 💎 (+{(profile.diamonds || 0) * 5} 🪙)</span>
-                </button>
-              )}
-
-              {(profile.diamonds || 0) === 0 && (
-                <p className="text-xs text-slate-400 italic">
-                  Play with a group mate in the Play tab to win diamonds!
-                </p>
-              )}
-
-              <button
-                onClick={() => {
-                  setShowTradeModal(false);
-                  setScreen('mystery');
-                }}
-                className="w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-purple-500/20 to-cyan-500/20 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm"
-              >
-                <span>🎁 Open Mystery Boxes (20💎 / 50💎 / 100💎)</span>
-              </button>
-
-              <button
-                onClick={() => setShowTradeModal(false)}
-                className="btn-game-slate w-full py-2 text-xs font-bold"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 };
