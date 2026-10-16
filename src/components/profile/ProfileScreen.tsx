@@ -793,7 +793,7 @@ export const ProfileScreen: React.FC = () => {
                       <h4 className="font-bold text-sm text-white">{log.reason}</h4>
                     </div>
                     <div className="text-xs text-slate-400 flex items-center gap-2">
-                      <span>Berdi: <strong className="text-slate-300">{log.awardedByName}</strong></span>
+                      <span>Berdi: <strong className="text-slate-300">{log.awardedByName || log.adminName}</strong></span>
                       <span>•</span>
                       <span>{formatExactDateTime(log.awardedAt)}</span>
                     </div>
@@ -838,7 +838,7 @@ export const ProfileScreen: React.FC = () => {
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-sm text-white">{req.giftTitle}</h4>
+                      <h4 className="font-bold text-sm text-white">{req.giftTitle || req.giftName}</h4>
                       <span className="text-xs text-cyan-400 font-black">
                         💎 {req.diamondPrice} olmos
                       </span>

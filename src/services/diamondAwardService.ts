@@ -122,6 +122,7 @@ export class DiamondAwardService {
         relatedEntityType: params.relatedEntityType || 'manual',
         adminId: params.admin.id,
         adminName: params.admin.name || 'Administrator',
+        awardedByName: params.admin.name || 'Administrator',
         awardedAt: new Date().toISOString(),
       };
 

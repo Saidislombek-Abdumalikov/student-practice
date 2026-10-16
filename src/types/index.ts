@@ -263,6 +263,7 @@ export interface VocabularyWord {
   id: string;
   word: string;
   uzbekTranslation: string;
+  translationUz?: string;
   phonetic: string;
   partOfSpeech: 'noun' | 'verb' | 'adjective' | 'adverb' | 'phrase';
   definition: string;
@@ -314,7 +315,12 @@ export interface CurriculumUnit {
 // Practice & Game Types
 export type PracticeMode = 
   | 'mixed'
-  | 'flashcards';
+  | 'flashcards'
+  | 'multiple_choice'
+  | 'true_false'
+  | 'typing'
+  | 'unscramble'
+  | 'matching';
 
 export type GameId = 
   | 'word_rush' 
@@ -351,9 +357,11 @@ export interface MistakeRecord {
 export interface GiftItem {
   id: string;
   name: string;
+  title?: string;
   description: string;
   imageUrl?: string;
   icon?: string;
+  iconUrl?: string;
   diamondPrice: number;
   isActive: boolean;
   createdAt: string;
@@ -368,6 +376,7 @@ export interface GiftRequest {
   studentName: string;
   giftId: string;
   giftName: string;
+  giftTitle?: string;
   giftDescription?: string;
   giftIcon?: string;
   giftImageUrl?: string;
@@ -399,6 +408,7 @@ export interface DiamondAwardLog {
   relatedEntityType?: 'homework' | 'exam' | 'manual';
   adminId: string;
   adminName: string;
+  awardedByName?: string;
   awardedAt: string;
 }
 

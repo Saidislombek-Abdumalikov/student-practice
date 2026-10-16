@@ -42,7 +42,9 @@ import {
   FileText,
   History,
   Eye,
-  EyeOff
+  EyeOff,
+  Zap,
+  Flame
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -226,10 +228,10 @@ export const AdminDashboard: React.FC = () => {
   const activeExamCount = students.filter(s => s.activeExamAttempt && s.activeExamAttempt.status === 'active').length;
 
   // Aggregated analytics
-  const totalClassXp = students.reduce((sum, s) => sum + s.xp, 0);
-  const totalClassCoins = students.reduce((sum, s) => sum + s.coins, 0);
-  const topStreakStudent = [...students].sort((a, b) => b.streakDays - a.streakDays)[0];
-  const topXpStudent = [...students].sort((a, b) => b.xp - a.xp)[0];
+  const totalClassXp = students.reduce((sum, s) => sum + (s.xp || 0), 0);
+  const totalClassCoins = students.reduce((sum, s) => sum + (s.coins || 0), 0);
+  const topStreakStudent = [...students].sort((a, b) => (b.streakDays || 0) - (a.streakDays || 0))[0];
+  const topXpStudent = [...students].sort((a, b) => (b.xp || 0) - (a.xp || 0))[0];
 
   const handleCopyCredentials = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -315,10 +317,10 @@ export const AdminDashboard: React.FC = () => {
     e.preventDefault();
     if (!newGiftTitle.trim()) return;
     adminAddGift({
-      title: newGiftTitle.trim(),
+      name: newGiftTitle.trim(),
       description: newGiftDesc.trim(),
       diamondPrice: Math.max(1, newGiftPrice),
-      iconUrl: newGiftIcon || '🎁',
+      icon: newGiftIcon || '🎁',
       isActive: newGiftActive,
     });
     soundService.playSuccess();

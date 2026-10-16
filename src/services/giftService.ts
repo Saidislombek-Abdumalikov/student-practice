@@ -77,20 +77,26 @@ export class GiftService {
   }
 
   public static addGift(data: {
-    name: string;
+    name?: string;
+    title?: string;
     description: string;
     diamondPrice: number;
     icon?: string;
+    iconUrl?: string;
     imageUrl?: string;
     isActive: boolean;
   }): GiftItem {
     const gifts = this.getGifts();
+    const resolvedName = (data.name || data.title || '').trim();
+    const resolvedIcon = data.icon?.trim() || data.iconUrl?.trim() || '🎁';
     const newGift: GiftItem = {
       id: 'gift_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
-      name: data.name.trim(),
+      name: resolvedName,
+      title: resolvedName,
       description: data.description.trim(),
       diamondPrice: Math.max(1, Math.round(data.diamondPrice)),
-      icon: data.icon?.trim() || '🎁',
+      icon: resolvedIcon,
+      iconUrl: resolvedIcon,
       imageUrl: data.imageUrl?.trim() || undefined,
       isActive: data.isActive,
       createdAt: new Date().toISOString(),
@@ -188,6 +194,7 @@ export class GiftService {
       studentName: student.name || 'O‘quvchi',
       giftId: gift.id,
       giftName: gift.name,
+      giftTitle: gift.name,
       giftDescription: gift.description,
       giftIcon: gift.icon,
       giftImageUrl: gift.imageUrl,

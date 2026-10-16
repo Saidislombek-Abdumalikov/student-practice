@@ -422,11 +422,11 @@ export const LearnScreen: React.FC = () => {
                                   ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300' 
                                   : 'bg-slate-800 border-slate-700 text-slate-300'
                               }`}
-                              title={`${w.word} — ${w.translationUz}`}
+                              title={`${w.word} — ${w.uzbekTranslation || w.translationUz}`}
                             >
                               <Volume2 className="w-3 h-3 text-slate-400 hover:text-white" />
                               <span className="font-bold">{w.word}</span>
-                              <span className="text-[10px] text-slate-400 italic">({w.translationUz})</span>
+                              <span className="text-[10px] text-slate-400 italic">({w.uzbekTranslation || w.translationUz})</span>
                             </button>
                           );
                         })}

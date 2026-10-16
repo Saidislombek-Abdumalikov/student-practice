@@ -87,10 +87,10 @@ export const CompeteScreen: React.FC = () => {
       rank: 1,
     };
   }).sort((a, b) => {
-    if (leaderboardCategory === 'xp') return b.score - a.score;
-    if (leaderboardCategory === 'streak') return b.streak - a.streak;
-    if (leaderboardCategory === 'coins') return b.coins - a.coins;
-    return b.accuracy - a.accuracy;
+    if (leaderboardCategory === 'xp') return (b.score || 0) - (a.score || 0);
+    if (leaderboardCategory === 'streak') return (b.streak || 0) - (a.streak || 0);
+    if (leaderboardCategory === 'coins') return (b.coins || 0) - (a.coins || 0);
+    return (b.accuracy || 0) - (a.accuracy || 0);
   }).map((entry, idx) => ({ ...entry, rank: idx + 1 }));
 
   const renderPodiumStat = (entry: typeof fullList[0]) => {

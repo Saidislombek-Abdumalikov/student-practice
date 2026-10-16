@@ -45,6 +45,9 @@ import { OutfitPreset, OUTFIT_PRESETS } from '../data/outfitPresets';
 import { GiftItem, GiftRequest, DiamondAwardLog, DiamondAwardCategory } from '../types';
 import { GiftService } from '../services/giftService';
 import { DiamondAwardService } from '../services/diamondAwardService';
+import { isSupabaseConfigured } from '../services/supabaseClient';
+import { SupabaseService } from '../services/supabaseService';
+import { VocabularyExamService } from '../services/vocabularyExamService';
 
 interface GameContextType {
   profile: UserProfile;
@@ -401,7 +404,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (remote && remote.length > 0) {
         const localAccounts = StorageService.loadAllAccounts();
         const merged = localAccounts.map(local => {
-          const rem = remote.find(r => r.id === local.id);
+          const rem = remote.find((r: UserProfile) => r.id === local.id);
           if (!rem) {
             SupabaseService.saveAccountToRemote(local);
             return local;
@@ -532,10 +535,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [profile.soundEnabled]);
 
   // Level & XP Formula: Level = Math.floor(Math.sqrt(xp / 40)) + 1
-  const levelNumber = Math.floor(Math.sqrt(profile.xp / 40)) + 1;
+  const studentXp = profile.xp || 0;
+  const levelNumber = Math.floor(Math.sqrt(studentXp / 40)) + 1;
   const currentLevelBaseXp = Math.pow(levelNumber - 1, 2) * 40;
   const nextLevelThresholdXp = Math.pow(levelNumber, 2) * 40;
-  const currentLevelXp = profile.xp - currentLevelBaseXp;
+  const currentLevelXp = studentXp - currentLevelBaseXp;
   const rangeXp = nextLevelThresholdXp - currentLevelBaseXp;
   const xpProgressPercent = Math.min(100, Math.max(0, Math.round((currentLevelXp / rangeXp) * 100)));
 
@@ -740,8 +744,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addXP = (amount: number) => {
     setProfile(prev => {
-      const oldLevel = Math.floor(Math.sqrt(prev.xp / 40)) + 1;
-      const newXp = prev.xp + amount;
+      const currentXp = prev.xp || 0;
+      const oldLevel = Math.floor(Math.sqrt(currentXp / 40)) + 1;
+      const newXp = currentXp + amount;
       const newLevel = Math.floor(Math.sqrt(newXp / 40)) + 1;
 
       if (newLevel > oldLevel) {
@@ -775,7 +780,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(prev => {
       const updated = {
         ...prev,
-        coins: prev.role === 'admin' ? 999999 : prev.coins + amount,
+        coins: prev.role === 'admin' ? 999999 : (prev.coins || 0) + amount,
         lastActiveDate: new Date().toISOString(),
       };
       StorageService.saveProfile(updated);
@@ -833,7 +838,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const updated = {
         ...prev,
         diamonds: prev.role === 'admin' ? 999999 : Math.max(0, (prev.diamonds || 0) - diamondCount),
-        coins: prev.role === 'admin' ? 999999 : prev.coins + coinsToAdd,
+        coins: prev.role === 'admin' ? 999999 : (prev.coins || 0) + coinsToAdd,
       };
       StorageService.saveProfile(updated);
       setAllAccounts(accounts => {
@@ -953,11 +958,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     soundService.playLevelUp();
     setProfile(prev => {
       let newDiamonds = isAdmin ? (prev.diamonds || 0) : Math.max(0, (prev.diamonds || 0) - cost);
-      let newCoins = prev.coins;
+      let newCoins = prev.coins || 0;
       let newClaimed = [...(prev.claimedPrizes || [])];
 
       if (prize.type === 'coins' && prize.coinAmount) {
-        newCoins = isAdmin ? 999999 : prev.coins + prize.coinAmount;
+        newCoins = isAdmin ? 999999 : (prev.coins || 0) + prize.coinAmount;
       } else if (prize.type === 'diamonds' && prize.diamondAmount) {
         newDiamonds = isAdmin ? 999999 : newDiamonds + prize.diamondAmount;
       } else {
@@ -1434,10 +1439,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const idx = accounts.findIndex(a => a.id === studentId);
     if (idx >= 0) {
       const target = accounts[idx];
-      target.xp = Math.max(0, target.xp + xpDelta);
-      target.coins = Math.max(0, target.coins + coinsDelta);
+      target.xp = Math.max(0, (target.xp || 0) + xpDelta);
+      target.coins = Math.max(0, (target.coins || 0) + coinsDelta);
       if (streakDelta) {
-        target.streakDays = Math.max(1, target.streakDays + streakDelta);
+        target.streakDays = Math.max(1, (target.streakDays || 1) + streakDelta);
       }
       StorageService.saveAllAccounts(accounts);
       setAllAccounts([...accounts]);
