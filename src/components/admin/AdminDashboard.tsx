@@ -2,9 +2,8 @@ import { VocabularyExamAdminHub } from './VocabularyExamAdminHub';
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { ModularCharacter } from '../character/ModularCharacter';
-import { CharacterGender, LevelId, UserProfile, MysteryBoxPrize, MysteryBoxTier, StudentGroup, DiamondAwardCategory } from '../../types';
+import { CharacterGender, LevelId, UserProfile, StudentGroup, DiamondAwardCategory } from '../../types';
 import { formatPresence, formatTimeSpent, formatExactDateTime } from '../../services/presenceService';
-import { MysteryBoxService, MYSTERY_BOX_PRICES } from '../../services/mysteryBoxService';
 import { soundService } from '../../services/soundService';
 import { 
   getSupabaseConfig, 
@@ -68,8 +67,6 @@ export const AdminDashboard: React.FC = () => {
     restoreLastReset,
     lastResetBackup,
     canRestoreReset,
-    boxPrices,
-    updateBoxPrices,
     isCloudConnected,
     syncWithCloud,
     setScreen,
@@ -116,18 +113,6 @@ export const AdminDashboard: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
   const [lastAutoSyncTime, setLastAutoSyncTime] = useState<Date>(new Date());
-
-  // Mystery Box Vault State
-  const [showPrizesModal, setShowPrizesModal] = useState(false);
-  const [prizesList, setPrizesList] = useState<MysteryBoxPrize[]>(() => MysteryBoxService.getPrizes());
-  const [selectedPrizeTierTab, setSelectedPrizeTierTab] = useState<'all' | MysteryBoxTier>('all');
-  const [newPrizeTitle, setNewPrizeTitle] = useState('');
-  const [newPrizeTier, setNewPrizeTier] = useState<MysteryBoxTier>('bronze');
-  const [newPrizeType, setNewPrizeType] = useState<'real_world' | 'coins' | 'diamonds' | 'badge'>('real_world');
-  const [newPrizeCoinAmount, setNewPrizeCoinAmount] = useState<number>(100);
-  const [newPrizeDesc, setNewPrizeDesc] = useState('');
-  const [newPrizeChancePercent, setNewPrizeChancePercent] = useState<number>(25);
-  const [newPrizeDiamondAmount, setNewPrizeDiamondAmount] = useState<number>(10);
   const [inspectingStudent, setInspectingStudent] = useState<UserProfile | null>(null);
 
   // Group Management States
@@ -198,63 +183,6 @@ export const AdminDashboard: React.FC = () => {
         ? prev.filter(id => id !== studentId)
         : [...prev, studentId]
     );
-  };
-
-  // Editable Tier Diamond Prices
-  const [editBronzeCost, setEditBronzeCost] = useState(boxPrices.bronze);
-  const [editPlatinumCost, setEditPlatinumCost] = useState(boxPrices.platinum);
-  const [editGoldCost, setEditGoldCost] = useState(boxPrices.gold);
-  const [pricesSavedNotice, setPricesSavedNotice] = useState(false);
-
-  const handleAddPrize = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPrizeTitle.trim()) return;
-    MysteryBoxService.addPrize({
-      title: newPrizeTitle.trim(),
-      tier: newPrizeTier,
-      type: newPrizeType,
-      chancePercent: Math.max(1, Math.min(100, Number(newPrizeChancePercent) || 20)),
-      coinAmount: newPrizeType === 'coins' ? Number(newPrizeCoinAmount) || 100 : undefined,
-      description: newPrizeDesc.trim() || (newPrizeType === 'coins' ? `+${newPrizeCoinAmount} Coins` : 'Show to teacher to redeem'),
-      icon: newPrizeType === 'coins' ? '🪙' : newPrizeTier === 'gold' ? '👑' : newPrizeTier === 'platinum' ? '💿' : '🍬',
-    });
-    setPrizesList(MysteryBoxService.getPrizes());
-    setNewPrizeTitle('');
-    setNewPrizeDesc('');
-    soundService.playSuccess();
-  };
-
-  const handleDeletePrize = (id: string) => {
-    MysteryBoxService.deletePrize(id);
-    setPrizesList(MysteryBoxService.getPrizes());
-    soundService.playClick();
-  };
-
-  const [editingPrize, setEditingPrize] = useState<MysteryBoxPrize | null>(null);
-
-  const handleSaveEditPrize = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingPrize || !editingPrize.title.trim()) return;
-    MysteryBoxService.updatePrize(editingPrize.id, {
-      title: editingPrize.title.trim(),
-      tier: editingPrize.tier,
-      type: editingPrize.type,
-      chancePercent: Math.max(1, Math.min(100, Number(editingPrize.chancePercent) || 20)),
-      coinAmount: editingPrize.type === 'coins' ? Number(editingPrize.coinAmount) || 100 : undefined,
-      description: editingPrize.description.trim(),
-      icon: editingPrize.type === 'coins' ? '🪙' : editingPrize.tier === 'gold' ? '👑' : editingPrize.tier === 'platinum' ? '💿' : '🍬',
-    });
-    setPrizesList(MysteryBoxService.getPrizes());
-    setEditingPrize(null);
-    soundService.playSuccess();
-  };
-
-  const handleResetDefaultPrizes = () => {
-    if (window.confirm('Reset prize vault to default starter prizes?')) {
-      MysteryBoxService.resetToDefaults();
-      setPrizesList(MysteryBoxService.getPrizes());
-      soundService.playSuccess();
-    }
   };
 
   // Real-time automatic background refresh (no manual refresh needed!)
@@ -471,11 +399,11 @@ export const AdminDashboard: React.FC = () => {
                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border transition-all ${
                   isCloudConnected
                     ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
-                    : 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
+                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
                 }`}
               >
                 <Cloud className="w-3.5 h-3.5" />
-                <span>{isCloudConnected ? 'Supabase: Connected' : 'Supabase: Local Mode (Click to setup)'}</span>
+                <span>{isCloudConnected ? 'Supabase: Ulangan' : 'Lokal rejim (Supabase sozlash)'}</span>
               </button>
 
               {/* Live Auto-Refresh Indicator */}
@@ -519,18 +447,6 @@ export const AdminDashboard: React.FC = () => {
             >
               <Users className="w-4 h-4 text-purple-400" />
               <span>Groups ({groups.length})</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setPrizesList(MysteryBoxService.getPrizes());
-                setShowPrizesModal(true);
-              }}
-              className="py-2.5 px-3.5 rounded-2xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 flex items-center gap-2 shadow-sm transition-all active:scale-95"
-              title="Configure prizes inside Mystery Boxes"
-            >
-              <Gift className="w-4 h-4 text-amber-400" />
-              <span>Mystery Prizes</span>
             </button>
 
             <button
@@ -2329,38 +2245,42 @@ export const AdminDashboard: React.FC = () => {
                 )}
               </div>
 
-              {/* Claimed Mystery Box Classroom Vouchers */}
+              {/* Gift Requests & Delivered Gifts */}
               <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-black text-xs sm:text-sm text-white flex items-center gap-2">
-                    <Ticket className="w-4 h-4 text-amber-400" />
-                    <span>Claimed Mystery Box Classroom Rewards</span>
+                    <Gift className="w-4 h-4 text-emerald-400" />
+                    <span>Sovg‘a so‘rovlari va olingan sovg‘alar</span>
                   </h4>
-                  <span className="text-xs font-bold text-amber-300">
-                    {(inspectingStudent.claimedPrizes || []).length} Rewards
+                  <span className="text-xs font-bold text-emerald-300">
+                    {(inspectingStudent.giftRequests || []).length} ta so‘rov
                   </span>
                 </div>
 
-                {(inspectingStudent.claimedPrizes || []).length === 0 ? (
-                  <p className="text-xs text-slate-500 italic">Student has not won or claimed any Mystery Box rewards yet.</p>
+                {(inspectingStudent.giftRequests || []).length === 0 ? (
+                  <p className="text-xs text-slate-500 italic">Hozircha sovg‘a so‘rovlari mavjud emas.</p>
                 ) : (
                   <div className="space-y-2">
-                    {(inspectingStudent.claimedPrizes || []).map((record) => (
+                    {(inspectingStudent.giftRequests || []).map((req) => (
                       <div
-                        key={record.id}
-                        className="p-2.5 rounded-xl bg-slate-900 border border-amber-500/30 flex items-center justify-between text-xs"
+                        key={req.id}
+                        className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs"
                       >
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <span className="font-black text-white">{record.prizeTitle}</span>
-                            <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300">
-                              {record.tier}
+                            <span className="font-black text-white">{req.giftTitle}</span>
+                            <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full ${
+                              req.status === 'DELIVERED' 
+                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+                                : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                            }`}>
+                              {req.status === 'DELIVERED' ? 'Topshirildi' : 'Kutilmoqda'}
                             </span>
                           </div>
-                          <p className="text-[11px] text-slate-400">{record.description}</p>
+                          <p className="text-[11px] text-slate-400">💎 {req.diamondPrice} olmos sarflandi</p>
                         </div>
                         <span className="text-[10px] text-slate-500 shrink-0">
-                          {new Date(record.claimedAt).toLocaleDateString()}
+                          {new Date(req.requestedAt).toLocaleDateString()}
                         </span>
                       </div>
                     ))}
@@ -2456,363 +2376,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* ------------------------------------------------------------- */}
-      {/* Mystery Box Prize Vault Modal (Admin: Add, Edit, Remove) */}
-      {/* ------------------------------------------------------------- */}
-      {showPrizesModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="card-game p-6 max-w-2xl w-full space-y-5 border-2 border-amber-500/50 bg-slate-900 shadow-2xl animate-in zoom-in-95 max-h-[90vh] flex flex-col">
-            
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl">
-                  🎁
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-white">Mystery Box Prize Vault</h3>
-                  <p className="text-xs text-slate-400">Add, edit, or remove prizes for each Mystery Box tier</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowPrizesModal(false)}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-bold"
-              >
-                ✕
-              </button>
-            </div>
 
-            {/* Filter Tabs by Tier */}
-            <div className="flex items-center justify-between gap-2 shrink-0 border-b border-slate-800 pb-2">
-              <div className="flex items-center gap-1.5 overflow-x-auto">
-                {(['all', 'bronze', 'platinum', 'gold'] as const).map(tier => (
-                  <button
-                    key={tier}
-                    onClick={() => setSelectedPrizeTierTab(tier)}
-                    className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all ${
-                      selectedPrizeTierTab === tier
-                        ? 'bg-amber-500 text-slate-950 shadow-sm'
-                        : 'bg-slate-800 text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    {tier === 'all' 
-                      ? `All (${prizesList.length})` 
-                      : tier === 'bronze' 
-                      ? `🥉 Bronze 20💎 (${prizesList.filter(p => p.tier === 'bronze').length})`
-                      : tier === 'platinum'
-                      ? `💿 Platinum 50💎 (${prizesList.filter(p => p.tier === 'platinum').length})`
-                      : `🥇 Gold 100💎 (${prizesList.filter(p => p.tier === 'gold').length})`}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={handleResetDefaultPrizes}
-                className="text-[11px] font-bold text-slate-400 hover:text-rose-300 underline shrink-0"
-              >
-                Reset Defaults
-              </button>
-            </div>
-
-            {/* Scrollable Content: Add Form + Prize List */}
-            <div className="overflow-y-auto space-y-4 pr-1 flex-1 scrollbar-none">
-              
-              {/* Form: Add New Prize */}
-              <form onSubmit={handleAddPrize} className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
-                <div className="text-xs font-black uppercase text-amber-400 flex items-center gap-1.5">
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add New Prize to Mystery Box</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                  <div className="sm:col-span-2">
-                    <label className="text-[11px] font-bold text-slate-400 block mb-1">Prize Title *</label>
-                    <input
-                      type="text"
-                      value={newPrizeTitle}
-                      onChange={(e) => setNewPrizeTitle(e.target.value)}
-                      placeholder="e.g. Free Homework Pass / Chocolate / +500 Coins"
-                      required
-                      className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-white outline-none focus:border-amber-400"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-400 block mb-1">Box Tier *</label>
-                    <select
-                      value={newPrizeTier}
-                      onChange={(e) => setNewPrizeTier(e.target.value as MysteryBoxTier)}
-                      className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-white outline-none focus:border-amber-400"
-                    >
-                      <option value="bronze">🥉 Bronze (20 💎)</option>
-                      <option value="platinum">💿 Platinum (50 💎)</option>
-                      <option value="gold">🥇 Gold (100 💎)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-400 block mb-1">Drop Chance (%) *</label>
-                    <input
-                      type="number"
-                      value={newPrizeChancePercent}
-                      onChange={(e) => setNewPrizeChancePercent(Math.max(1, Math.min(100, Number(e.target.value) || 1)))}
-                      min="1"
-                      max="100"
-                      required
-                      placeholder="e.g. 25"
-                      className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-black text-amber-300 outline-none focus:border-amber-400"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-400 block mb-1">Reward Type *</label>
-                    <select
-                      value={newPrizeType}
-                      onChange={(e) => setNewPrizeType(e.target.value as any)}
-                      className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-white outline-none focus:border-amber-400"
-                    >
-                      <option value="real_world">🎟️ Real-World Classroom Voucher</option>
-                      <option value="coins">🪙 Bonus Coins (🪙)</option>
-                      <option value="diamonds">💎 Bonus Diamonds (💎)</option>
-                      <option value="badge">🏆 Leaderboard Honor Badge</option>
-                    </select>
-                  </div>
-
-                  {newPrizeType === 'coins' ? (
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-400 block mb-1">Coins Amount</label>
-                      <input
-                        type="number"
-                        value={newPrizeCoinAmount}
-                        onChange={(e) => setNewPrizeCoinAmount(Number(e.target.value))}
-                        min="10"
-                        step="10"
-                        className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-amber-300 outline-none focus:border-amber-400"
-                      />
-                    </div>
-                  ) : newPrizeType === 'diamonds' ? (
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-400 block mb-1">Diamonds Amount (💎)</label>
-                      <input
-                        type="number"
-                        value={newPrizeDiamondAmount}
-                        onChange={(e) => setNewPrizeDiamondAmount(Math.max(1, Number(e.target.value) || 1))}
-                        min="1"
-                        step="1"
-                        className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-cyan-300 outline-none focus:border-amber-400"
-                      />
-                    </div>
-                  ) : (
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-400 block mb-1">Redemption Instruction</label>
-                      <input
-                        type="text"
-                        value={newPrizeDesc}
-                        onChange={(e) => setNewPrizeDesc(e.target.value)}
-                        placeholder="e.g. Show this ticket to teacher to redeem in class"
-                        className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-slate-300 outline-none focus:border-amber-400"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  className="btn-game-emerald w-full py-2.5 text-xs font-black flex items-center justify-center gap-1.5 shadow-sm"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add Prize to {newPrizeTier.toUpperCase()} Box</span>
-                </button>
-              </form>
-
-              {/* Current Prizes in Vault */}
-              <div className="space-y-2">
-                <span className="text-xs font-bold text-slate-400 block">
-                  Current Vault Prizes ({selectedPrizeTierTab === 'all' ? prizesList.length : prizesList.filter(p => p.tier === selectedPrizeTierTab).length}):
-                </span>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {prizesList
-                    .filter(p => selectedPrizeTierTab === 'all' || p.tier === selectedPrizeTierTab)
-                    .map(prize => (
-                      <div
-                        key={prize.id}
-                        className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-start justify-between gap-2"
-                      >
-                        <div className="flex items-start gap-2.5">
-                          <span className="text-2xl shrink-0">{prize.icon || '🎁'}</span>
-                          <div>
-                            <div className="flex items-center gap-1.5">
-                              <span className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full ${
-                                prize.tier === 'gold' ? 'bg-amber-500/20 text-amber-300' :
-                                prize.tier === 'platinum' ? 'bg-cyan-500/20 text-cyan-300' :
-                                'bg-amber-700/20 text-amber-400'
-                              }`}>
-                                {prize.tier} ({MYSTERY_BOX_PRICES[prize.tier]}💎)
-                              </span>
-                              <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                                🎯 {prize.chancePercent || 20}% Chance
-                              </span>
-                            </div>
-                            <h5 className="font-extrabold text-xs text-white mt-1">{prize.title}</h5>
-                            <p className="text-[11px] text-slate-400 line-clamp-1">{prize.description}</p>
-                          </div>
-                        </div>
-
-                        {/* Action Buttons: Edit & Delete */}
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button
-                            onClick={() => setEditingPrize(prize)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition-colors"
-                            title="Edit prize"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeletePrize(prize.id)}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
-                            title="Delete prize"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-
-            </div>
-
-            <div className="flex justify-end pt-2 border-t border-slate-800 shrink-0">
-              <button
-                onClick={() => setShowPrizesModal(false)}
-                className="btn-game-primary py-2 px-5 text-xs font-bold"
-              >
-                Save & Close
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* ------------------------------------------------------------- */}
-      {/* EDIT PRIZE MODAL (Admin) */}
-      {/* ------------------------------------------------------------- */}
-      {editingPrize && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="card-game p-6 max-w-md w-full space-y-4 border-2 border-cyan-500/60 bg-slate-900 shadow-2xl animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
-                <Edit3 className="w-5 h-5 text-cyan-400" />
-                <h3 className="text-base font-black text-white">Edit Mystery Box Prize</h3>
-              </div>
-              <button
-                onClick={() => setEditingPrize(null)}
-                className="p-1 text-slate-400 hover:text-white"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveEditPrize} className="space-y-3">
-              <div>
-                <label className="text-[11px] font-bold text-slate-300 block mb-1">Prize Title *</label>
-                <input
-                  type="text"
-                  value={editingPrize.title}
-                  onChange={e => setEditingPrize({ ...editingPrize, title: e.target.value })}
-                  required
-                  className="w-full py-2 px-3 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-white outline-none focus:border-cyan-400"
-                />
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Box Tier *</label>
-                  <select
-                    value={editingPrize.tier}
-                    onChange={e => setEditingPrize({ ...editingPrize, tier: e.target.value as MysteryBoxTier })}
-                    className="w-full py-2 px-3 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-white outline-none focus:border-cyan-400"
-                  >
-                    <option value="bronze">🥉 Bronze (20 💎)</option>
-                    <option value="platinum">💿 Platinum (50 💎)</option>
-                    <option value="gold">🥇 Gold (100 💎)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Drop Chance (%) *</label>
-                  <input
-                    type="number"
-                    value={editingPrize.chancePercent || 20}
-                    onChange={e => setEditingPrize({ ...editingPrize, chancePercent: Math.max(1, Math.min(100, Number(e.target.value) || 1)) })}
-                    min="1"
-                    max="100"
-                    required
-                    className="w-full py-2 px-3 rounded-xl bg-slate-950 border border-slate-700 text-xs font-black text-amber-300 outline-none focus:border-cyan-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Reward Type *</label>
-                  <select
-                    value={editingPrize.type}
-                    onChange={e => setEditingPrize({ ...editingPrize, type: e.target.value as any })}
-                    className="w-full py-2 px-3 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-white outline-none focus:border-cyan-400"
-                  >
-                    <option value="real_world">🎟️ Classroom Voucher</option>
-                    <option value="coins">🪙 In-Game Coins</option>
-                    <option value="badge">🏆 Honor Badge</option>
-                  </select>
-                </div>
-              </div>
-
-              {editingPrize.type === 'coins' ? (
-                <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Coins Amount</label>
-                  <input
-                    type="number"
-                    value={editingPrize.coinAmount || 100}
-                    onChange={e => setEditingPrize({ ...editingPrize, coinAmount: Number(e.target.value) })}
-                    min="10"
-                    step="10"
-                    className="w-full py-2 px-3 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-amber-300 outline-none focus:border-cyan-400"
-                  />
-                </div>
-              ) : (
-                <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Redemption Instruction</label>
-                  <input
-                    type="text"
-                    value={editingPrize.description}
-                    onChange={e => setEditingPrize({ ...editingPrize, description: e.target.value })}
-                    className="w-full py-2 px-3 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-slate-300 outline-none focus:border-cyan-400"
-                  />
-                </div>
-              )}
-
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setEditingPrize(null)}
-                  className="btn-game-slate py-2 px-4 text-xs font-bold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn-game-primary py-2 px-5 text-xs font-black shadow-md"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Supabase Cloud Connection Modal */}
       {showCloudModal && (

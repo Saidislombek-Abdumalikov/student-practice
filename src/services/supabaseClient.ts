@@ -3,8 +3,8 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 const SUPABASE_URL_KEY = 'play_learn_compete_sb_url';
 const SUPABASE_ANON_KEY = 'play_learn_compete_sb_key';
 
-export const DEFAULT_SUPABASE_URL = 'https://wzdypitewjtpzgrsssds.supabase.co';
-export const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6ZHlwaXRld2p0cHpncnNzc2RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NDg2NDEsImV4cCI6MjEwNDAyNDY0MX0.fiIioOHYI54owimeH3aj_Bd8A5i_EkoRvTgOxetixzE';
+export const DEFAULT_SUPABASE_URL = '';
+export const DEFAULT_SUPABASE_ANON_KEY = '';
 
 export interface SupabaseConfig {
   url: string;
@@ -15,8 +15,8 @@ export interface SupabaseConfig {
  * Get active Supabase configuration from environment or localStorage override
  */
 export function getSupabaseConfig(): SupabaseConfig {
-  let url = (typeof process !== 'undefined' && process.env?.VITE_SUPABASE_URL) || (import.meta as any).env?.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
-  let anonKey = (typeof process !== 'undefined' && process.env?.VITE_SUPABASE_ANON_KEY) || (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
+  let url = (typeof process !== 'undefined' && process.env?.VITE_SUPABASE_URL) || (import.meta as any).env?.VITE_SUPABASE_URL || '';
+  let anonKey = (typeof process !== 'undefined' && process.env?.VITE_SUPABASE_ANON_KEY) || (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || '';
 
   try {
     const savedUrl = localStorage.getItem(SUPABASE_URL_KEY);
@@ -27,8 +27,11 @@ export function getSupabaseConfig(): SupabaseConfig {
     // Local storage unavailable
   }
 
-  if (!url) url = DEFAULT_SUPABASE_URL;
-  if (!anonKey) anonKey = DEFAULT_SUPABASE_ANON_KEY;
+  // Filter out dummy/placeholder domain
+  if (url && url.includes('wzdypitewjtpzgrsssds')) {
+    url = '';
+    anonKey = '';
+  }
 
   return { url, anonKey };
 }
